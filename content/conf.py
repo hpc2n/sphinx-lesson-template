@@ -20,7 +20,7 @@
 project = 'Task-based parallelism in scientific computing'
 copyright = '2021, The contributors'
 author = 'Mirko Myllykoski'
-github_user = 'mirkomyl'
+github_user = 'hpc2n'
 github_repo_name = ''  # auto-detected from dirname if blank
 github_version = 'master'
 conf_py_path = '/content/' # with leading and trailing slash
