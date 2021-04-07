@@ -17,10 +17,10 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'LESSON NAME'
-copyright = '2020, The contributors'
-author = 'The contributors'
-github_user = 'coderefinery'
+project = 'Task-based parallelism in scientific computing'
+copyright = '2021, The contributors'
+author = 'Mirko Myllykoski'
+github_user = 'mirkomyl'
 github_repo_name = ''  # auto-detected from dirname if blank
 github_version = 'master'
 conf_py_path = '/content/' # with leading and trailing slash
