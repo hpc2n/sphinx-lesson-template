@@ -1,8 +1,7 @@
 Setup
 -----
 
-Objectives
-^^^^^^^^^^
+.. objectives::
 
  - Learn how to load the necessary modules on Kebnekaise.
  - Learn how to compile CUDA code.
