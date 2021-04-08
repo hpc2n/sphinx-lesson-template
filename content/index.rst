@@ -9,7 +9,7 @@ Task-based parallelism in scientific computing
 
 :Audience: This HPC2N course is part of the PRACE Training courses. It is open for academics and people who work at industry in PRACE member countries.
 
-:Date and Time: 8:00-12:00 (2021-05-10), 9:00-12:00 (2021-05-(11-12))
+:Date and Time: 2021-05-{10,11,12}, 9:00-12:00
 
 :Location: Online through Zoom
 
@@ -25,13 +25,26 @@ Task-based parallelism in scientific computing
  - Basic knowledge of OpenMP is beneficial but not required.
 
 :Registration: https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
+   
+.. toctree::
+   :caption: Day 1
+   :maxdepth: 2
+
+   setup
+   motivation
+   openmp-basics
 
 .. toctree::
-   :caption: Table of Contents
-   :name: mastertoc
+   :caption: Day 2
    :maxdepth: 2
-   :numbered:
 
-   motivation
+.. toctree::
+   :caption: Day 3
+   :maxdepth: 2
+
+.. toctree::
+   :caption: Miscellanous
+   :maxdepth: 2
+   
    quick-reference
    guide
