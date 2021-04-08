@@ -28,7 +28,7 @@ Task-based parallelism in scientific computing
    
 .. toctree::
    :caption: Day 1
-   :maxdepth: 2
+   :maxdepth: 1
 
    setup
    motivation
@@ -36,15 +36,15 @@ Task-based parallelism in scientific computing
 
 .. toctree::
    :caption: Day 2
-   :maxdepth: 2
+   :maxdepth: 1
 
 .. toctree::
    :caption: Day 3
-   :maxdepth: 2
+   :maxdepth: 1
 
 .. toctree::
    :caption: Miscellanous
-   :maxdepth: 2
+   :maxdepth: 1
    
    quick-reference
    guide
