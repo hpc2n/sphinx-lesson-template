@@ -37,10 +37,15 @@ Task-based parallelism in scientific computing
 .. toctree::
    :caption: Day 2
    :maxdepth: 1
+   
+   task-basics
 
 .. toctree::
    :caption: Day 3
    :maxdepth: 1
+   
+   starpu
+   offloading
 
 .. toctree::
    :caption: Miscellanous
