@@ -1,5 +1,5 @@
-OpenMP task basics
------------------- 
+OpenMP task basics (part 1)
+---------------------------
 
 .. objectives::
 

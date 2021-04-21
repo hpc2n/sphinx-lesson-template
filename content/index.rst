@@ -38,13 +38,16 @@ Task-based parallelism in scientific computing
    :caption: Day 2
    :maxdepth: 1
    
-   task-basics
+   task-basics-1
+   task-basics-2
+   lu-factorization
 
 .. toctree::
    :caption: Day 3
    :maxdepth: 1
    
    starpu
+   two-sided-algorithms
    offloading
 
 .. toctree::
