@@ -213,8 +213,6 @@ When the **reservation** is valid, you can specify it using the `--reservation=<
 .. code-block:: bash
 
     $ srun --account=SNIC2021-22-272 --reservation=TODO --ntasks=1 --time=00:00:15 uptime
-    srun: job 12727715 queued and waiting for resources
-    srun: job 12727715 has been allocated resources
      11:58:43 up 6 days,  1:23,  0 users,  load average: 23,11, 22,20, 21,27
 
 We could submit **multiple tasks**:
@@ -253,7 +251,27 @@ Finally, we could request a **single Nvidia Tesla V100 GPU** and 14 CPU cores:
 .. code-block:: bash
 
     $ srun --account=SNIC2021-22-272 --ntasks=1 --gres=gpu:v100:1,gpuexcl --time=00:00:15 nvidia-smi
-    TODO
+    Wed Apr 21 12:59:15 2021       
+    +-----------------------------------------------------------------------------+
+    | NVIDIA-SMI 460.67       Driver Version: 460.67       CUDA Version: 11.2     |
+    |-------------------------------+----------------------+----------------------+
+    | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+    | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+    |                               |                      |               MIG M. |
+    |===============================+======================+======================|
+    |   0  Tesla V100-PCIE...  On   | 00000000:58:00.0 Off |                    0 |
+    | N/A   33C    P0    26W / 250W |      0MiB / 16160MiB |      0%      Default |
+    |                               |                      |                  N/A |
+    +-------------------------------+----------------------+----------------------+
+                                                                                
+    +-----------------------------------------------------------------------------+
+    | Processes:                                                                  |
+    |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+    |        ID   ID                                                   Usage      |
+    |=============================================================================|
+    |  No running processes found                                                 |
+    +-----------------------------------------------------------------------------+
+
     
 .. challenge::
 
@@ -334,4 +352,4 @@ You can **cancel** a job with the `scancel` command:
 
 .. code-block:: bash
 
-    $ squeue <job id>
+    $ scancel <job_id>
