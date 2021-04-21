@@ -181,13 +181,13 @@ This passes the `-Wall` flag to `g++`. The flag causes the compiler to print ext
 Jobs and reservation
 ^^^^^^^^^^^^^^^^^^^^
     
-During the course, you can use the **course reservations** (TODO) to get faster access to the compute nodes. 
-The reservation `TODO` is valid during TODO ... 
-The reservations are valid from TODO. 
+During the course, you can use the **course reservations** (snic2021-22-272-cpu-day[1|2|3] and snic2021-22-272-gpu-day[1|2|3]) to get faster access to the compute nodes. 
+The reservations `snic2021-22-272-cpu-dayN` and `snic2021-22-272-gpu-dayN` is valid during the time 9:00-13:00 on each of the three days (10-12 May 2021). 
+Note that capitalization matters for reservations! 
 
 Note that jobs that are submitted using a reservation are not scheduled outside the reservation time window. 
 You can, however, submit jobs without the reservation as long as you are a member of an active project. 
-The **course project** `SNIC 2021/22-272` is valid until 2021-06-01.
+The **course project** `SNIC2021-22-272` is valid until 2021-06-01.
 
 The jobs are **submitted** using the `srun` command:
 
@@ -212,8 +212,10 @@ When the **reservation** is valid, you can specify it using the `--reservation=<
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --reservation=TODO --ntasks=1 --time=00:00:15 uptime
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-dayN --ntasks=1 --time=00:00:15 uptime
      11:58:43 up 6 days,  1:23,  0 users,  load average: 23,11, 22,20, 21,27
+
+were N in dayN is either 1, 2, 3 and cpu can be replaced with gpu if you are running a GPU job. 
 
 We could submit **multiple tasks**:
 
