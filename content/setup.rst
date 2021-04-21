@@ -279,8 +279,8 @@ For example:
 Batch files
 ^^^^^^^^^^^
 
-I is often more convenient to write the commands into a **batch file**:´
-For example, we could write the following a `batch.sh` file:
+I is often more convenient to write the commands into a **batch file**.
+For example, we could write the following to a file called `batch.sh`:
 
 .. code-block:: bash
     :linenos:
@@ -288,15 +288,15 @@ For example, we could write the following a `batch.sh` file:
     #!/bin/bash
     #SBATCH --account=SNIC2021-22-272
     #SBATCH --ntasks=1
-    #SBATCH --time=00:02:00
+    #SBATCH --time=00:00:15
 
     ml purge
     ml foss/2020b
 
     uname -n
 
-Note that the same arguments that were passed to the `srun` command are now given as comments.
-It is also advisable to purge all loaded modules and load the required modules.
+Note that the same arguments that were earlier passed to the `srun` command are now given as comments.
+It is highly advisable to purge all loaded modules and re-load the required modules as the job inherits the environment.
 The batch file is submitted using the `sbatch <batch file>` command:
     
 .. code-block:: bash
@@ -304,7 +304,7 @@ The batch file is submitted using the `sbatch <batch file>` command:
     sbatch batch.sh 
     Submitted batch job 12728675
 
-By default, the output is directed `slurm-<job_id>.out`, where `<job_id>` the the job id returned by the `sbatch` command:
+By default, the output is directed to the file `slurm-<job_id>.out`, where `<job_id>` is the **job id** returned by the `sbatch` command:
 
 .. code-block:: bash
 
@@ -322,10 +322,16 @@ By default, the output is directed `slurm-<job_id>.out`, where `<job_id>` the th
 Job queue
 ^^^^^^^^^
         
-You can investigate the job queue with the following command:
+You can **investigate the job queue** with the `squeue` command:
 
 .. code-block:: bash
 
     $ squeue -u $USER
 
 If you want an estimate for when the job will start running, you can give the `squeue` command the argument `--start`. 
+
+You can **cancel** a job with the `scancel` command:
+
+.. code-block:: bash
+
+    $ squeue <job id>
