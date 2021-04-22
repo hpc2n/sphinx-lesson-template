@@ -30,6 +30,7 @@ Task-based parallelism in scientific computing
    :caption: Day 1
    :maxdepth: 1
 
+   hpc2n-intro
    setup
    motivation
    openmp-basics
