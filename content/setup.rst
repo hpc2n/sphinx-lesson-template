@@ -7,7 +7,7 @@ Setup
  - Learn how to compile C code on Kebnekaise.
  - Learn how to compile CUDA code on Kebnekaise.
  - Learn how to place jobs to the batch queue.
- - Learn how to use the course reservations.
+ - Learn how to use the course project and reservations.
 
 Materials
 ^^^^^^^^^
@@ -182,8 +182,18 @@ Jobs and reservation
 ^^^^^^^^^^^^^^^^^^^^
     
 During the course, you can use the **course reservations** (snic2021-22-272-cpu-day[1|2|3] and snic2021-22-272-gpu-day[1|2|3]) to get faster access to the compute nodes. 
-The reservations `snic2021-22-272-cpu-dayN` and `snic2021-22-272-gpu-dayN` is valid during the time 9:00-13:00 on each of the three days (10-12 May 2021). 
-Note that capitalization matters for reservations! 
+The reservations are valid during the time 9:00-13:00 on each of the three days (10-12 May 2021). 
+Note that capitalization matters for reservations!
+
++-----------+--------------------------+--------------------------+
+| Day       | CPU only                 | CPU + GPU                |
++===========+==========================+==========================+
+| Monday    | snic2021-22-272-cpu-day1 | snic2021-22-272-gpu-day1 |
++-----------+--------------------------+--------------------------+
+| Tuesday   | snic2021-22-272-cpu-day2 | snic2021-22-272-gpu-day1 |
++-----------+--------------------------+--------------------------+
+| Wednesday | snic2021-22-272-cpu-day3 | snic2021-22-272-gpu-day1 |
++-----------+--------------------------+--------------------------+
 
 Note that jobs that are submitted using a reservation are not scheduled outside the reservation time window. 
 You can, however, submit jobs without the reservation as long as you are a member of an active project. 
