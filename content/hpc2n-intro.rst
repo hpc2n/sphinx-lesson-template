@@ -267,4 +267,87 @@ HPC2N has various editors installed
 
 Of these, **nano** is probably the easiest to use if you do not have previous experience with vim or emacs.  
 
+Example, nano
+ - nano <filename>
+ - Save and exit nano: Ctrl-x
+
+Where <filename> is either an existing file or one that you are just creating.
+
+Example, Emacs (in terminal)
+ - Start with: emacs
+ - Open (or create) file: Ctrl-x Ctrl-f
+ - Save: Ctrl-x Ctrl-s
+ - Exit Emacs: Ctrl-x Ctrl-c
+
+NOTE: if you want to run Emacs with full functionality in a separate window, you need to login with X11 forwarding (ssh -Y or using ThinLinc). 
+
+**Opening a terminal window in ThinLinc**
+
+To start a terminal window, go to the menu at the top. Click “Applications” → “System Tools” → “MATE Terminal”.
+
+.. challenge:: 
+
+    Try opening and editing a file using nano. Remember that you can create and open a new file directly as well. You will need to open a terminal window first if you are using ThinLinc. 
+
+The file system at HPC2N
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+When you have logged in to HPC2N, you will be in your **homedirectory ($HOME)**. This is accessible to the batch system, but while you can run jobs from here it is only 25 GB.
+
+The **project storage** is likely where you want to keep most of your data and where you will run your jobs from. The size of it depends on what type of storage project your group has. Remember that it is shared between the project group members. It is usually a good idea for each project member to create a separate subdirectory for their files. 
+
+Other than these two places you can also use **/scratch** on both the login node and the compute nodes. NOTE however that anything you put there on the login node can disappear fairly quickly. For the compute nodes /scratch will be cleaned after the job has finished running so if you use that you will need to copy the files elsewhere before your job ends. 
+
++---------------------------+-------------------------+-----------+-----------------+
+|                           | Project storage         | $HOME     | /scratch        |
++===========================+=========================+===========+=================+
+| | Recommended for batch   | Yes                     | No        | Yes             |
+| | jobs                    |                         |           |                 |
++---------------------------+-------------------------+-----------+-----------------+
+| Backed up                 | No                      | Yes       | No              |
++---------------------------+-------------------------+-----------+-----------------+
+| | Accessible by the batch | Yes                     | Yes       | Yes (node only) |
+| | system                  |                         |           |                 |
++---------------------------+-------------------------+-----------+-----------------+
+| Performance               | High                    | High      | Medium          |
++---------------------------+-------------------------+-----------+-----------------+
+| Default readability       | Group only              | Owner     | Owner           |
++---------------------------+-------------------------+-----------+-----------------+
+| Permissions management    | chmod, chgrp, ACL       | chmod,    | N/A for batch   |
+|                           |                         | chgrp,    | jobs            |
+|                           |                         | ACL       |                 |
++---------------------------+-------------------------+-----------+-----------------+
+| Notes                     | | Storage your group    | Your      | Per node        |
+|                           | | get allocated through | home-     |                 |
+|                           | | the storage projects  | directory |                 |
++---------------------------+-------------------------+-----------+-----------------+
+
+There is more information about the filesystems at HPC2N here: https://www.hpc2n.umu.se/filesystems/overview
+
+Project storage for this course
+"""""""""""""""""""""""""""""""
+
+The project for this course is SNIC2021-22-272. It has default storage of 500 GB, and that is located in the default location: 
+
+.. code-block:: bash
+
+   /proj/nobackup/snic2021-22-272/
+
+Unless you ask for a different name for the directory when you apply for it you will get it named after the project's ID. 
+
+It is always recommended that users create their own subdirectory in the project storage. 
+
+.. challenge::
+
+    Open a terminal window and change directory to the course storage project's location. Create a personal subdirectory there. 
+
+The end of the section `Editors at HPC2N`_ describes how to open a terminal window when using ThinLinc. 
+
+Introduction to the batch system and its policies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
 
