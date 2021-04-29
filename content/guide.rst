@@ -12,8 +12,7 @@ The course is planned to consists of three half days:
 sphinx-lesson
 ^^^^^^^^^^^^^
 
-The course website is built on top of sphinx-lesson:
-https://coderefinery.github.io/sphinx-lesson/
+The course website is built on top of sphinx-lesson: https://coderefinery.github.io/sphinx-lesson/
 
 How to run locally:
 
@@ -31,3 +30,12 @@ How to run locally:
  3. Open in your browser: http://localhost:8080/
 
 You may have to run `make clean` and restart the server.
+This is necessary, for example, if the side menu does not update.
+
+Presentations
+"""""""""""""
+
+For presentations, it is beneficial to enter either the **plain mode** or the **presentation mode**:
+
+:Plain mode:            Add :code:`?plain` to the URL.
+:Presentation mode:     Add :code:`?minipres` to the URL.

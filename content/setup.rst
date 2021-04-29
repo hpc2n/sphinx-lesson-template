@@ -9,17 +9,12 @@ Using Kebnekaise
  - Learn how to place jobs to the batch queue.
  - Learn how to use the course project and reservations.
 
-Materials
-^^^^^^^^^
-
-All course materials, including the hands-ons (challenges) and the solutions, are on this website.
-
 Modules and toolchains
 ^^^^^^^^^^^^^^^^^^^^^^
 
 You need to **load the correct toolchain** before compiling your code on Kebnekaise.
 
-The **available modules** are listed using the `ml avail` command:
+The **available modules** are listed using the :code:`ml avail` command:
 
 .. code-block:: bash
 
@@ -35,7 +30,7 @@ The **available modules** are listed using the `ml avail` command:
 
 The list may change if you have loaded modules.
 
-You can find more **information** regarding a particular module using the `ml spider <module>` command:
+You can find more **information** regarding a particular module using the :code:`ml spider <module>` command:
 
 .. code-block:: bash
 
@@ -64,13 +59,13 @@ You can find more **information** regarding a particular module using the `ml sp
         ================
         - Homepage: http://www.mathworks.com/products/matlab
 
-You can **load** the module using the `ml <module>` command:
+You can **load** the module using the :code:`ml <module>` command:
 
 .. code-block:: bash
 
     $ ml foss MATLAB/2019b.Update2
 
-You can **list loaded modules** using the `ml` command:
+You can **list loaded modules** using the :code:`ml` command:
 
 .. code-block:: bash
 
@@ -87,7 +82,7 @@ You can **list loaded modules** using the `ml` command:
     Where:
      S:  Module is Sticky, requires --force to unload or purge
     
-You can **unload all modules** using the `ml purge` command:
+You can **unload all modules** using the :code:`ml purge` command:
 
 .. code-block:: bash
 
@@ -97,7 +92,7 @@ You can **unload all modules** using the `ml purge` command:
 
       1) systemdefault   2) snicenvironment
 
-Note that the `ml purge` command will warn that two modules were not unloaded. 
+Note that the :code:`ml purge` command will warn that two modules were not unloaded. 
 This is normal and you should **NOT** force unload them.
 
 .. challenge::
@@ -109,27 +104,27 @@ This is normal and you should **NOT** force unload them.
             $ ml purge
             $ ml fosscuda/2020b buildenv
     
-       The `fosscuda` module loads the GNU compiler, the CUDA SDK and several other libraries. 
-       The `buildenv` module sets certain environment variables that are necessary for source code compilation.
+       The :code:`fosscuda` module loads the GNU compiler, the CUDA SDK and several other libraries. 
+       The :code:`buildenv` module sets certain environment variables that are necessary for source code compilation.
        
     2. Investigate which modules were loaded.
        
     3. Purge all modules.
        
-    4. Find the latest FOSS toolchain (`foss`). Load it and the `buildenv` module. 
+    4. Find the latest FOSS toolchain (:code:`foss`). Load it and the :code:`buildenv` module. 
        Investigate the loaded modules.
        Purge all modules.
 
 Compile C code
 ^^^^^^^^^^^^^^
 
-Once the correct toolchain (`foss`) has been loaded, when can compile C source files (`*.c`) with the GNU compiler:
+Once the correct toolchain (:code:`foss`) has been loaded, when can compile C source files (:code:`*.c`) with the GNU compiler:
 
 .. code-block:: bash
 
     $ gcc -o <binary name> <sources> -Wall
 
-The `-Wall` causes the compiler to print additional warnings.
+The :code:`-Wall` causes the compiler to print additional warnings.
 
 .. challenge::
 
@@ -148,13 +143,13 @@ The `-Wall` causes the compiler to print additional warnings.
 Compile CUDA code
 ^^^^^^^^^^^^^^^^^
 
-Once the correct toolchain (`fosscuda`) has been loaded, when can compile CU source files (`*.cu`) with the `nvcc` compiler:
+Once the correct toolchain (:code:`fosscuda`) has been loaded, when can compile CU source files (:code:`*.cu`) with the :code:`nvcc` compiler:
 
 .. code-block:: bash
 
     $ nvcc -o <binary name> <sources> -Xcompiler="-Wall"
 
-This passes the `-Wall` flag to `g++`. The flag causes the compiler to print extra warnings.
+This passes the :code:`-Wall` flag to :code:`g++`. The flag causes the compiler to print extra warnings.
     
 .. challenge::
 
@@ -178,8 +173,8 @@ This passes the `-Wall` flag to `g++`. The flag causes the compiler to print ext
             return 0;
         }
 
-Jobs and reservation
-^^^^^^^^^^^^^^^^^^^^
+Course project and reservation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     
 During the course, you can use the **course reservations** (snic2021-22-272-cpu-day[1|2|3] and snic2021-22-272-gpu-day[1|2|3]) to get faster access to the compute nodes. 
 The reservations are valid during the time 9:00-13:00 on each of the three days (10-12 May 2021). 
@@ -197,9 +192,12 @@ Note that capitalization matters for reservations!
 
 Note that jobs that are submitted using a reservation are not scheduled outside the reservation time window. 
 You can, however, submit jobs without the reservation as long as you are a member of an active project. 
-The **course project** `SNIC2021-22-272` is valid until 2021-06-01.
+The **course project** :code:`SNIC2021-22-272` is valid until 2021-06-01.
 
-The jobs are **submitted** using the `srun` command:
+Submitting jobs
+^^^^^^^^^^^^^^^
+
+The jobs are **submitted** using the :code:`srun` command:
 
 .. code-block:: bash
 
@@ -218,7 +216,7 @@ For example, the following command prints the uptime of the allocated compute no
 
 Note that we are using the course project, the number of tasks is set to one, and we are requesting 15 seconds.
 
-When the **reservation** is valid, you can specify it using the `--reservation=<reservation>` command:
+When the **reservation** is valid, you can specify it using the :code:`--reservation=<reservation>` command:
 
 .. code-block:: bash
 
@@ -248,7 +246,7 @@ We could request **multiple CPU cores** for each task:
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
 
-If you want to measure the performance, it is advisable to request an **exclude access** to the compute nodes (`--exclude`):
+If you want to measure the performance, it is advisable to request an **exclude access** to the compute nodes (:code:`--exclude`):
 
 .. code-block:: bash
 
@@ -289,8 +287,8 @@ Finally, we could request a **single Nvidia Tesla V100 GPU** and 14 CPU cores:
 
     Run both "Hello world" programs on the the compute nodes.
  
-Alias
-^^^^^
+Aliases
+^^^^^^^
 
 In order to save time, you can create an **alias** for a command:
 
@@ -310,7 +308,7 @@ Batch files
 ^^^^^^^^^^^
 
 I is often more convenient to write the commands into a **batch file**.
-For example, we could write the following to a file called `batch.sh`:
+For example, we could write the following to a file called :code:`batch.sh`:
 
 .. code-block:: bash
     :linenos:
@@ -325,16 +323,16 @@ For example, we could write the following to a file called `batch.sh`:
 
     uname -n
 
-Note that the same arguments that were earlier passed to the `srun` command are now given as comments.
+Note that the same arguments that were earlier passed to the :code:`srun` command are now given as comments.
 It is highly advisable to purge all loaded modules and re-load the required modules as the job inherits the environment.
-The batch file is submitted using the `sbatch <batch file>` command:
+The batch file is submitted using the :code:`sbatch <batch file>` command:
     
 .. code-block:: bash
 
     sbatch batch.sh 
     Submitted batch job 12728675
 
-By default, the output is directed to the file `slurm-<job_id>.out`, where `<job_id>` is the **job id** returned by the `sbatch` command:
+By default, the output is directed to the file :code:`slurm-<job_id>.out`, where :code:`<job_id>` is the **job id** returned by the :code:`sbatch` command:
 
 .. code-block:: bash
 
@@ -352,15 +350,15 @@ By default, the output is directed to the file `slurm-<job_id>.out`, where `<job
 Job queue
 ^^^^^^^^^
         
-You can **investigate the job queue** with the `squeue` command:
+You can **investigate the job queue** with the :code:`squeue` command:
 
 .. code-block:: bash
 
     $ squeue -u $USER
 
-If you want an estimate for when the job will start running, you can give the `squeue` command the argument `--start`. 
+If you want an estimate for when the job will start running, you can give the :code:`squeue` command the argument :code:`--start`. 
 
-You can **cancel** a job with the `scancel` command:
+You can **cancel** a job with the :code:`scancel` command:
 
 .. code-block:: bash
 
