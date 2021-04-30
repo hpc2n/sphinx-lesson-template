@@ -1,5 +1,5 @@
-OpenMP basics
--------------
+Introduction to OpenMP
+----------------------
 
 .. objectives::
 

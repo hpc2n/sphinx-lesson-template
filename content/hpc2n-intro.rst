@@ -1,5 +1,5 @@
-HPC2N introduction
-------------------
+Introduction to HPC2N
+---------------------
 
 .. objectives::
 

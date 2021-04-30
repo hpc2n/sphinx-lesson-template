@@ -1,5 +1,4 @@
-Motivation
-----------
+Introduction to task-based parallelism
 
 .. objectives::
 

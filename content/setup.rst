@@ -1,5 +1,5 @@
-Using Kebnekaise
-----------------
+Introduction to Kebnekaise
+--------------------------
 
 .. objectives::
 
