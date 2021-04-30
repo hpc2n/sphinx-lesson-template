@@ -343,11 +343,19 @@ It is always recommended that users create their own subdirectory in the project
 
 The end of the section `Editors at HPC2N`_ describes how to open a terminal window when using ThinLinc. 
 
-Introduction to the batch system and its policies
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Introduction to the batch system
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+HPC2N uses SLURM (Simple Linux Utility for Resource Management) for our batch system. It is an Open Source job scheduler which provides three key functions: 
+ - Keeps track of the available system resources
+ - Enforces local system resource usage and scheduling policies
+ - Manages a job queue, distributing work across the resources according to the policies 
 
+Large/long/parallel jobs **must** be run through the batch system. 
 
+In order to run a batch job, you either need to give commands to it on the command line, or **preferrably** create and submit a SLURM batch submit file/job script. 
 
+Examples of using the batch system will be given in the "Using Kebnekaise" lecture. 
 
+There are guides and documentation for the batch system and the policies to be found on HPC2N's website: https://www.hpc2n.umu.se/support 
 
