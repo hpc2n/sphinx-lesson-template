@@ -17,6 +17,8 @@ Task-based parallelism in scientific computing
 
 :Helpers: Birgitte Brydsö, Pedro Ojeda-May
 
+:Registration: https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
+
 .. prereq::
 
  - Basic knowledge of C programming language.
@@ -24,8 +26,9 @@ Task-based parallelism in scientific computing
  - Basic Linux skills.
  - Basic knowledge of OpenMP is beneficial but not required.
 
-:Registration: https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
-   
+**Note that these materials are still incomplete!**
+The final materials are pushed just before the course.
+
 .. toctree::
    :caption: Day 1
    :maxdepth: 1
