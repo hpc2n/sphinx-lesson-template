@@ -216,31 +216,31 @@ For example, the following command prints the uptime of the allocated compute no
 
 Note that we are using the course project, the number of tasks is set to one, and we are requesting 15 seconds.
 
-When the **reservation** is valid, you can specify it using the :code:`--reservation=<reservation>` command:
+When the **reservation** is valid, you can specify it using the :code:`--reservation=<reservation>` argument:
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-dayN --ntasks=1 --time=00:00:15 uptime
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=1 --time=00:00:15 uptime
      11:58:43 up 6 days,  1:23,  0 users,  load average: 23,11, 22,20, 21,27
 
 were N in dayN is either 1, 2, 3 and cpu can be replaced with gpu if you are running a GPU job. 
 
-We could submit **multiple tasks**:
+We could submit **multiple tasks** using the :code:`--ntasks=<task count>` argument:
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --ntasks=4 --time=00:00:15 uname -n
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=4 --time=00:00:15 uname -n
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
     
 Note that all task are running on the same node.
-We could request **multiple CPU cores** for each task:
+We could request **multiple CPU cores** for each task using the :code:`--cpus-per-task=<cpu count>` argument:
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --ntasks=4 --cpus-per-task=14 --time=00:00:15 uname -n
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=4 --cpus-per-task=14 --time=00:00:15 uname -n
     b-cn0935.hpc2n.umu.se
     b-cn0935.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
@@ -250,17 +250,17 @@ If you want to measure the performance, it is advisable to request an **exclude 
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --ntasks=4 --cpus-per-task=14 --exclude --time=00:00:15 uname -n
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=4 --cpus-per-task=14 --exclude --time=00:00:15 uname -n
     b-cn0935.hpc2n.umu.se
     b-cn0935.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
     
-Finally, we could request a **single Nvidia Tesla V100 GPU** and 14 CPU cores:
+Finally, we could request a **single Nvidia Tesla V100 GPU** and 14 CPU cores using the :code:`--gres=gpu:v100:1,gpuexcl` argument:
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --ntasks=1 --gres=gpu:v100:1,gpuexcl --time=00:00:15 nvidia-smi
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-gpu-day1 --ntasks=1 --gres=gpu:v100:1,gpuexcl --time=00:00:15 nvidia-smi
     Wed Apr 21 12:59:15 2021       
     +-----------------------------------------------------------------------------+
     | NVIDIA-SMI 460.67       Driver Version: 460.67       CUDA Version: 11.2     |
@@ -300,7 +300,7 @@ For example:
 
 .. code-block:: bash
 
-    $ alias run_full="srun --account=SNIC2021-22-272 --ntasks=1 --cpus-per-task=28 --time=00:05:00"
+    $ alias run_full="srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=1 --cpus-per-task=28 --time=00:05:00"
     $ run_full uname -n
     b-cn0932.hpc2n.umu.se
 
@@ -315,6 +315,7 @@ For example, we could write the following to a file called :code:`batch.sh`:
 
     #!/bin/bash
     #SBATCH --account=SNIC2021-22-272
+    #SBATCH --reservation=snic2021-22-272-cpu-day1
     #SBATCH --ntasks=1
     #SBATCH --time=00:00:15
 
