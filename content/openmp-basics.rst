@@ -47,7 +47,7 @@ Lets modify the program by adding an OpenMP pragma:
         return 0;
     }
 
-This time the program behaves very differently (note the extra `-fopenmp` argument):
+This time the program behaves very differently (note the extra :code:`-fopenmp` compiler option):
     
 .. code-block:: bash
     :emphasize-lines: 3-6
@@ -59,20 +59,22 @@ This time the program behaves very differently (note the extra `-fopenmp` argume
     ...
     Hello world!
 
-Clearly, the `omp parallel` pragma caused the program to execute the `printf` line **several times**.
-If you go and try to execute the program on a different computer, you will observe that the number of lines printed is the same as the number of processor cores in the system.
+Clearly, the :code:`omp parallel` pragma caused the program to execute the :code:`printf` line **several times**.
+If you go and try to execute the program on a different computer, you will observe that the number of lines printed is the same as the **number of processor cores in the computer**.
+The :code:`-fopenmp` compiler option tells the compiler to expect OpenMP pragmas.
 
 .. challenge::
 
     1. Compile the "Hello world" program yourself and try it out.
     
-    2. See what happens if you set the `OMP_NUM_THREADS` environmental variable to different values:
+    2. See what happens if you set the :code:`OMP_NUM_THREADS` environmental variable to different values:
     
     .. code-block:: bash
     
-        $ OMP_NUM_THREADS=value ./my_program
+        $ OMP_NUM_THREADS=<value> ./my_program
     
-    What happens? Why?
+    What happens?
+    Can you guess why?
     
 .. solution::
 
@@ -99,7 +101,7 @@ If you go and try to execute the program on a different computer, you will obser
         Hello world!
     
     The "Hello world!" line is printed 1, 4 and 8 times.
-    The `OMP_NUM_THREADS` environmental variable sets the default team size (see below).
+    The :code:`OMP_NUM_THREADS` environmental variable sets the default team size (see below).
 
 OpenMP pragmas and constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -111,10 +113,10 @@ In C and C++, an OpenMP pragma has the following form:
     #pragma omp directive-name [clause[ [,] clause] ... ] new-line
 
 A compiler typically support several types of pragmas, not just OpenMP pragmas.
-Therefore, all OpenMP pragmas begin with `#pragma omp ...`.
-The `directive-name` specifies the used OpenMP construct (e.g. `parallel`) and a pragma is always followed by a new line.
+Therefore, all OpenMP pragmas begin with the keywords :code:`#pragma omp`.
+The :code:`directive-name` placeholder specifies the used OpenMP construct (e.g. :code:`parallel`) and a pragma is always followed by a new line.
 Typically, a pragma effects the user code that follows it but some OpenMP pragmas are *stand-alone*.
-You can span a pragma across multiple lines by using a backslash (`\\`) immediately followed by a new line:
+You can span a pragma across multiple lines by using a backslash (:code:`\ `) immediately followed by a new line:
 
 .. code-block:: c
 
@@ -123,17 +125,17 @@ You can span a pragma across multiple lines by using a backslash (`\\`) immediat
         clause] ... ] new-line
         
 Parallel construct
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
-In the earlier example, we used the `parallel` pragma:
+In the earlier example, we used the :code:`parallel` pragma:
 
 .. code-block:: c
 
     #pragma omp parallel [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The pragma creates a **team** of **OpenMP threads** that execute the `structured-block` region.
-The `structured-block` region can be a single statement, like in the earlier example, or a structured block consisting from several statements:
+The pragma creates a **team** of **OpenMP threads** that execute the :code:`structured-block` region.
+The :code:`structured-block` region can be a single statement, like in the earlier example, or a structured block consisting from several statements:
 
 .. code-block:: c
 
@@ -160,11 +162,11 @@ The behaviour of a parallel construct can be modified with several **clauses**:
     proc_bind(master | close | spread) 
     allocate([allocator :] list)
 
-We will return to some of these clauses later but for now it is sufficient to know that a parallel construct can selectively enabled/disabled with the **if** clause and the size of the team can be explicitly set with the **num_threads** clause.
+We will return to some of these clauses later but for now it is sufficient to know that a parallel construct can selectively enabled/disabled with the :code:`if` clause and the size of the team can be explicitly set with the :code:`num_threads` clause.
 
 .. challenge::
 
-    Modify the following program such that the `printf` line is executed only twice:
+    Modify the following program such that the :code:`printf` line is executed only twice:
     
     .. code-block:: c
         :linenos:
@@ -181,7 +183,7 @@ We will return to some of these clauses later but for now it is sufficient to kn
 
 .. solution::
 
-    Use the `num_threads` clause to set the team size to two:
+    Use the :code:`num_threads` clause to set the team size to two:
 
     .. code-block:: c
         :linenos:
@@ -204,9 +206,9 @@ We will return to some of these clauses later but for now it is sufficient to kn
         Hello world!
 
 Data sharing rules
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
-Since the structured block that follows a parallel construct is executed in parallel by a team of threads, we must make sure that the related data accesses do cause any conflicts.
+Since the structured block that follows a parallel construct is executed in parallel by a team of threads, we must make sure that the related data accesses do cause any **conflicts**.
 For example, the behaviour of the following program is not well defined:
 
 .. code-block:: c
@@ -246,18 +248,18 @@ For example, the behaviour of the following program is not well defined:
 
 We can make two observations:
 
- 1. The order in which the `printf` statements are executed is arbitrary. This can be a desired behaviour.
+ 1. The order in which the :code:`printf` statements are executed is arbitrary. This can be a desired behaviour.
  2. Some number are printed **multiple times**. This is usually an undesired behaviour.
 
 The explanation is that once the team is created, the threads execute the structured block **independently** of each other.
 This explain why the numbers are printed in an arbitrary order.
-The threads also read and write the variable `number` independently of each other which explain why some threads do not see the changes the other threads have made.
+The threads also read and write the variable :code:`number` independently of each other which explain why some threads do not see the changes the other threads have made.
 
 OpenMP implements a set of rules that define how variables behave inside OpenMP constructs.
-All variables are ether
+All variables are ether :code:`private` or :code:`shared`:
 
- - **private**, i.e., each thread has its own copy of the variable, or
- - **shared**, i.e., all threads share the same variable.
+:Private:   Each thread has its own copy of the variable.
+:Shared:    All threads share the same variable.
 
 These basic **rules** apply:
 
@@ -265,11 +267,11 @@ These basic **rules** apply:
  2. All variables declared inside a parallel construct are private.
  3. Loop counters are private (in parallel loops).
 
-In the above example, the variable `number` is declared outside the parallel construct and all threads therefore share the same variable.
+In the above example, the variable :code:`number` is declared outside the parallel construct and all threads therefore share the same variable.
 
 .. challenge::
 
-    Modify the following program such that the variable `number` is declared inside the structured block and is therefore private:
+    Modify the following program such that the variable :code:`number` is declared inside the structured block and is therefore private:
     
     .. code-block:: c
         :linenos:
@@ -286,7 +288,7 @@ In the above example, the variable `number` is declared outside the parallel con
     Run the program.
     Can you explain the behaviour?
     
-    **Hint:** Remember that structured block that consists of several statements must be enclosed inside `{ }` brackets. 
+    **Hint:** Remember that structured block that consists of several statements must be enclosed inside :code:`{ }` brackets. 
 
 .. solution::
 
@@ -316,7 +318,7 @@ In the above example, the variable `number` is declared outside the parallel con
         I think the number is 1.
     
     Note that all treads print 1.
-    This happens because each thread has its own `number` variable that is initialized to 1.
+    This happens because each thread has its own :code:`number` variable that is initialized to 1.
     The incrementation effects only thread's own copy of the variable.
 
 We can use the **private** clause to turn a variable that has been declared outside a parallel construct into a private variable:
@@ -346,7 +348,7 @@ However, the end result is, once again, unexpected:
     I think the number of 0.
     ...
 
-This happens because each thread has its own `number` variable that is separate from the `number` variable declared outside the parallel construct.
+This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel construct.
 The private variables do **not inherit the value of the original variable**.
 If we want this to happen, then we must use the **firstprivate** clause:
 
@@ -378,7 +380,7 @@ This time, the end result is as expected:
 That is, the private variables inherit the value of the original variable.
 
 Explicit data sharing rules
-"""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The default behaviour can be changed with the **default** clause:
 
@@ -396,7 +398,7 @@ The default behaviour can be changed with the **default** clause:
     }
 
 This tells the compiler that a programmer must explicitly set the data sharing rule for each variable.
-It is not therefore surprising that the compiler produces an error indicating the the `number` variable is not specified in enclosing parallel construct:
+It is not therefore surprising that the compiler produces an error indicating the the :code:`number` variable is not specified in enclosing parallel construct:
 
 .. code-block:: bash
     :emphasize-lines: 2-8
@@ -410,7 +412,7 @@ It is not therefore surprising that the compiler produces an error indicating th
         5 |     #pragma omp parallel default(none)
           |
 
-We can not set the `number` variable to first private:
+We can now set the :code:`number` variable to first private:
 
 .. code-block:: c
     :linenos:
@@ -473,9 +475,9 @@ It is also advisable to declare all private variables inside the structured bloc
             return 0;
         }
          
-    First, we add the enclosed `{ }` brackets thus making the `number` variable private.
-    Next, we use `default(none)` to force explicit data sharing rules.
-    Finally, we declare the `str` and `initial_number` variables shared as none of the threads modify these variables.
+    First, we add the enclosed :code:`{ }` brackets thus making the :code:`number` variable private.
+    Next, we use :code:`default(none)` to force explicit data sharing rules.
+    Finally, we declare the :code:`str` and :code:`initial_number` variables shared as none of the threads modify these variables.
     
     .. code-block:: bash
 
@@ -486,20 +488,122 @@ It is also advisable to declare all private variables inside the structured bloc
         I think the number of 1.
         ...
     
-    It is also possible to declare the variables `str` and `initial_number` as `firstprivate`.
+    It is also possible to declare the variables :code:`str` and :code:`initial_number` as :code:`firstprivate`.
     However, the creation of private variables causes some overhead and it therefore generally recommended that variables that can be declared shared are declared as shared.
 
-Parallel loop construct
-"""""""""""""""""""""""
-
 Section construct
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^
+
+As we saw earlier, **all threads within the team** execute the **entire structured block** that follows a parallel construct.
+Only a very limited number of parallel algorithms can be implemented in this way.
+It is much more common that we have a set of mutually independent operations which we want to execute in in parallel.
+
+One way of accomplishing this are the **sections** and **section** constructs:
+
+.. code-block:: c
+
+    #pragma omp sections [clause[ [,] clause] ... ] new-line 
+    { 
+        [#pragma omp section new-line] 
+            structured-block 
+        [#pragma omp section new-line 
+            structured-block] 
+        ...
+    }
+
+The structured blocks that follow the :code:`section` constructs inside the :code:`sections` construct are distributed among the threads within the team.
+Each structured block is executed only **once**:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 5,7,9,11-12,14-15,17-18
+    
+    #include <stdio.h>
+
+    int main() {
+    
+        #pragma omp parallel
+        {
+            printf("Everyone!\n");
+
+            #pragma omp sections
+            {
+                #pragma omp section
+                printf("Only me!\n");
+                
+                #pragma omp section
+                printf("No one else!\n");
+                
+                #pragma omp section
+                printf("Just me!\n");
+            }
+        }
+
+        return 0;
+    }
+
+.. code-block:: bash
+    :emphasize-lines: 3-9
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program 
+    Everyone!
+    Only me!
+    No one else!
+    Just me!
+    Everyone!
+    Everyone!
+    ...
+
+Note how the :code:`Everyone!` lines are printed multiple times but the other three lines are printed only once.
+    
+If we want, we can merge the :code:`parallel` and :code:`sections` construct together:
+    
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 5
+    
+    #include <stdio.h>
+
+    int main() {
+    
+        #pragma omp parallel sections
+        {
+            #pragma omp section
+            printf("Only me!\n");
+            
+            #pragma omp section
+            printf("No one else!\n");
+            
+            #pragma omp section
+            printf("Just me!\n");
+        }
+
+        return 0;
+    }
+    
+.. code-block:: bash
+    :emphasize-lines: 3-6
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program 
+    Just me!
+    No one else!
+    Only me!
+    
+Parallel loop construct
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: c
+
+    #pragma omp loop [clause[ [,] clause] ... ] new-line 
+        for-loops
 
 Single and master constructs
-""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Critical and atomic constructs
-""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Barrier construct
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^

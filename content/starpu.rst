@@ -1,5 +1,5 @@
-StarPU
-------
+StarPU runtime system
+---------------------
 
 .. objectives::
 
