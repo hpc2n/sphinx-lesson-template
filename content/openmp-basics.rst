@@ -33,7 +33,7 @@ We can confirm that the code indeed behaves the way we expect:
     $ ./my_program
     Hello world!
 
-Lets modify the program by adding an OpenMP pragma:
+Let us modify the program by adding an OpenMP pragma:
     
 .. code-block:: c
     :linenos:
@@ -115,7 +115,7 @@ In C and C++, an OpenMP pragma has the following form:
 A compiler typically support several types of pragmas, not just OpenMP pragmas.
 Therefore, all OpenMP pragmas begin with the keywords :code:`#pragma omp`.
 The :code:`directive-name` placeholder specifies the used OpenMP construct (e.g. :code:`parallel`) and a pragma is always followed by a new line.
-Typically, a pragma effects the user code that follows it but some OpenMP pragmas are *stand-alone*.
+Typically, a pragma affects the user code that follows it but some OpenMP pragmas are *stand-alone*.
 You can span a pragma across multiple lines by using a backslash (:code:`\ `) immediately followed by a new line:
 
 .. code-block:: c
@@ -135,7 +135,7 @@ In the earlier example, we used the :code:`parallel` pragma:
         structured-block
 
 The pragma creates a **team** of **OpenMP threads** that execute the :code:`structured-block` region.
-The :code:`structured-block` region can be a single statement, like in the earlier example, or a structured block consisting from several statements:
+The :code:`structured-block` region can be a single statement, like in the earlier example, or a structured block consisting of several statements: 
 
 .. code-block:: c
 
@@ -162,7 +162,7 @@ The behaviour of a parallel construct can be modified with several **clauses**:
     proc_bind(master | close | spread) 
     allocate([allocator :] list)
 
-We will return to some of these clauses later but for now it is sufficient to know that a parallel construct can selectively enabled/disabled with the :code:`if` clause and the size of the team can be explicitly set with the :code:`num_threads` clause.
+We will return to some of these clauses later but for now it is sufficient to know that a parallel construct can be selectively enabled/disabled with the :code:`if` clause and the size of the team can be explicitly set with the :code:`num_threads` clause.
 
 .. challenge::
 
@@ -208,7 +208,7 @@ We will return to some of these clauses later but for now it is sufficient to kn
 Data sharing rules
 ^^^^^^^^^^^^^^^^^^
 
-Since the structured block that follows a parallel construct is executed in parallel by a team of threads, we must make sure that the related data accesses do cause any **conflicts**.
+Since the structured block that follows a parallel construct is executed in parallel by a team of threads, we must make sure that the related data accesses do not cause any **conflicts**.
 For example, the behaviour of the following program is not well defined:
 
 .. code-block:: c
@@ -249,14 +249,14 @@ For example, the behaviour of the following program is not well defined:
 We can make two observations:
 
  1. The order in which the :code:`printf` statements are executed is arbitrary. This can be a desired behaviour.
- 2. Some number are printed **multiple times**. This is usually an undesired behaviour.
+ 2. Some numbers are printed **multiple times**. This is usually an undesired behaviour.
 
 The explanation is that once the team is created, the threads execute the structured block **independently** of each other.
 This explain why the numbers are printed in an arbitrary order.
 The threads also read and write the variable :code:`number` independently of each other which explain why some threads do not see the changes the other threads have made.
 
 OpenMP implements a set of rules that define how variables behave inside OpenMP constructs.
-All variables are ether :code:`private` or :code:`shared`:
+All variables are either :code:`private` or :code:`shared`:
 
 :Private:   Each thread has its own copy of the variable.
 :Shared:    All threads share the same variable.
@@ -319,7 +319,7 @@ In the above example, the variable :code:`number` is declared outside the parall
     
     Note that all treads print 1.
     This happens because each thread has its own :code:`number` variable that is initialized to 1.
-    The incrementation effects only thread's own copy of the variable.
+    The incrementation affects only the thread's own copy of the variable.
 
 We can use the **private** clause to turn a variable that has been declared outside a parallel construct into a private variable:
 
@@ -343,9 +343,9 @@ However, the end result is, once again, unexpected:
 
     $ gcc -o my_program my_program.c -Wall -fopenmp
     $ ./my_program 
-    I think the number of 0.
-    I think the number of 0.
-    I think the number of 0.
+    I think the number is 0.
+    I think the number is 0.
+    I think the number is 0.
     ...
 
 This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel construct.
@@ -372,12 +372,12 @@ This time, the end result is as expected:
 
     $ gcc -o my_program my_program.c -Wall -fopenmp
     $ ./my_program 
-    I think the number of 1.
-    I think the number of 1.
-    I think the number of 1.
+    I think the number is 1.
+    I think the number is 1.
+    I think the number is 1.
     ...
 
-That is, the private variables inherit the value of the original variable.
+That is, the private variables inherits the value of the original variable.
 
 Explicit data sharing rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
