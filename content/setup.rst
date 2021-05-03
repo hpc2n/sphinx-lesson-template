@@ -30,7 +30,7 @@ The **available modules** are listed using the :code:`ml avail` command:
 
 The list shows the modules you can load directly, and so may change if you have loaded modules.
 
-In order to see all the modules, including those that have prerequisites to load, use the command `ml spider`. Many types of application software fall in this category. 
+In order to see all the modules, including those that have prerequisites to load, use the command :code:`ml spider`. Many types of application software fall in this category. 
 
 You can find more **information** regarding a particular module using the :code:`ml spider <module>` command:
 
