@@ -135,8 +135,10 @@ The task itself is created using the `starpu_task_insert` function.
 For compilation, we must link the binary with the StarPU library:
     
 .. code-block:: bash
-    :emphasize-lines: 7
+    :emphasize-lines: 1-4,9
     
+    $ ml purge
+    $ ml GCC/10.2.0 CUDA/11.1.1 OpenMPI/4.0.5 StarPU/1.3.7
     $ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
     $ ./starpu_program
     [starpu][initialize_lws_policy] Warning: you are running the default lws scheduler, 

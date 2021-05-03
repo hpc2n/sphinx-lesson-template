@@ -8,7 +8,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   viewBox="0 0 299.4758 155.53149"
+   viewBox="0 0 330.59781 155.53149"
    fill="none"
    stroke="none"
    stroke-linecap="square"
@@ -16,7 +16,7 @@
    id="svg209"
    sodipodi:docname="functions_dep_tasks.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   width="299.4758"
+   width="330.59781"
    height="155.53149"
    inkscape:export-filename="/home/mirko/Task-based-parallelism/content/img/functions_dep_tasks.png"
    inkscape:export-xdpi="120"
@@ -29,7 +29,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
