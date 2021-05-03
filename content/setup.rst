@@ -28,7 +28,9 @@ The **available modules** are listed using the :code:`ml avail` command:
     CUDA/10.1.243              (D)     gcccuda/2020b         (D)
     ...
 
-The list may change if you have loaded modules.
+The list shows the modules you can load directly, and so may change if you have loaded modules.
+
+In order to see all the modules, including those that have prerequisites to load, use the command `ml spider`. Many types of application software fall in this category. 
 
 You can find more **information** regarding a particular module using the :code:`ml spider <module>` command:
 
