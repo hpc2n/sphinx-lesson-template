@@ -398,7 +398,7 @@ The default behaviour can be changed with the **default** clause:
     }
 
 This tells the compiler that a programmer must explicitly set the data sharing rule for each variable.
-It is not therefore surprising that the compiler produces an error indicating the the :code:`number` variable is not specified in enclosing parallel construct:
+It is therefore not surprising that the compiler produces an error indicating that the :code:`number` variable is not specified in the enclosing parallel construct:
 
 .. code-block:: bash
     :emphasize-lines: 2-8
@@ -406,7 +406,7 @@ It is not therefore surprising that the compiler produces an error indicating th
     $ gcc -o my_program my_program.c -Wall -fopenmp 
     my_program.c: In function ‘main’:
     my_program.c:6:5: error: ‘number’ not specified in enclosing ‘parallel’
-        6 |     printf("I think the number of %d.\n", number++);
+        6 |     printf("I think the number is %d.\n", number++);
           |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     my_program.c:5:13: error: enclosing ‘parallel’
         5 |     #pragma omp parallel default(none)
@@ -439,7 +439,7 @@ It is also advisable to declare all private variables inside the structured bloc
 
         #include <stdio.h>
 
-        char *str = "I think the number of %d.\n";
+        char *str = "I think the number is %d.\n";
 
         int main() {
             int initial_number = 1;
@@ -461,7 +461,7 @@ It is also advisable to declare all private variables inside the structured bloc
         
         #include <stdio.h>
 
-        char *str = "I think the number of %d.\n";
+        char *str = "I think the number is %d.\n";
 
         int main() {
             int initial_number = 1;
@@ -483,22 +483,22 @@ It is also advisable to declare all private variables inside the structured bloc
 
         $ gcc -o my_program my_program.c -Wall -fopenmp
         $ ./my_program 
-        I think the number of 1.
-        I think the number of 1.
-        I think the number of 1.
+        I think the number is 1.
+        I think the number is 1.
+        I think the number is 1.
         ...
     
     It is also possible to declare the variables :code:`str` and :code:`initial_number` as :code:`firstprivate`.
-    However, the creation of private variables causes some overhead and it therefore generally recommended that variables that can be declared shared are declared as shared.
+    However, the creation of private variables causes some overhead and it is therefore generally recommended that variables that can be declared shared are declared as shared.
 
 Section construct
 ^^^^^^^^^^^^^^^^^
 
 As we saw earlier, **all threads within the team** execute the **entire structured block** that follows a parallel construct.
 Only a very limited number of parallel algorithms can be implemented in this way.
-It is much more common that we have a set of mutually independent operations which we want to execute in in parallel.
+It is much more common that we have a set of mutually independent operations which we want to execute in parallel.
 
-One way of accomplishing this are the **sections** and **section** constructs:
+One way of accomplishing this are with the **sections** and **section** constructs:
 
 .. code-block:: c
 
@@ -557,7 +557,7 @@ Each structured block is executed only **once**:
 
 Note how the :code:`Everyone!` lines are printed multiple times but the other three lines are printed only once.
     
-If we want, we can merge the :code:`parallel` and :code:`sections` construct together:
+If we want, we can merge the :code:`parallel` and :code:`sections` constructs together:
     
 .. code-block:: c
     :linenos:
