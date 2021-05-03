@@ -3,9 +3,9 @@ Introduction to task-based parallelism
 
 .. objectives::
 
- - A quick refers to parallel computation and HPC.
+ - A quick reference to parallel computation and HPC.
  - Understand the basics of task-based parallelism.
- - Understand the theoretical benefit of task-based parallelism.
+ - Understand the theoretical benefits of task-based parallelism.
 
 Parallel computation and HPC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33,7 +33,7 @@ What does this mean?
 Memory models
 """""""""""""
 
-Then it comes to the memory layout, (super)computers can be divided into two primary categories: 
+When it comes to the memory layout, (super)computers can be divided into two primary categories: 
 
 :Shared memory: A **single** memory space for all data:
 
@@ -53,7 +53,7 @@ Then it comes to the memory layout, (super)computers can be divided into two pri
     :align: left
     :scale: 70 %
 
-Computing cluster and supercomputers are generally distributed memory machines:
+Computing clusters and supercomputers are generally distributed memory machines:
     
 .. figure:: img/memory.png
     :align: center
@@ -197,7 +197,7 @@ This time the function :code:`function1` modifies the variable :code:`b`:
 Therefore, the two functions calls are **not** independent of each other and changing the order would change the printed lines.
 Furthermore, executing the two functions in parallel would lead to an **undefined result** as the execution order would be arbitrary.
 
-We could say that **in this particular context**, the function :code:`function2` is a **dependent** on the function :code:`function1`.
+We could say that **in this particular context**, the function :code:`function2` is **dependent** on the function :code:`function1`.
 That is, the function :code:`function1` must be executed completely before the function :code:`function2` can be executed:
 
 .. figure:: img/functions_dep_explicit.png
@@ -212,10 +212,10 @@ Tasks and task dependencies
 Based on the previous discussion, we need an object that can describe the following:
 
  1. The operation that is to be performed (implementation).
- 2. The data that involved in the operation (input and output).
- 3. The way in which the operations is related to other operations (dependencies).
+ 2. The data that is involved in the operation (input and output).
+ 3. The way in which the operations are related to other operations (dependencies).
  
-We call this objects **tasks**.
+We call these objects **tasks**.
 The previous example code can be described using two tasks:
 
 :Task 1:
@@ -233,17 +233,17 @@ The previous example code can be described using two tasks:
  - Depends on: Task 1
 
 We can represent the **task dependencies** using a Directed Acyclic Graph (DAG).
-This DAG is generally referred as the **task graph**:
+This DAG is generally referred to as the **task graph**:
  
 .. figure:: img/functions_dep_tasks.png
  
-If we know what is the **sequential order** to execute the tasks, then we can deduce that *task dependencies* from the *data dependencies*.
+If we know what the **sequential order** to execute the tasks is, then we can deduce the *task dependencies* from the *data dependencies*.
 This is indeed what happens in practice as a programmer generally defines only 
 
  - the task implementations, and 
  - the input and output variables.
  
-So-called **runtime system** then deduces the task dependencies from the sequentially order and the input and output variables.
+So-called **runtime systems** then deduces the task dependencies from the sequential order and the input and output variables.
 We say that the task graph is constructed **implicitly**.
 The runtime system then executes the task in a **sequentially consistent order**.
 That is, the runtime system may execute the task in any order as long as it respects the task dependencies.
@@ -266,7 +266,7 @@ Consider an algorithm that consists of three steps that are iterated multiple ti
  3. Update the corresponding trailing matrix (green).
 
 We do not need to know how the tasks are implemented.
-We are only interested on the task dependencies:
+We are only interested in the task dependencies:
 
 .. figure:: img/blocked_lu_simple.png
     :scale: 70 %
@@ -280,7 +280,7 @@ That is,
 Real-world task graph
 """""""""""""""""""""
  
-We can represent these tasks and the related tasks dependencies using a task graph:
+We can represent these tasks and the related task dependencies using a task graph:
  
 .. figure:: img/lu_task_graph.png
     :scale: 70 %
@@ -311,7 +311,7 @@ The **delayed tasks** can be used to keep the otherwise idle CPU cores busy.
 Critical path
 """""""""""""
 
-In this particular example, we have executed the tasks such a manner that only the absolutely necessary tasks are executed.
+In this particular example, we have executed the tasks in such a manner that only the absolutely necessary tasks are executed.
 We can also find the **longest path through the task graph** (when measured in the terms of execution time):
 
 .. figure:: img/lu_task_graph3.png
@@ -323,13 +323,13 @@ The algorithm cannot be executed any faster than this no matter how many CPU cor
 Task scheduling and priorities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Lets consider a different algorithm.
+Let us consider a different algorithm.
 Again, we only care about the data dependencies:
 
 .. figure:: img/chain_flow.png
     :scale: 60 %
 
-We can see that the task graph consists from three types of tasks:
+We can see that the task graph consists of three types of tasks:
 
 :Process window (W):    Perform a computation operation inside a diagonal block (a set of small orthogonal transformations).
 
@@ -339,7 +339,7 @@ We can see that the task graph consists from three types of tasks:
 
 We know two additional things about the algorithm:
 
- 1. The process windows tasks are more time consuming that the left and right update tasks.
+ 1. The process window's tasks are more time consuming that the left and right update tasks.
  2. The left and right update tasks are equally time consuming.
  
 How should we schedule this task graph?
@@ -371,14 +371,14 @@ This would indirectly **accelerate the critical path** as the next batch of left
 Heuristics scheduling approach
 """"""""""""""""""""""""""""""
     
-We must of course remember that task graph are usually much more complicated that this:
+We must of course remember that task graph are usually much more complicated than this:
     
 .. figure:: img/dag.png
     :scale: 35 %
 
-The above task graph comes from so-called QR algorithm when it is applied to a very small matrix.
+The above task graph comes from the so-called QR algorithm when it is applied to a very small matrix.
 We could probably figure out a close-to-optimal scheduling order from this task graph.
-However, the task graph is heavily preprocessed and its generation took **several minutes** where as the execution time of the algorithm is just **a few hundred milliseconds**.
+However, the task graph is heavily preprocessed and its generation took **several minutes** whereas the execution time of the algorithm is just **a few hundred milliseconds**.
 We therefore need an **automated approach for traversing the task graph**.
 
 We have two options:
@@ -398,7 +398,7 @@ That is, a runtime system maintains four task pools:
 
 :Submitted tasks:   Tasks that are not scheduled and are not ready for scheduling.
 :Ready tasks:       Tasks that are not scheduled and are ready for scheduling.
-:Active tasks:      Tasks that are scheduled, i.e. are currently begin executed.
+:Active tasks:      Tasks that are scheduled, i.e. are currently being executed.
 :Completed tasks:   Tasks that have been scheduled.
 
 .. figure:: img/scheduling.png
@@ -408,18 +408,18 @@ A runtime system follows these basic rules:
 
  1. When a task becomes ready for scheduling, i.e. all its dependencies have been satisfied, it is moved from the *submitted pool* to the *ready pool*.
  
- 2. A task is moved from the *ready pool* to the *active pool* when it are scheduled for execution on a computational resource.
+ 2. A task is moved from the *ready pool* to the *active pool* when it is scheduled for execution on a computational resource.
    
-    - A programmer may define a priority for each tasks.
-      These priorities are taken into account when a tasks is selected for execution from the *ready pool*.
+    - A programmer may define a priority for each task.
+      These priorities are taken into account when a task is selected for execution from the *ready pool*.
  
- 3. A task is moved from the *active pool* to the *complicated pool* when the related computational resource has finished executing the task.
+ 3. A task is moved from the *active pool* to the *completed pool* when the related computational resource has finished executing the task.
  
     - Any tasks, that depend on the current tasks and have all their other dependencies satisfied, are moved from the *submitted pool* to the *ready pool*.
 
 This approach is relatively simple to implement using (ordered) lists.
-However, runtime system's view of the task graph is very narrow as it sees only the *ready pool* when it is doing the actual scheduling decisions.
-In particular, **note that the task priorities take an effect only when task become ready for scheduling**.
+However, the runtime system's view of the task graph is very narrow as it sees only the *ready pool* when it is doing the actual scheduling decisions.
+In particular, **note that the task priorities take effect only when a task becomes ready for scheduling**.
     
 Task granularity
 ^^^^^^^^^^^^^^^^
@@ -441,13 +441,13 @@ If the task granularity is very **coarse**, then
 
  1. the number of tasks is very low and the runtime system therefore does not introduce that much overhead,
  2. the tasks are relatively large and have a relatively high task-specific performance, and
- 3. only a very small number of task can be ready for scheduling at any given time.
+ 3. only a very small number of tasks can be ready for scheduling at any given time.
  
-If the task granuality is very **fine**, then
+If the task granularity is very **fine**, then
 
  1. the number of tasks is very high and the runtime system therefore introduces a lot of additional overhead,
  2. the tasks are very small and have a very low task-specific performance, and
- 3. a very large number of task can be ready for scheduling at any given time.
+ 3. a very large number of tasks can be ready for scheduling at any given time.
 
 Both of these extremes lead to lowered performance.
 We want to keep most computational resources busy most of the time.
@@ -455,7 +455,7 @@ We want to keep most computational resources busy most of the time.
 Benefits of task-based parallelism
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Lets summarise some of the major benefits of task-based parallelism:
+Let us summarise some of the major benefits of task-based parallelism:
 
 :Automatic parallelism:
 
@@ -465,7 +465,7 @@ Lets summarise some of the major benefits of task-based parallelism:
 :No synchronization:
 
     A parallel algorithm often involves several synchronization points.
-    Sometimes there synchronization points arise from the underlying data dependencies.
+    Sometimes these synchronization points arise from the underlying data dependencies.
     However, it is quite often the case that **synchronisation points are used to simplify the implementation**.
     The latter type of **synchronisation points are not necessary** in a task-based implementation.
 
@@ -473,7 +473,7 @@ Lets summarise some of the major benefits of task-based parallelism:
 
     The tasks are scheduled **dynamically** to the various computational resources.
     Furthermore, **low-priority tasks can be delayed** until the computational resources start becoming idle.
-    These two factors help the improve the load balancing.
+    These two factors help to improve the load balancing. 
 
 :Shortened critical path:
 
@@ -486,4 +486,4 @@ Lets summarise some of the major benefits of task-based parallelism:
 
 :Distributed memory:
 
-    The task graph and data distribution induce the necessary communication pattern (StarPU).
+    The task graph and data distribution induces the necessary communication patterns (StarPU).
