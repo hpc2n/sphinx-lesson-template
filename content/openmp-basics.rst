@@ -141,7 +141,7 @@ The :code:`structured-block` region can be a single statement, like in the earli
 
     #pragma omp parallel ...
     {
-        stetement1;
+        statement1;
         statement2;
         ...
     }
