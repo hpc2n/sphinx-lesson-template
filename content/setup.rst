@@ -120,7 +120,7 @@ This is normal and you should **NOT** force unload them.
 Compile C code
 ^^^^^^^^^^^^^^
 
-Once the correct toolchain (:code:`foss`) has been loaded, when can compile C source files (:code:`*.c`) with the GNU compiler:
+Once the correct toolchain (:code:`foss`) has been loaded, we can compile C source files (:code:`*.c`) with the GNU compiler:
 
 .. code-block:: bash
 
@@ -145,7 +145,7 @@ The :code:`-Wall` causes the compiler to print additional warnings.
 Compile CUDA code
 ^^^^^^^^^^^^^^^^^
 
-Once the correct toolchain (:code:`fosscuda`) has been loaded, when can compile CU source files (:code:`*.cu`) with the :code:`nvcc` compiler:
+Once the correct toolchain (:code:`fosscuda`) has been loaded, we can compile CU source files (:code:`*.cu`) with the :code:`nvcc` compiler:
 
 .. code-block:: bash
 
@@ -248,11 +248,11 @@ We could request **multiple CPU cores** for each task using the :code:`--cpus-pe
     b-cn0932.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
 
-If you want to measure the performance, it is advisable to request an **exclude access** to the compute nodes (:code:`--exclude`):
+If you want to measure the performance, it is advisable to request an **exclusive access** to the compute nodes (:code:`--exclusive`):
 
 .. code-block:: bash
 
-    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=4 --cpus-per-task=14 --exclude --time=00:00:15 uname -n
+    $ srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=4 --cpus-per-task=14 --exclusive --time=00:00:15 uname -n
     b-cn0935.hpc2n.umu.se
     b-cn0935.hpc2n.umu.se
     b-cn0932.hpc2n.umu.se
@@ -309,7 +309,7 @@ For example:
 Batch files
 ^^^^^^^^^^^
 
-I is often more convenient to write the commands into a **batch file**.
+It is often more convenient to write the commands into a **batch file**.
 For example, we could write the following to a file called :code:`batch.sh`:
 
 .. code-block:: bash
