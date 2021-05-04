@@ -352,11 +352,11 @@ We then loop over the diagonal blocks as follows:
 
  2. The sub-factor matrices are used to update the block row and the block column by solving two matrix equations (:code:`dtrsm_`).
 
- 3. The trailing matrix is updated by computing a matrix-matrix multiplications (:code:`dgemm_`).
+ 3. The trailing matrix is updated by computing a matrix-matrix multiplication (:code:`dgemm_`).
 
 .. figure:: img/blocked_lu1.png
 
-   Factorization of the first diagonal block, updates to the block row and column, and update to the trailing matrix.
+   Factorization of the first diagonal block, updates to the block row and column, and updates to the trailing matrix.
 
 The exact details are not that relevant as we are only interested in the data dependencies.
    
@@ -592,7 +592,7 @@ We can compile and test the algorithm:
     Residual = 3.997311E-16
 
 The second argument is the block size.
-We can see that the blocked variant is significantly faster even before it it parallelized.
+We can see that the blocked variant is significantly faster even before it is parallelized.
 
 Challenge
 """""""""
