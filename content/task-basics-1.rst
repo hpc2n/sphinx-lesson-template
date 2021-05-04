@@ -40,7 +40,7 @@ The pragma accepts a set of clauses:
     detach(event-handle)
 
 We can already recognise some of the clauses.
-For example, the **if** clause can be used to enable/disable the creation of the corresponding task, and the **default**, **private**, **firstprivate**, and **shared** causes are used to control the data sharing rules.
+For example, the **if** clause can be used to enable/disable the creation of the corresponding task, and the **default**, **private**, **firstprivate**, and **shared** clauses are used to control the data sharing rules.
 It should be noted that some of these clauses behave slightly differently when compared the traditional OpenMP constructs.
 However, for the purposes of this course, there is no difference.
 
@@ -66,7 +66,7 @@ Let us return back to the earlier "Hello world" program:
 
 Note that the task pragma is **inside a parallel construct**.
 Each task in the team encounters the task construct, creates the corresponding tasks and either executes the task immediately or defer its execution to one of the other threads in the team.
-Therefore, the number of tasks, and lines printed, the same as the number of threads in the team:
+Therefore, the number of tasks, and lines printed, are the same as the number of threads in the team:
     
 .. code-block:: bash
     :emphasize-lines: 3-6
