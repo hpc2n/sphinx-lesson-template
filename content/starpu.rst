@@ -4,8 +4,8 @@ StarPU runtime system
 .. objectives::
 
  - Understand the basics of StarPU
- - Understand how StarPU support distributed memory
- - Understand how StarPU support GPUs
+ - Understand how StarPU supports distributed memory
+ - Understand how StarPU supports GPUs
 
 `StarPU <https://starpu.gitlabpages.inria.fr/>`__ (*A Unified Runtime System for Heterogeneous Multicore Architectures*) is a programming API for shared-memory and distributed-memory parallel programming in C and C++ languages.
 StarPU can also be used through OpenMP pragmas and provides the necessary routines and support to natively access most of its functionalities from Fortran 2008+ codes.
@@ -22,7 +22,7 @@ StarPU has several benefits:
     
  2. StarPU uses **performance models** to predict which computational resource is optimal in a given situation.
  
-    - A programmer does not need to decide between a GPU and a GPU. 
+    - A programmer does not need to decide between a CPU and a GPU. 
     - StarPU does scheduling decisions dynamically during run time.
     
  3. StarPU supports distributed memory.
@@ -81,7 +81,7 @@ The following three basic steps are necessary:
 Hello world
 """""""""""
 
-Lets consider the following "Hello world" program:
+Let us consider the following "Hello world" program:
 
 .. code-block:: c
     :linenos:
@@ -112,7 +112,7 @@ Lets consider the following "Hello world" program:
         return 0;
     }
 
-Clearly this example is much more complicated that the corresponding OpenMP "Hello world" program:
+Clearly this example is much more complicated than the corresponding OpenMP "Hello world" program:
 
 .. code-block:: c
     :linenos:
@@ -129,7 +129,7 @@ Clearly this example is much more complicated that the corresponding OpenMP "Hel
         return 0;
     }
 
-In addition to initialising and shutting down StarPU, we have also introduced a separate `hello_world_cpu` function than contains the `printf` statement and a `hello_world_cl` C struct that contains a pointer to the `hello_world_cpu` function.
+In addition to initialising and shutting down StarPU, we have also introduced a separate `hello_world_cpu` function that contains the `printf` statement and a `hello_world_cl` C struct that contains a pointer to the `hello_world_cpu` function.
 The task itself is created using the `starpu_task_insert` function.
 
 For compilation, we must link the binary with the StarPU library:
@@ -263,7 +263,7 @@ In the earlier "Hello world" example, the `hello_world_cl` had just one CPU impl
         .cpu_funcs = { hello_world_cpu }
     };
 
-In addition to having multiple CPU implementations, a codelet can contain several **CUDA implementation** (`cuda_funcs`) and **OpenCL implementation** (`opencl_funcs`).
+In addition to having multiple CPU implementations, a codelet can contain several **CUDA implementations** (`cuda_funcs`) and **OpenCL implementations** (`opencl_funcs`).
 All functions that implement the codelet have a similar prototype:
 
 .. code-block:: c
@@ -356,7 +356,7 @@ Without it, we must first create a StarPU **task**:
     };
 
 We can see that the `cl` field links the task to the codelet that provides the task implementations.
-Many of field in the `starpu_task` struct are reserved for internal use and should not be modified directly.
+Many of the fields in the `starpu_task` struct are reserved for internal use and should not be modified directly.
 
 If we want, we can create and insert the task manually:
 
@@ -398,7 +398,7 @@ The `starpu_task` C struct is freed automatially after the task has been execute
 Task arguments
 ^^^^^^^^^^^^^^
 
-Lets return back to the task implementations:
+Let us return to the task implementations:
 
 .. code-block:: c
 
@@ -406,7 +406,7 @@ Lets return back to the task implementations:
     typedef void (*starpu_cuda_func_t)(void **, void*);
     typedef void (*starpu_opencl_func_t)(void **, void*);
 
-Note that each task implementation accept two arguments:
+Note that each task implementation accepts two arguments:
 
  1. The first argument is a pointer to an array of **data handles**.
  
@@ -458,7 +458,7 @@ We will first discuss the task arguments as it is signicantly simpler than the d
     Hello world!
 
 The task arguments are passed to the `starpu_task_insert` function which **packs** them to the `starpu_task` C struct.
-StarPU later passed the task arguments to the task implementation.
+StarPU later passes the task arguments to the task implementation.
 For each task argument, we must pass three arguments to the `starpu_task_insert` function:
 
  1. `STARPU_VALUE` tells StarPU that we are passing a task arguments to the task.
@@ -646,7 +646,7 @@ Above, the argument `nx` is the length of the vector and the argument `elemsize`
 
 Above, the argument `ld` is the leading dimension of the matrix (row-major order), the argument `xn` is the width of the matrix and the argument `ny` is the height of the matrix.
 
-For example, the following example allocated a matrix and **initializes** a data handle that encapsulates the matrix:
+For example, the following example allocates a matrix and **initializes** a data handle that encapsulates the matrix:
 
 .. code-block:: c
     :linenos:
@@ -709,7 +709,7 @@ The easiest way to pass a data handles to a task is to declare it in the related
         int checked;
     };
 
-The `nbuffers` field stored the total number of data handles the task accepts and the `modes` field tabulates an access mode for each data handle.
+The `nbuffers` field stores the total number of data handles the task accepts and the `modes` field tabulates an access mode for each data handle.
 The access mode can be one of the following:
 
 :STARPU_NONE:               Not documented.
@@ -774,7 +774,7 @@ Finally, the task implementation extracts a matching **data interface** from the
 
 .. figure:: img/starpu_handles2.png
 
-   Data interfaces. The pointers `matrix` and `ptr` do not necessary point to the same memory location.
+   Data interfaces. The pointers `matrix` and `ptr` do not necessarily point to the same memory location.
 
 The runtime system guarantees that **data resides in the device memory** when a worker thread starts executing the task.
 If necessary, StarPU copies the data from one memory space to another.
@@ -806,7 +806,7 @@ If two tasks are given the same data handle in their argument lists, then an **i
         
         4. Register a data handle for each variable: `a_h`, `b_h` and `c_h`.
         
-        5. Insert an `init_cl` task that initialized `a_h` to 10.
+        5. Insert an `init_cl` task that initializes `a_h` to 10.
         
         6. Insert an `add_cl` task and give `a_h`, `b_h` and `c_h` as arguments.
         
