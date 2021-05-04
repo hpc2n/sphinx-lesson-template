@@ -10,7 +10,7 @@ Scalar algorithm
 
 The algorithm we are considering is called LU factorization (or LU decomposition) without pivoting.
 Let :math:`A` be a square matrix. 
-An LU factorization refers to the factorization of :math:`A` into lower triangular matrix :math:`L` and an upper triangular matrix :math:`U`:
+An LU factorization refers to the factorization of :math:`A` into a lower triangular matrix :math:`L` and an upper triangular matrix :math:`U`:
 
 .. math:: A = L U.
 
