@@ -449,6 +449,8 @@ If the task granularity is very **fine**, then
  2. the tasks are very small and have a very low task-specific performance, and
  3. a very large number of tasks can be ready for scheduling at any given time.
 
+.. figure:: img/granuality2.png
+ 
 Both of these extremes lead to lowered performance.
 We want to keep most computational resources busy most of the time.
 
