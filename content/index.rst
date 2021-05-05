@@ -36,7 +36,8 @@ The final materials are pushed just before the course.
    hpc2n-intro
    setup
    motivation
-   openmp-basics
+   openmp-basics1
+   openmp-basics2
 
 .. toctree::
    :caption: Day 2
