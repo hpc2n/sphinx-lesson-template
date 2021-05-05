@@ -12,7 +12,7 @@ In case of OpenMP, the pragmas specify how the code is to be parallelized.
 .. important::
 
     The Kebnekaise login nodes have the :code:`OMP_NUM_THREADS` environmental variable set to :code:`1`.
-    If you are using the Kebnekaise login nodes experiment with OpenMP, then it is important to set the :code:`OMP_NUM_THREADS` environmental variable to some reasonable value:
+    If you are using the Kebnekaise login nodes to experiment with OpenMP, then it is important to set the :code:`OMP_NUM_THREADS` environmental variable to some reasonable value:
     
     .. code-block:: bash
     
@@ -145,7 +145,12 @@ In the earlier example, we used the :code:`parallel` pragma:
     #pragma omp parallel [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The pragma creates a **team** of **OpenMP threads** that execute the :code:`structured-block` region.
+The pragma creates a **team** of **OpenMP threads** that execute the :code:`structured-block` region:
+
+.. figure:: img/parallel_construct.png
+    :align: center
+    :scale: 75%
+
 The :code:`structured-block` region can be a single statement, like in the earlier example, or a structured block consisting of several statements: 
 
 .. code-block:: c
@@ -157,6 +162,8 @@ The :code:`structured-block` region can be a single statement, like in the earli
         ...
     }
 
+OpenMP guarantees that all threads in the team have executed the structured block before the execution continues outside the parallel construct. 
+    
 The behaviour of a parallel construct can be modified with several **clauses**:
 
 .. code-block:: bash
@@ -264,7 +271,11 @@ We can make two observations:
 
 The explanation is that once the team is created, the threads execute the structured block **independently** of each other.
 This explain why the numbers are printed in an arbitrary order.
-The threads also read and write the variable :code:`number` independently of each other which explain why some threads do not see the changes the other threads have made.
+The threads also read and write the variable :code:`number` independently of each other which explain why some threads do not see the changes the other threads have made:
+
+.. figure:: img/conflict.png
+    :align: center
+    :scale: 75%
 
 OpenMP implements a set of rules that define how variables behave inside OpenMP constructs.
 All variables are either :code:`private` or :code:`shared`:
@@ -278,6 +289,21 @@ These basic **rules** apply:
  2. All variables declared inside a parallel construct are private.
  3. Loop counters are private (in parallel loops).
 
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 1,4,8
+    
+    int a = 5;                  // shared
+    
+    int main() {
+        int b = 44;             // shared
+        
+        #pragma omp parallel
+        {
+            int c = 3;          // private
+        }
+    }
+
 In the above example, the variable :code:`number` is declared outside the parallel construct and all threads therefore share the same variable.
 
 .. challenge::
@@ -285,7 +311,7 @@ In the above example, the variable :code:`number` is declared outside the parall
     Modify the following program such that the variable :code:`number` is declared inside the structured block and is therefore private:
     
     .. code-block:: c
-        :linenos:
+        
 
         #include <stdio.h>
     
@@ -359,7 +385,12 @@ However, the end result is, once again, unexpected:
     I think the number is 0.
     ...
 
-This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel construct.
+This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel construct:
+
+.. figure:: img/private.png
+    :align: center
+    :scale: 75%
+
 The private variables do **not inherit the value of the original variable**.
 If we want this to happen, then we must use the **firstprivate** clause:
 
@@ -388,7 +419,11 @@ This time, the end result is as expected:
     I think the number is 1.
     ...
 
-That is, the private variables inherits the value of the original variable.
+That is, the private variables inherits the value of the original variable:
+
+.. figure:: img/firstprivate.png
+    :align: center
+    :scale: 75%
 
 Explicit data sharing rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -522,7 +557,12 @@ One way of accomplishing this are with the **sections** and **section** construc
         ...
     }
 
-The structured blocks that follow the :code:`section` constructs inside the :code:`sections` construct are distributed among the threads within the team.
+The structured blocks that follow the :code:`section` constructs inside the :code:`sections` construct are distributed among the threads within the team:
+
+.. figure:: img/section.png
+    :align: center
+    :scale: 75%
+
 Each structured block is executed only **once**:
 
 .. code-block:: c
@@ -594,24 +634,209 @@ If we want, we can merge the :code:`parallel` and :code:`sections` constructs to
     }
     
 .. code-block:: bash
-    :emphasize-lines: 3-6
+    :emphasize-lines: 3-5
 
     $ gcc -o my_program my_program.c -Wall -fopenmp
     $ ./my_program 
     Just me!
     No one else!
     Only me!
+
+.. challenge::
+
+    Parallelize the following program using the :code:`sections` and :code:`section` constructs:
+    
+    .. code-block:: c
+        :linenos:
+    
+        #include <stdio.h>
+
+        int main() {
+            int a, b, c, d;
+
+            a = 5;
+            b = 14;
+            c = a + b;
+            d = a + 44;
+            printf("a = %d, b = %d, c = %d, d = %d\n", a, b, c, d);
+
+            return 0;
+        }
+        
+    The program should print :code:`a = 5, b = 14, c = 19, d = 49`.
+    Pay attention to the data dependencies.
+    You may have to add more than one :code:`parallel` construct.
+    
+.. solution::
+
+    The statements :code:`a = 5;` and :code:`b = 14;` can be executed in parallel and we therefore add one :code:`parallel sections` construct for them.
+    The statements :code:`c = a + b;` and :code:`d = a + 44;` can be executed in parallel and we therefore add another :code:`parallel sections` construct for them.
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 6-7,8,10,12,13-14,15,17,19
+
+        #include <stdio.h>
+
+        int main() {
+            int a, b, c, d;
+
+            #pragma omp parallel sections
+            {
+                #pragma omp section
+                a = 5;
+                #pragma omp section
+                b = 14;
+            }
+            #pragma omp parallel sections
+            {
+                #pragma omp section
+                c = a + b;
+                #pragma omp section
+                d = a + 44;
+            }
+            printf("a = %d, b = %d, c = %d, d = %d\n", a, b, c, d);
+
+            return 0;
+        }
+        
+    .. code-block:: bash
+    
+        $ gcc -o my_program my_program.c -Wall -fopenmp
+        $ ./my_program                                 
+        a = 5, b = 14, c = 19, d = 49
     
 Parallel loop construct
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+Most programs contain several loops and parallelizing these loops is often a natural way to add some parallelism to a program. 
+The :code:`loop` construct does exactly that:
 
 .. code-block:: c
 
     #pragma omp loop [clause[ [,] clause] ... ] new-line 
         for-loops
+        
+The construct tells OpenMP that the loop iterations are free of data dependencies and can therefore executed in parallel.
+The loop iterator is :code:`private` by default:
 
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 4,6
+
+    #include <stdio.h>
+    
+    int main() {
+        #pragma omp parallel
+        {
+            #pragma omp loop
+            for (int i = 0; i < 5; i++)
+                printf("The loop iterator is %d.\n", i);
+        }
+    }
+    
+.. code-block:: bash
+    :emphasize-lines: 3-7
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program 
+    The loop iterator is 1.
+    The loop iterator is 4.
+    The loop iterator is 0.
+    The loop iterator is 2.
+    The loop iterator is 3.
+
+Like many other constructs, the :code:`loop` construct accepts several clauses:
+
+.. code-block:: c
+    :emphasize-lines: 2
+
+    bind(binding) 
+    collapse(n) 
+    order(concurrent) 
+    private(list) 
+    lastprivate(list) 
+    reduction([default ,]reduction-identifier : list)
+
+In particular, the :code:`collapse` clause allows us to collapse :code:`n` nested loops into a single parallel loop.
+Otherwise, only the iterations of the outermost loop are executed in parallel.
+
+.. challenge::
+
+    Collapse the two nested loops in the following program:
+    
+    .. code-block:: c
+        :linenos:
+    
+        #include <stdio.h>
+
+        int main() {
+            #pragma omp parallel
+            {
+                #pragma omp loop
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        printf("The loop iterators are %d and %d.\n", i, j);
+            }
+        }
+        
+    .. code-block:: bash
+        :emphasize-lines: 3-11
+    
+        $ gcc -o my_program my_program.c -Wall -fopenmp
+        $ ./my_program 
+        The loop iterators are 2 and 0.
+        The loop iterators are 2 and 1.
+        The loop iterators are 2 and 2.
+        The loop iterators are 0 and 0.
+        The loop iterators are 0 and 1.
+        The loop iterators are 0 and 2.
+        The loop iterators are 1 and 0.
+        The loop iterators are 1 and 1.
+        The loop iterators are 1 and 2.
+        
+    Note how the innermost loop is always executed sequentially.
+    What changes?
+
+.. solution::
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 6
+    
+        #include <stdio.h>
+
+        int main() {
+            #pragma omp parallel
+            {
+                #pragma omp loop collapse(2)
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        printf("The loop iterators are %d and %d.\n", i, j);
+            }
+        }
+
+    .. code-block:: bash
+        :emphasize-lines: 3-11
+    
+        $ gcc -o my_program my_program.c -Wall -fopenmp
+        $ ./my_program 
+        The loop iterators are 2 and 2.
+        The loop iterators are 0 and 0.
+        The loop iterators are 2 and 1.
+        The loop iterators are 0 and 1.
+        The loop iterators are 2 and 0.
+        The loop iterators are 1 and 2.
+        The loop iterators are 0 and 2.
+        The loop iterators are 1 and 0.
+        The loop iterators are 1 and 1.
+        
+    Note that the iterations from the both loops are now executed in an arbitrary order.
+   
 Single and master constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 Critical and atomic constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
