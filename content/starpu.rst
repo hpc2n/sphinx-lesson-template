@@ -792,11 +792,11 @@ If two tasks are given the same data handle in their argument lists, then an **i
     
         1. Write a new task implementation (`add_cpu`) that 
         
-            - accepts three data handles (variable / `int`) as arguments (`buffers[0]`, `buffer[1]` and `buffers[2]`),
+            - accepts three data handles (variable / `int`) as arguments (`buffers[0]`, `buffers[1]` and `buffers[2]`),
             
             - extracts the data interfaces from `buffers`: `a_i`, `b_i` and `c_i`
         
-            - add up the first two arguments and store the result to the third argument. 
+            - adds up the first two arguments and stores the result to the third argument. 
         
         2. Write the corresponding codelet (`add_cl`).
         
@@ -879,7 +879,7 @@ If two tasks are given the same data handle in their argument lists, then an **i
             *a = 10;
         }
 
-        // a task implementation that adds two numbers and return the sum
+        // a task implementation that adds two numbers and returns the sum
         void add_cpu(void *buffers[], void *cl_arg)
         {
             struct starpu_variable_interface *a_i =
