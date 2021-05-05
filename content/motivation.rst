@@ -319,27 +319,31 @@ We can also find the **longest path through the task graph** (when measured in t
 
 This so-called **critical path** gives us a **lower bound** for the execution time of the algorithm.
 The algorithm cannot be executed any faster than this no matter how many CPU cores are used.
+We can take advantage of the critical path only when we consider the task graph.
 
 Task scheduling and priorities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let us consider a different algorithm.
-Again, we only care about the data dependencies:
+Again, the details are not important as we only care about the data dependencies:
 
 .. figure:: img/chain_flow.png
     :scale: 60 %
 
 We can see that the task graph consists of three types of tasks:
 
-:Process window (W):    Perform a computation operation inside a diagonal block (a set of small orthogonal transformations).
+:Process window (W):    Perform a computation operation inside a diagonal window (a set of small orthogonal transformations).
+                        In the above illustration, we have six **overlapping** diagonal windows.
 
 :Right update (R):      Updates the matrix from the right (orthogonal transformation).
+                        Each process window task induces a set of right update tasks.
 
 :Left update (L):       Updates the matrix from the left (orthogonal transformation).
+                        Each process window task induces a set of left update tasks.
 
 We know two additional things about the algorithm:
 
- 1. The process window's tasks are more time consuming that the left and right update tasks.
+ 1. The process window tasks are more time consuming that the left and right update tasks.
  2. The left and right update tasks are equally time consuming.
  
 How should we schedule this task graph?
@@ -367,9 +371,6 @@ This would indirectly **accelerate the critical path** as the next batch of left
     
 .. figure:: img/chain_flow6.png
     :scale: 65 %
-
-Heuristics scheduling approach
-""""""""""""""""""""""""""""""
     
 We must of course remember that task graph are usually much more complicated than this:
     
@@ -379,6 +380,10 @@ We must of course remember that task graph are usually much more complicated tha
 The above task graph comes from the so-called QR algorithm when it is applied to a very small matrix.
 We could probably figure out a close-to-optimal scheduling order from this task graph.
 However, the task graph is heavily preprocessed and its generation took **several minutes** whereas the execution time of the algorithm is just **a few hundred milliseconds**.
+
+Heuristics scheduling approach
+""""""""""""""""""""""""""""""
+
 We therefore need an **automated approach for traversing the task graph**.
 
 We have two options:
@@ -430,8 +435,6 @@ This can affect the performance because
  1. the use of the runtime system introduces some additional overhead,
  2. different task sizes lead to different task-specific performance, and
  3. the *ready pool* size depends on the initial *submitted pool* size.
-
-It is therefore very important that the task granularity is **balanced**.
  
 For example, consider the earlier example:
  
@@ -449,6 +452,8 @@ If the task granularity is very **fine**, then
  2. the tasks are very small and have a very low task-specific performance, and
  3. a very large number of tasks can be ready for scheduling at any given time.
 
+It is therefore very important that the task granularity is **balanced**:
+ 
 .. figure:: img/granuality2.png
  
 Both of these extremes lead to lowered performance.
