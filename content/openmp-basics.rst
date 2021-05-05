@@ -241,7 +241,6 @@ For example, the behaviour of the following program is not well defined:
         return 0;
     }
 
-
 .. code-block:: bash
     :emphasize-lines: 3,6,7,9,12,13,14,16,17
 
@@ -886,10 +885,147 @@ Or use an older :code:`for` construct:
 Single and master constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is sometimes
+It is sometimes necessary to execute a structured block only once inside a parallel construct.
+The :code:`single` construct does exactly this:
 
-Critical and atomic constructs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. code-block:: c
 
+    #pragma omp single [clause[ [,] clause] ... ] new-line 
+        structured-block
+
+The structured block is executed **only once** by **one of the treads** in the team:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 4,7
+    
+    #include <stdio.h>
+
+    int main() {
+        #pragma omp parallel
+        {
+            printf("In parallel.\n");
+            #pragma omp single
+            printf("Only once.\n");
+            printf("More in parallel.\n");
+        }
+    }
+
+.. code-block:: bash
+    :emphasize-lines: 4,9-12
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program                                 
+    In parallel.
+    Only once.
+    In parallel.
+    In parallel.
+    ...
+    In parallel.
+    More in parallel.
+    More in parallel.
+    ...
+    More in parallel.
+
+Note that all :code:`In parallel` lines and the :code:`Only once` line are printed before any :code:`More in parallel` lines are printed.
+This happens because the :code:`single` construct introduces an **implicit barrier to the exit of the construct**.
+That is, all threads in the team must wait until one of the treads has executed the structured block that is associated with the :code:`single` construct.
+We can disable this behaviour using the :code:`nowait` clause:
+    
+.. code-block:: c
+    :emphasize-lines: 5
+
+    private(list) 
+    firstprivate(list) 
+    copyprivate(list) 
+    allocate([allocator :] list) 
+    nowait
+    
+The :code:`single` construct is closely connected to the :code:`master` construct:
+
+.. code-block:: c
+
+    #pragma omp master new-line 
+        structured-block
+        
+However, there are two primary differences:
+
+ 1. Only the **master** thread of the current team can execute the associated structured block.
+ 2. There is no implied barrier either on entry to, or exit from, the master construct.
+        
+Critical  construct
+^^^^^^^^^^^^^^^^^^^
+
+It is sometimes necessary to allow only one thread to execute a structured block concurrently:
+
+.. code-block:: c
+
+    #pragma omp critical [(name) [[,] hint(hint-expression)] ] new-line 
+        structured-block
+
+Several :code:`critical` constructs can be joined together by giving them the same name:
+
+.. code-block:: c
+
+    #pragma omp critical (protect_x) 
+        x++;
+    
+    ...
+    
+    #pragma omp critical (protect_x) 
+        x = x - 15;
+        
+.. challenge::
+
+    Modify the following program such that the :code:`printf` and :code:`number++` statements are protected:
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 6
+
+        #include <stdio.h>
+        
+        int main() {
+            int number = 1;
+            #pragma omp parallel
+            printf("I think the number is %d.\n", number++);
+            return 0;
+        }
+
+.. solution::
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 6
+
+        #include <stdio.h>
+        
+        int main() {
+            int number = 1;
+            #pragma omp parallel
+            #pragma omp critical
+            printf("I think the number is %d.\n", number++);
+            return 0;
+        }
+    
+    .. code-block:: bash
+        :emphasize-lines: 3-6
+    
+        $ gcc -o my_program my_program.c -Wall -fopenmp
+        $ ./my_program                                 
+        I think the number is 1.
+        I think the number is 2.
+        I think the number is 3.
+        I think the number is 4.
+        ...
+        
 Barrier construct
 ^^^^^^^^^^^^^^^^^
+
+Finally, we can add an **explicit** barrier:
+
+.. code-block:: c
+
+    #pragma omp barrier new-line
+    
+That is, all threads in the team must wait until all other threads in the team have encountered the :code:`barrier` construct.
