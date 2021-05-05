@@ -89,7 +89,7 @@ The :code:`-fopenmp` compiler option tells the compiler to expect OpenMP pragmas
     
 .. solution::
 
-    Lets try values 1, 4 and 8:
+    Let us try values 1, 4 and 8:
 
     .. code-block:: bash
         :emphasize-lines: 2,4-7,9-16
@@ -123,7 +123,7 @@ In C and C++, an OpenMP pragma has the following form:
 
     #pragma omp directive-name [clause[ [,] clause] ... ] new-line
 
-A compiler typically support several types of pragmas, not just OpenMP pragmas.
+A compiler typically supports several types of pragmas, not just OpenMP pragmas.
 Therefore, all OpenMP pragmas begin with the keywords :code:`#pragma omp`.
 The :code:`directive-name` placeholder specifies the used OpenMP construct (e.g. :code:`parallel`) and a pragma is always followed by a new line.
 Typically, a pragma affects the user code that follows it but some OpenMP pragmas are *stand-alone*.
@@ -145,7 +145,7 @@ In the earlier example, we used the :code:`parallel` pragma:
     #pragma omp parallel [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The pragma creates a **team** of **OpenMP threads** that execute the :code:`structured-block` region:
+The pragma creates a **team** of **OpenMP threads** that executes the :code:`structured-block` region:
 
 .. figure:: img/parallel_construct.png
     :align: center
