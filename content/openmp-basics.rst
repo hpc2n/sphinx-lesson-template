@@ -929,7 +929,12 @@ The structured block is executed **only once** by **one of the treads** in the t
 
 Note that all :code:`In parallel` lines and the :code:`Only once` line are printed before any :code:`More in parallel` lines are printed.
 This happens because the :code:`single` construct introduces an **implicit barrier to the exit of the construct**.
-That is, all threads in the team must wait until one of the treads has executed the structured block that is associated with the :code:`single` construct.
+That is, all threads in the team must wait until one of the treads has executed the structured block that is associated with the :code:`single` construct:
+
+.. figure:: img/barrier.png
+    :align: center
+    :scale: 85%
+
 We can disable this behaviour using the :code:`nowait` clause:
     
 .. code-block:: c
