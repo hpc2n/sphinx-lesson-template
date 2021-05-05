@@ -1033,4 +1033,8 @@ Finally, we can add an **explicit** barrier:
 
     #pragma omp barrier new-line
     
-That is, all threads in the team must wait until all other threads in the team have encountered the :code:`barrier` construct.
+That is, all threads in the team must wait until all other threads in the team have encountered the :code:`barrier` construct:
+
+.. figure:: img/barrier.png
+    :align: center
+    :scale: 85%
