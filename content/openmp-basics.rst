@@ -797,7 +797,7 @@ Otherwise, only the iterations of the outermost loop are executed in parallel.
         
     Note how the innermost loop is always executed sequentially.
     What changes?
-
+    
 .. solution::
 
     .. code-block:: c
@@ -832,11 +832,61 @@ Otherwise, only the iterations of the outermost loop are executed in parallel.
         The loop iterators are 1 and 1.
         
     Note that the iterations from the both loops are now executed in an arbitrary order.
-   
+
+If we want, we can merge the :code:`parallel` and :code:`loop` constructs together:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 4
+
+    #include <stdio.h>
+    
+    int main() {
+        #pragma omp parallel loop
+        for (int i = 0; i < 5; i++)
+            printf("The loop iterator is %d.\n", i);
+    }
+    
+.. code-block:: bash
+    :emphasize-lines: 3-7
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program 
+    The loop iterator is 4.
+    The loop iterator is 0.
+    The loop iterator is 2.
+    The loop iterator is 3.
+    The loop iterator is 1.
+
+Or use an older :code:`for` construct:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 4
+
+    #include <stdio.h>
+    
+    int main() {
+        #pragma omp parallel for
+        for (int i = 0; i < 5; i++)
+            printf("The loop iterator is %d.\n", i);
+    }
+    
+.. code-block:: bash
+    :emphasize-lines: 3-7
+
+    $ gcc -o my_program my_program.c -Wall -fopenmp
+    $ ./my_program 
+    The loop iterator is 3.
+    The loop iterator is 1.
+    The loop iterator is 0.
+    The loop iterator is 2.
+    The loop iterator is 4.
+    
 Single and master constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
+It is sometimes
 
 Critical and atomic constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
