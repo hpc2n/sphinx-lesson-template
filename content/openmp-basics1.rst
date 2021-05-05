@@ -324,7 +324,7 @@ In the above example, the variable :code:`number` is declared outside the parall
     Run the program.
     Can you explain the behaviour?
     
-    **Hint:** Remember that structured block that consists of several statements must be enclosed inside :code:`{ }` brackets. 
+    **Hint:** Remember that a structured block that consists of several statements must be enclosed inside :code:`{ }` brackets. 
 
 .. solution::
 
@@ -457,7 +457,7 @@ It is therefore not surprising that the compiler produces an error indicating th
         5 |     #pragma omp parallel default(none)
           |
 
-We can now set the :code:`number` variable to first private:
+We can now set the :code:`number` variable to firstprivate:
 
 .. code-block:: c
     :linenos:
