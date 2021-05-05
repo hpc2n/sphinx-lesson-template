@@ -196,7 +196,7 @@ The :code:`loop` construct does exactly that:
     #pragma omp loop [clause[ [,] clause] ... ] new-line 
         for-loops
         
-The construct tells OpenMP that the loop iterations are free of data dependencies and can therefore executed in parallel.
+The construct tells OpenMP that the loop iterations are free of data dependencies and can therefore be executed in parallel.
 The loop iterator is :code:`private` by default:
 
 .. code-block:: c
@@ -310,7 +310,7 @@ Otherwise, only the iterations of the outermost loop are executed in parallel.
         The loop iterators are 1 and 0.
         The loop iterators are 1 and 1.
         
-    Note that the iterations from the both loops are now executed in an arbitrary order.
+    Note that the iterations from both loops are now executed in an arbitrary order.
 
 If we want, we can merge the :code:`parallel` and :code:`loop` constructs together:
 
@@ -373,7 +373,7 @@ The :code:`single` construct does exactly this:
     #pragma omp single [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The structured block is executed **only once** by **one of the treads** in the team:
+The structured block is executed **only once** by **one of the threads** in the team:
 
 .. code-block:: c
     :linenos:
@@ -409,7 +409,7 @@ The structured block is executed **only once** by **one of the treads** in the t
 
 Note that all :code:`In parallel` lines and the :code:`Only once` line are printed before any :code:`More in parallel` lines are printed.
 This happens because the :code:`single` construct introduces an **implicit barrier to the exit of the construct**.
-That is, all threads in the team must wait until one of the treads has executed the structured block that is associated with the :code:`single` construct:
+That is, all threads in the team must wait until one of the threads has executed the structured block that is associated with the :code:`single` construct:
 
 .. figure:: img/barrier.png
     :align: center
