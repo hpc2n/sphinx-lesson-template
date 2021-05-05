@@ -523,7 +523,7 @@ The types of these variables must match the type of the task argument:
 
 .. challenge::
 
-    Modify the following program such that the task accept two integer argument (`int`) and prints their sum:
+    Modify the following program such that the task accepts two integer arguments (`int`) and prints their sum:
     
     .. code-block:: c
         :linenos:
