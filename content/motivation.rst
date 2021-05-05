@@ -166,7 +166,7 @@ More importantly, the two functions can be executed in **parallel**:
 
 .. figure:: img/functions_nodep_parallel.png
 
-Lets modify the the program slightly:
+Let us modify the the program slightly:
 
 .. code-block:: c
     :linenos:
@@ -194,7 +194,7 @@ This time the function :code:`function1` modifies the variable :code:`b`:
     
 .. figure:: img/functions_dep.png
 
-Therefore, the two functions calls are **not** independent of each other and changing the order would change the printed lines.
+Therefore, the two function calls are **not** independent of each other and changing the order would change the printed lines.
 Furthermore, executing the two functions in parallel would lead to an **undefined result** as the execution order would be arbitrary.
 
 We could say that **in this particular context**, the function :code:`function2` is **dependent** on the function :code:`function1`.
@@ -209,7 +209,7 @@ We can therefore conclude that the **data dependencies are separate from the fun
 Tasks and task dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Based on the previous discussion, we need an object that can describe the following:
+Based on the previous discussion, we need an object that can be described as the following:
 
  1. The operation that is to be performed (implementation).
  2. The data that is involved in the operation (input and output).
@@ -243,7 +243,7 @@ This is indeed what happens in practice as a programmer generally defines only
  - the task implementations, and 
  - the input and output variables.
  
-So-called **runtime systems** then deduces the task dependencies from the sequential order and the input and output variables.
+So-called **runtime systems** then deduce the task dependencies from the sequential order and the input and output variables.
 We say that the task graph is constructed **implicitly**.
 The runtime system then executes the task in a **sequentially consistent order**.
 That is, the runtime system may execute the task in any order as long as it respects the task dependencies.
@@ -258,7 +258,7 @@ This can reduce the overhead that arises from the construction of the task graph
 More about task graphs
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Lets consider a slightly more complicated situation.
+Let us consider a slightly more complicated situation.
 Consider an algorithm that consists of three steps that are iterated multiple times:
 
  1. Compute a **diagonal block** (orange).
@@ -343,7 +343,7 @@ We can see that the task graph consists of three types of tasks:
 
 We know two additional things about the algorithm:
 
- 1. The process window tasks are more time consuming that the left and right update tasks.
+ 1. The process window tasks are more time consuming than the left and right update tasks.
  2. The left and right update tasks are equally time consuming.
  
 How should we schedule this task graph?
@@ -372,7 +372,7 @@ This would indirectly **accelerate the critical path** as the next batch of left
 .. figure:: img/chain_flow6.png
     :scale: 65 %
     
-We must of course remember that task graph are usually much more complicated than this:
+We must of course remember that task graphs are usually much more complicated than this:
     
 .. figure:: img/dag.png
     :scale: 35 %
