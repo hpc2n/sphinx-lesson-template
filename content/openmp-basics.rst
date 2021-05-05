@@ -9,6 +9,17 @@ Introduction to OpenMP
 It is based on **pragmas** or **directives** which augment the source code and change how a compiler processes the source code.
 In case of OpenMP, the pragmas specify how the code is to be parallelized.
 
+.. important::
+
+    The Kebnekaise login nodes have the :code:`OMP_NUM_THREADS` environmental variable set to :code:`1`.
+    If you are using the Kebnekaise login nodes experiment with OpenMP, then it is important to set the :code:`OMP_NUM_THREADS` environmental variable to some reasonable value:
+    
+    .. code-block:: bash
+    
+        $ export OMP_NUM_THREADS=8
+
+    Please note that you are not allowed to run long computations on the login nodes!
+        
 Simple example
 ^^^^^^^^^^^^^^
 
