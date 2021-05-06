@@ -145,7 +145,7 @@ In the earlier example, we used the :code:`parallel` pragma:
     #pragma omp parallel [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The pragma creates a **team** of **OpenMP threads** that executes the :code:`structured-block` region:
+The pragma creates a **team** of **OpenMP threads** that executes the :code:`structured-block` as a **parallel region**:
 
 .. figure:: img/parallel_construct.png
     :align: center
@@ -162,7 +162,7 @@ The :code:`structured-block` region can be a single statement, like in the earli
         ...
     }
 
-OpenMP guarantees that all threads in the team have executed the structured block before the execution continues outside the parallel construct. 
+OpenMP guarantees that all threads in the team have executed the structured block before the execution continues outside the parallel region. 
     
 The behaviour of a parallel construct can be modified with several **clauses**:
 
@@ -284,8 +284,8 @@ All variables are either :code:`private` or :code:`shared`:
 
 These basic **rules** apply:
 
- 1. All variables declared outside parallel constructs are shared.
- 2. All variables declared inside a parallel construct are private.
+ 1. All variables declared outside parallel region are shared.
+ 2. All variables declared inside a parallel region are private.
  3. Loop counters are private (in parallel loops).
 
 .. code-block:: c
@@ -303,7 +303,7 @@ These basic **rules** apply:
         }
     }
 
-In the above example, the variable :code:`number` is declared outside the parallel construct and all threads therefore share the same variable.
+In the above example, the variable :code:`number` is declared outside the parallel region and all threads therefore share the same variable.
 
 .. challenge::
 
@@ -357,7 +357,7 @@ In the above example, the variable :code:`number` is declared outside the parall
     This happens because each thread has its own :code:`number` variable that is initialized to 1.
     The incrementation affects only the thread's own copy of the variable.
 
-We can use the **private** clause to turn a variable that has been declared outside a parallel construct into a private variable:
+We can use the **private** clause to turn a variable that has been declared outside a parallel region into a private variable:
 
 .. code-block:: c
     :linenos:
@@ -384,7 +384,7 @@ However, the end result is, once again, unexpected:
     I think the number is 0.
     ...
 
-This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel construct:
+This happens because each thread has its own :code:`number` variable that is separate from the :code:`number` variable declared outside the parallel region:
 
 .. figure:: img/private.png
     :align: center
@@ -443,7 +443,7 @@ The default behaviour can be changed with the **default** clause:
     }
 
 This tells the compiler that a programmer must explicitly set the data sharing rule for each variable.
-It is therefore not surprising that the compiler produces an error indicating that the :code:`number` variable is not specified in the enclosing parallel construct:
+It is therefore not surprising that the compiler produces an error indicating that the :code:`number` variable is not specified in the enclosing parallel region:
 
 .. code-block:: bash
     :emphasize-lines: 2-8

@@ -365,7 +365,7 @@ Or use an older :code:`for` construct:
 Single and master constructs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is sometimes necessary to execute a structured block only once inside a parallel construct.
+It is sometimes necessary to execute a structured block only once inside a parallel region.
 The :code:`single` construct does exactly this:
 
 .. code-block:: c
@@ -408,7 +408,7 @@ The structured block is executed **only once** by **one of the threads** in the 
     More in parallel.
 
 Note that all :code:`In parallel` lines and the :code:`Only once` line are printed before any :code:`More in parallel` lines are printed.
-This happens because the :code:`single` construct introduces an **implicit barrier to the exit of the construct**.
+This happens because the :code:`single` construct introduces an **implicit barrier to the exit of the single region**.
 That is, all threads in the team must wait until one of the threads has executed the structured block that is associated with the :code:`single` construct:
 
 .. figure:: img/barrier.png
@@ -436,7 +436,7 @@ The :code:`single` construct is closely connected to the :code:`master` construc
 However, there are two primary differences:
 
  1. Only the **master** thread of the current team can execute the associated structured block.
- 2. There is no implied barrier either on entry to, or exit from, the master construct.
+ 2. There is no implied barrier either on entry to, or exit from, the master region.
         
 Critical  construct
 ^^^^^^^^^^^^^^^^^^^
