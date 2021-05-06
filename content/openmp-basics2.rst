@@ -4,17 +4,6 @@ Introduction to OpenMP (part 2)
 .. objectives::
 
  - Understand the basics of OpenMP
-
-.. important::
-
-    The Kebnekaise login nodes have the :code:`OMP_NUM_THREADS` environmental variable set to :code:`1`.
-    If you are using the Kebnekaise login nodes to experiment with OpenMP, then it is important to set the :code:`OMP_NUM_THREADS` environmental variable to some reasonable value:
-    
-    .. code-block:: bash
-    
-        $ export OMP_NUM_THREADS=8
-
-    Please note that you are not allowed to run long computations on the login nodes!
  
 Section construct
 ^^^^^^^^^^^^^^^^^
