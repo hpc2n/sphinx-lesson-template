@@ -8,7 +8,7 @@ OpenMP task basics (part 1)
 Terminology
 ^^^^^^^^^^^
 
-Lets go through some basic terminology:
+Let us go through some basic terminology:
 
 :Task:                      A specific instance of *executable code* and *its data environment* that the OpenMP implementation can schedule for execution by threads.
 :Task region:               A region consisting of all code encountered during the execution of a task.
@@ -23,7 +23,7 @@ That is, you have already done task-based programming!
 :Binding thread set:        The set of threads that are affected by, or provide the context for, the execution of a region.
 :Binding implicit task:     The implicit task of the current thread team assigned to the encountering thread.
 
-Most OpenMP costructs have a **binding thread set** that defines the threads involved in the construct.
+Most OpenMP constructs have a **binding thread set** that defines the threads involved in the construct.
 We can also see that the current team is bound to a **binding implicit task**.
 These terms will help us to understand where the tasks are executed.
 
@@ -52,13 +52,13 @@ The simplest way to create an explicit task in OpenMP is the :code:`task` constr
     #pragma omp task [clause[ [,] clause] ... ] new-line 
         structured-block
 
-The thread that encounters the :code:`task` construct creates an explicit tasks from the structured block.
+The thread that encounters the :code:`task` construct creates an explicit task from the structured block.
 The encountering thread 
 
  - may execute the task **immediately** or 
  - **defer its execution** to one of the other threads in the team.
  
-A task is always **bond to the innermost parallel region**.
+A task is always **bound to the innermost parallel region**.
 If a task construct is encountered outside a parallel region, then the structured block is executed immediately by the encountering thread.
 
 The :code:`task` construct accepts a set of clauses:
@@ -83,9 +83,9 @@ The :code:`task` construct accepts a set of clauses:
 
 We can already recognise some of the clauses.
 For example, the :code:`if` clause can be used to enable/disable the creation of the corresponding task, and the :code:`default`, :code:`private`, :code:`firstprivate`, and :code:`shared` clauses are used to control the data sharing rules.
-It should be noted that some of these clauses behave slightly differently when compared the traditional OpenMP constructs.
+It should be noted that some of these clauses behave slightly differently when compared to the traditional OpenMP constructs.
 
-Let us return back to the earlier "Hello world" program:
+Let us return to the earlier "Hello world" program:
     
 .. code-block:: c
     :linenos:
@@ -106,7 +106,7 @@ Note that the :code:`task` pragma is **inside a parallel construct**.
 Each thread in the team 
 
  - encounters the task construct, 
- - creates the corresponding tasks and 
+ - creates the corresponding task and 
  - either executes the task immediately or defer its execution to one of the other threads in the team:
  
 .. figure:: img/task.png
@@ -126,8 +126,8 @@ Therefore, the number of tasks, and lines printed, are the same as the number of
 Data sharing rules
 ^^^^^^^^^^^^^^^^^^
 
-We must again begin discussing the data sharing rules.
-Lets reconsider an earlier example:
+We must again begin by discussing the data sharing rules.
+Let us reconsider an earlier example:
 
 .. code-block:: c
     :linenos:
@@ -164,7 +164,7 @@ The output of the program is not that surprising:
 That is, variables declared outside the parallel construct are still :code:`shared` by default.
 This is consistent with the three basic data sharing rules.
 
-If we move the variable :code:`number` inside the parallel construct, the the variable becomes :code:`firstprivate` by default:
+If we move the variable :code:`number` inside the parallel construct, then the variable becomes :code:`firstprivate` by default:
 
 .. code-block:: c
     :linenos:
@@ -222,7 +222,7 @@ The value of the variable is copied when the task is created.
     
     Note that the :code:`atomic` construct is usually a better approach when protecting a scalar update operation.
     
-    **Hint:** You may want to read the value of the :code:`number` variable to a private variable.
+    **Hint:** You may want to write the value of the :code:`number` variable to a private variable.
 
 .. solution::
 
@@ -289,7 +289,7 @@ Single construct
 
 In the earlier examples, **each thread in the team created a task**. 
 This is sometimes very convenient as the need for new tasks might arise gradually.
-However, it is more likely that we want to generate the tasks graph in a centralized manner, i.e. **only one thread should generate the task**.
+However, it is more likely that we want to generate the task graph in a centralized manner, i.e. **only one thread should generate the task**.
 This can be accomplished by combining the :code:`parallel` and :code:`single` constructs:
 
 .. code-block:: c
@@ -322,7 +322,7 @@ That is, any tasks in the current team can execute the task.
 
 .. challenge::
 
-    Write a program that creates 10 task. 
+    Write a program that creates 10 tasks. 
     Each task should print the thread number of the calling thread.
     
     **Hint:** From the :code:`omp.h` header file:
@@ -368,7 +368,7 @@ That is, any tasks in the current team can execute the task.
         I am thread no. 9.
         
 Barrier construct
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
 It is sometimes necessary to wait until all earlier tasks have been executed.
 This can be accomplished with the :code:`barrier` construct:
@@ -458,7 +458,7 @@ A task can create new **child tasks**:
     Goodbye.
 
 Note that child tasks are executed separately from the generating tasks. 
-In particular, it is possible that a child tasks gets executed after the generating task has finished.
+In particular, it is possible that a child task gets executed after the generating task has finished.
 We can use the :code:`taskwait` construct to **wait on the completion of child tasks** of the generating task:
 
 .. code-block:: c
@@ -541,7 +541,7 @@ This allows us to enforce an execution order:
         $ ./my_program 
         fib(10) = 55
         
-    **Hint:** Remember, variables defined inside a parallel construct are :code:`firstprivate` for a task region by default. Also, you must wait certain tasks.
+    **Hint:** Remember, variables defined inside a parallel construct are :code:`firstprivate` for a task region by default. Also, you must wait for certain tasks.
 
 .. solution::
 
