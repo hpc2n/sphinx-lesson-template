@@ -356,8 +356,6 @@ We then loop over the diagonal blocks as follows:
 
 .. figure:: img/blocked_lu1.png
 
-   Factorization of the first diagonal block, updates to the block row and column, and updates to the trailing matrix.
-
 The exact details are not that relevant as we are only interested in the data dependencies.
    
 Test program
@@ -747,6 +745,8 @@ Challenge
     
 Finely-blocked algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+If we want to reach a reasonable
 
 .. figure:: img/blocked_lu2.png
 

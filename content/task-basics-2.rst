@@ -5,3 +5,34 @@ OpenMP task basics (part 2)
 
  - Understand more about the OpenMP tasks
 
+Task loop
+^^^^^^^^^
+
+Master task loop
+""""""""""""""""
+
+Yielding 
+^^^^^^^^
+
+
+
+Task group
+^^^^^^^^^^
+
+The taskgroup construct specifies a wait on completion of child tasks of the current task and their descendent tasks.
+Tasks and their descendent tasks can be synchronized by containing them in a taskgroup region.
+
+Depend clause
+^^^^^^^^^^^^^
+
+Priority
+^^^^^^^^
+
+Mergeable clause
+^^^^^^^^^^^^^^^^
+
+Final clause
+^^^^^^^^^^^^
+
+Team construct
+^^^^^^^^^^^^^^
