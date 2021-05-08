@@ -45,7 +45,7 @@ The final materials are pushed just before the course.
    
    task-basics-1
    task-basics-2
-   lu-factorization
+   task-basics-lu
 
 .. toctree::
    :caption: Day 3
