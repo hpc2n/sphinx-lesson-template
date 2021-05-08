@@ -600,9 +600,9 @@ Challenge
     Try to parallelize the block row on column updates (:code:`dtrsm_`).
     Try both
     
-     - the :code:`#pragma omp parallel sections` and :code:`#pragma omp section` constructs and
+     - the :code:`sections` and :code:`section` constructs and
      
-     - the :code:`#pragma omp task` construct.
+     - the :code:`task` construct.
     
     Do you notice any difference in the run time?
 
@@ -746,8 +746,538 @@ Challenge
 Finely-blocked algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-If we want to reach a reasonable
+If we want to reach a reasonable level of parallelism, we must make the task granularity finer:
 
 .. figure:: img/blocked_lu2.png
 
-   Factorization of the first diagonal block, updates to the block row and column blocks, and updates to the trailing matrix blocks.
+Finely-blocked implementation
+"""""""""""""""""""""""""""""
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 34-35,49-50,54-55,69-70,75-78,93-95
+
+    void blocked_lu(int block_size, int n, int ldA, double *A)
+    {
+        // allocate and fill an array that stores the block pointers
+        int block_count = DIVCEIL(n, block_size);
+        double ***blocks = (double ***) malloc(block_count*sizeof(double**));
+        for (int i = 0; i < block_count; i++) {
+            blocks[i] = (double **) malloc(block_count*sizeof(double*));
+
+            for (int j = 0; j < block_count; j++)
+                blocks[i][j] = A+(j*ldA+i)*block_size;
+        }
+
+        // iterate through the diagonal blocks
+        for (int i = 0; i < block_count; i++) {
+
+            // calculate diagonal block size
+            int dsize = MIN(block_size, n-i*block_size);
+
+            // process the current diagonal block
+            //
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+   ## - process (read-write)
+            // |  |##|  |  |
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+
+            //
+            simple_lu(dsize, ldA, blocks[i][i]);
+
+            // process the blocks to the right of the current diagonal block
+            for (int j = i+1; j < block_count; j++) {
+                int width = MIN(block_size, n-j*block_size);
+
+                // blocks[i][j] <- L1(blocks[i][i]) \ blocks[i][j]
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write), current iteration
+                // |  |rr|##|xx|   xx - process (read-write) 
+                // +--+--+--+--+   rr - read
+                // |  |  |  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                //
+                dtrsm_("Left", "Lower", "No transpose", "Unit triangular",
+                    &dsize, &width, &one, blocks[i][i], &ldA, blocks[i][j], &ldA);
+            }
+
+            // process the blocks below the current diagonal block
+            for (int j = i+1; j < block_count; j++) {
+                int height = MIN(block_size, n-j*block_size);
+
+                // blocks[j][i] <- U(blocks[i][i]) / blocks[j][i]
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write), current iteration
+                // |  |rr|  |  |   xx - process (read-write)
+                // +--+--+--+--+   rr - read
+                // |  |##|  |  |
+                // +--+--+--+--+
+                // |  |xx|  |  |
+                // +--+--+--+--+
+                //
+                dtrsm_("Right", "Upper", "No Transpose", "Not unit triangular",
+                    &height, &dsize, &one, blocks[i][i], &ldA, blocks[j][i], &ldA);
+            }
+
+            // process the trailing matrix
+
+            for (int ii = i+1; ii < block_count; ii++) {
+                for (int jj = i+1; jj < block_count; jj++) {
+                    int width = MIN(block_size, n-jj*block_size);
+                    int height = MIN(block_size, n-ii*block_size);
+
+                    // blocks[ii][jj] <- 
+                    //               blocks[ii][jj] - blocks[ii][i] * blocks[i][jj]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |  |rr|..|   xx - process (read-write)
+                    // +--+--+--+--+   rr - read, current iteration
+                    // |  |rr|##|xx|   .. - read
+                    // +--+--+--+--+
+                    // |  |..|xx|xx|
+                    // +--+--+--+--+
+                    //
+                    dgemm_("No Transpose", "No Transpose", 
+                        &height, &width, &dsize, &minus_one, blocks[ii][i], 
+                        &ldA, blocks[i][jj], &ldA, &one, blocks[ii][jj], &ldA);
+                }
+            }
+
+        }
+
+        // free allocated resources
+        for (int i = 0; i < block_count; i++)
+            free(blocks[i]);
+        free(blocks);
+    }
+
+In particular, the above code divides the trailing matrix update into numerous sub-tasks.
+
+Test program
+""""""""""""
+
+.. code-block:: c
+    :linenos:
+    
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <time.h>
+
+    extern double dnrm2_(int const *, double const *, int const *);
+
+    extern void dtrmm_(char const *, char const *, char const *, char const *,
+        int const *, int const *, double const *, double const *, int const *,
+        double *, int const *);
+
+    extern void dlacpy_(char const *, int const *, int const *, double const *,
+        int const *, double *, int const *);
+
+    extern double dlange_(char const *, int const *, int const *, double const *,
+        int const *, double *);
+
+    extern void dtrsm_(char const *, char const *, char const *, char const *,
+        int const *, int const *, double const *, double const *, int const *,
+        double *, int const *);
+
+    extern void dgemm_(char const *, char const *, int const *, int const *,
+        int const *, double const *, double const *, int const *, double const *,
+        int const *, double const *, double *, int const *);
+
+    double one = 1.0;
+    double minus_one = -1.0;
+
+    // returns the ceil of a / b
+    int DIVCEIL(int a, int b)
+    {
+        return (a+b-1)/b;
+    }
+
+    // returns the minimum of a and b
+    int MIN(int a, int b)
+    {
+        return a < b ? a : b;
+    }
+
+    void simple_lu(int n, int ldA, double *A)
+    {
+        for (int i = 0; i < n; i++) {
+            for (int j = i+1; j < n; j++) {
+                A[i*ldA+j] /= A[i*ldA+i];
+
+                for (int k = i+1; k < n; k++)
+                    A[k*ldA+j] -= A[i*ldA+j] * A[k*ldA+i];
+            }
+        }
+    }
+
+    void blocked_lu(int block_size, int n, int ldA, double *A)
+    {
+        // allocate and fill an array that stores the block pointers
+        int block_count = DIVCEIL(n, block_size);
+        double ***blocks = (double ***) malloc(block_count*sizeof(double**));
+        for (int i = 0; i < block_count; i++) {
+            blocks[i] = (double **) malloc(block_count*sizeof(double*));
+
+            for (int j = 0; j < block_count; j++)
+                blocks[i][j] = A+(j*ldA+i)*block_size;
+        }
+
+        // iterate through the diagonal blocks
+        for (int i = 0; i < block_count; i++) {
+
+            // calculate diagonal block size
+            int dsize = MIN(block_size, n-i*block_size);
+
+            // process the current diagonal block
+            //
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+   ## - process (read-write)
+            // |  |##|  |  |
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+
+            // |  |  |  |  |
+            // +--+--+--+--+
+            //
+            simple_lu(dsize, ldA, blocks[i][i]);
+
+            // process the blocks to the right of the current diagonal block
+            for (int j = i+1; j < block_count; j++) {
+                int width = MIN(block_size, n-j*block_size);
+
+                // blocks[i][j] <- L1(blocks[i][i]) \ blocks[i][j]
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write), current iteration
+                // |  |rr|##|xx|   xx - process (read-write) 
+                // +--+--+--+--+   rr - read
+                // |  |  |  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                //
+                dtrsm_("Left", "Lower", "No transpose", "Unit triangular",
+                    &dsize, &width, &one, blocks[i][i], &ldA, blocks[i][j], &ldA);
+            }
+
+            // process the blocks below the current diagonal block
+            for (int j = i+1; j < block_count; j++) {
+                int height = MIN(block_size, n-j*block_size);
+
+                // blocks[j][i] <- U(blocks[i][i]) / blocks[j][i]
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write), current iteration
+                // |  |rr|  |  |   xx - process (read-write)
+                // +--+--+--+--+   rr - read
+                // |  |##|  |  |
+                // +--+--+--+--+
+                // |  |xx|  |  |
+                // +--+--+--+--+
+                //
+                dtrsm_("Right", "Upper", "No Transpose", "Not unit triangular",
+                    &height, &dsize, &one, blocks[i][i], &ldA, blocks[j][i], &ldA);
+            }
+
+            // process the trailing matrix
+
+            for (int ii = i+1; ii < block_count; ii++) {
+                for (int jj = i+1; jj < block_count; jj++) {
+                    int width = MIN(block_size, n-jj*block_size);
+                    int height = MIN(block_size, n-ii*block_size);
+
+                    // blocks[ii][jj] <- 
+                    //               blocks[ii][jj] - blocks[ii][i] * blocks[i][jj]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |  |rr|..|   xx - process (read-write)
+                    // +--+--+--+--+   rr - read, current iteration
+                    // |  |rr|##|xx|   .. - read
+                    // +--+--+--+--+
+                    // |  |..|xx|xx|
+                    // +--+--+--+--+
+                    //
+                    dgemm_("No Transpose", "No Transpose", 
+                        &height, &width, &dsize, &minus_one, blocks[ii][i], 
+                        &ldA, blocks[i][jj], &ldA, &one, blocks[ii][jj], &ldA);
+                }
+            }
+
+        }
+
+        // free allocated resources
+        for (int i = 0; i < block_count; i++)
+            free(blocks[i]);
+        free(blocks);
+    }
+
+    // computes C <- L * U
+    void mul_lu(int n, int lda, int ldb, double const *A, double *B)
+    {
+        // B <- U(A) = U
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i+1; j++)
+                B[i*ldb+j] = A[i*lda+j];
+            for (int j = i+1; j < n; j++)
+                B[i*ldb+j] = 0.0;
+        }
+
+        // B <- L1(A) * B = L * U
+        dtrmm_("Left", "Lower", "No Transpose", "Unit triangular",
+            &n, &n, &one, A, &lda, B, &ldb);
+    }
+
+    int main(int argc, char **argv)
+    {
+        //
+        // check arguments
+        //
+
+        if (argc != 3) {
+            fprintf(stderr,
+                "[error] Incorrect arguments. Use %s (n) (block size)\n", argv[0]);
+            return EXIT_FAILURE;
+        }
+
+        int n = atoi(argv[1]);
+        if (n < 1)  {
+            fprintf(stderr, "[error] Invalid matrix dimension.\n");
+            return EXIT_FAILURE;
+        }
+
+        int block_size = atoi(argv[2]);
+        if (block_size < 2)  {
+            fprintf(stderr, "[error] Invalid block size.\n");
+            return EXIT_FAILURE;
+        }
+
+        //
+        // Initialize matrix A and store a duplicate to matrix B. Matrix C is for
+        // validation.
+        //
+
+        srand(time(NULL));
+
+        int ldA, ldB, ldC;
+        ldA = ldB = ldC = DIVCEIL(n, 8)*8; // align to 64 bytes
+        double *A = (double *) aligned_alloc(8, n*ldA*sizeof(double));
+        double *B = (double *) aligned_alloc(8, n*ldB*sizeof(double));
+        double *C = (double *) aligned_alloc(8, n*ldC*sizeof(double));
+
+        if (A == NULL || B == NULL || C == NULL) {
+            fprintf(stderr, "[error] Failed to allocate memory.\n");
+            return EXIT_FAILURE;
+        }
+
+        // A <- random diagonally dominant matrix
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++)
+                A[i*ldA+j] = B[i*ldB+j] = 2.0*rand()/RAND_MAX - 1.0;
+            A[i*ldA+i] = B[i*ldB+i] = 1.0*rand()/RAND_MAX + n;
+        }
+
+        //
+        // compute
+        //
+
+        struct timespec ts_start;
+        clock_gettime(CLOCK_MONOTONIC, &ts_start);
+
+        // A <- (L,U)
+        blocked_lu(block_size, n, ldA, A);
+
+        struct timespec ts_stop;
+        clock_gettime(CLOCK_MONOTONIC, &ts_stop);
+
+        printf("Time = %f s\n",
+            ts_stop.tv_sec - ts_start.tv_sec +
+            1.0E-9*(ts_stop.tv_nsec - ts_start.tv_nsec));
+
+        // C <- L * U
+        mul_lu(n, ldA, ldC, A, C);
+
+        //
+        // validate
+        //
+
+        // C <- L * U - B
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                C[i*ldC+j] -= B[i*ldB+j];
+
+        // compute || C ||_F / || B ||_F = || L * U - B ||_F  / || B ||_F
+        double residual = dlange_("Frobenius", &n, &n, C, &ldC, NULL) /
+            dlange_("Frobenius", &n, &n, B, &ldB, NULL);
+
+        printf("Residual = %E\n", residual);
+
+        int ret = EXIT_SUCCESS;
+        if (1.0E-12 < residual) {
+            fprintf(stderr, "The residual is too large.\n");
+            ret = EXIT_FAILURE;
+        }
+
+        //
+        // cleanup
+        //
+
+        free(A);
+        free(B);
+        free(C);
+
+        return ret;
+    }
+
+Challenge
+"""""""""
+
+.. challenge::
+
+    Parallelize the finely-blocked algorithm using :code:`task` constructs and :code:`depend` clauses.
+    
+.. solution::
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 14-15,33-35,54-57,78-81,106-111
+
+        void blocked_lu(int block_size, int n, int ldA, double *A)
+        {
+            // allocate and fill an array that stores the block pointers
+            int block_count = DIVCEIL(n, block_size);
+            double ***blocks = (double ***) malloc(block_count*sizeof(double**));
+            for (int i = 0; i < block_count; i++) {
+                blocks[i] = (double **) malloc(block_count*sizeof(double*));
+
+                for (int j = 0; j < block_count; j++)
+                    blocks[i][j] = A+(j*ldA+i)*block_size;
+            }
+
+            // iterate through the diagonal blocks
+            #pragma omp parallel
+            #pragma omp single nowait
+            for (int i = 0; i < block_count; i++) {
+
+                // calculate block size
+                int dsize = MIN(block_size, n-i*block_size);
+
+                // process the current diagonal block
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write)
+                // |  |##|  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                //
+                #pragma omp task \
+                    default(none) shared(blocks) firstprivate(i, dsize, ldA) \
+                    depend(inout:blocks[i][i])
+                simple_lu(dsize, ldA, blocks[i][i]);
+
+                // process the blocks to the right of the current diagonal block
+                for (int j = i+1; j < block_count; j++) {
+                    int width = MIN(block_size, n-j*block_size);
+
+                    // blocks[i][j] <- L1(blocks[i][i]) \ blocks[i][j]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |rr|##|xx|   xx - process (read-write)
+                    // +--+--+--+--+   rr - read
+                    // |  |  |  |  |
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+
+                    //
+                    #pragma omp task \
+                        default(none) shared(blocks) \
+                        firstprivate(i, j, dsize, width, one, ldA) \
+                        depend(in:blocks[i][i]) depend(inout:blocks[i][j])
+                    dtrsm_("Left", "Lower", "No transpose", "Unit triangular",
+                        &dsize, &width, &one, blocks[i][i], &ldA, blocks[i][j], &ldA);
+                }
+
+                // process the blocks below the current diagonal block
+                for (int j = i+1; j < block_count; j++) {
+                    int height = MIN(block_size, n-j*block_size);
+
+                    // blocks[j][i] <- U(blocks[i][i]) / blocks[j][i]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |rr|  |  |   xx - process (read-write)
+                    // +--+--+--+--+   rr - read
+                    // |  |##|  |  |
+                    // +--+--+--+--+
+                    // |  |xx|  |  |
+                    // +--+--+--+--+
+                    //
+                    #pragma omp task \
+                        default(none) shared(blocks) \
+                        firstprivate(i, j, dsize, height, one, ldA) \
+                        depend(in:blocks[i][i]) depend(inout:blocks[j][i])
+                    dtrsm_("Right", "Upper", "No Transpose", "Not unit triangular",
+                        &height, &dsize, &one, blocks[i][i], &ldA, blocks[j][i], &ldA);
+                }
+
+                // process the trailing matrix
+
+                for (int ii = i+1; ii < block_count; ii++) {
+                    for (int jj = i+1; jj < block_count; jj++) {
+                        int width = MIN(block_size, n-jj*block_size);
+                        int height = MIN(block_size, n-ii*block_size);
+
+                        // blocks[ii][jj] <-
+                        //               blocks[ii][jj] - blocks[ii][i] * blocks[i][jj]
+                        //
+                        // +--+--+--+--+
+                        // |  |  |  |  |
+                        // +--+--+--+--+   ## - process (read-write), current iteration
+                        // |  |  |rr|..|   xx - process (read-write)
+                        // +--+--+--+--+   rr - read, current iteration
+                        // |  |rr|##|xx|   .. - read
+                        // +--+--+--+--+
+                        // |  |..|xx|xx|
+                        // +--+--+--+--+
+                        //
+                        #pragma omp task \
+                            default(none) shared(blocks) \
+                            firstprivate(i, ii, jj) \
+                            firstprivate(dsize, width, height, one, minus_one, ldA) \
+                            depend(in:blocks[ii][i],blocks[i][jj]) \
+                            depend(inout:blocks[ii][jj])
+                        dgemm_("No Transpose", "No Transpose",
+                            &height, &width, &dsize, &minus_one, blocks[ii][i],
+                            &ldA, blocks[i][jj], &ldA, &one, blocks[ii][jj], &ldA);
+                    }
+                }
+            }
+
+            // free allocated resources
+            for (int i = 0; i < block_count; i++)
+                free(blocks[i]);
+            free(blocks);
+        }
