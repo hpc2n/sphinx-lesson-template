@@ -51,9 +51,9 @@ The final materials are pushed just before the course.
    :caption: Day 3
    :maxdepth: 1
    
+   two-sided-algorithms
    starpu
    starpu-lu
-   two-sided-algorithms
 
 .. toctree::
    :caption: Miscellanous
