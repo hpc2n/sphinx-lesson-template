@@ -26,9 +26,6 @@ Task-based parallelism in scientific computing
  - Basic Linux skills.
  - Basic knowledge of OpenMP is beneficial but not required.
 
-**Note that these materials are still incomplete!**
-The final materials are pushed just before the course.
-
 .. toctree::
    :caption: Day 1
    :maxdepth: 1
