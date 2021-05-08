@@ -17,6 +17,8 @@ Task-based parallelism in scientific computing
 
 **Helpers:** Birgitte Brydsö, Pedro Ojeda-May
 
+**Original author:** Mirko Myllykoski
+
 **Prerequisites:**
 
  - Basic knowledge of C programming language.
