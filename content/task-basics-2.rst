@@ -247,6 +247,7 @@ The most relevant ones of these are the following:
 :inout:     Input and output variable(s).
 
 The :code:`locator-list` argument lists all involved variables: :code:`var1, var2, ..., varN`.
+A construct can have **multiple** :code:`depend` clauses, one for each :code:`dependence-type`.
 The :code:`depend` clause is much more powerful that this but during this course we are going to use only the basic functionality.
 
 As an example, consider the following ill-defined program:
