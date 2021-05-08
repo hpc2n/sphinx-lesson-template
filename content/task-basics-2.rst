@@ -373,6 +373,8 @@ These clauses force the OpenMP implementation to execute the tasks in a order th
         $ gcc -o my_program my_program.c -Wall -fopenmp
         $ ./my_program 
         The Fibonacci numbers are: 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610
+        
+    **Hint:** :code:`locator-list` can contain array elements.
     
 .. solution::
 
@@ -421,20 +423,59 @@ These clauses force the OpenMP implementation to execute the tasks in a order th
         $ ./my_program 
         The Fibonacci numbers are: 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610
 
-    
-    
-    
-    
-    
-
 Priority clause
 ^^^^^^^^^^^^^^^
 
-Untied clause
-^^^^^^^^^^^^^
+As discussed during an earlier lecture, we can give each task a **priority** in an attempt to help the runtime system to schedule the tasks in a more optimal order.
 
-Mergeable clause
-^^^^^^^^^^^^^^^^
+In OpenMP, the priority is given using the :code:`priority(priority-value)` clause.
+The :code:`priority-value` is a **non-negative integer expression** and higher value implies higher priority.
 
-Final clause
-^^^^^^^^^^^^
+Untied clause and taskyield construct
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Threads are allowed to **suspend** the current task region at a **task scheduling point** in order to execute a different task.
+A task scheduling point can occur
+
+ - during the generation of an explicit task,
+ - the point immediately following the generation of an explicit task,
+ - after the point of completion of the structured block associated with a task,
+ - in a :code:`taskyield` region,
+ - in a :code:`taskwait` region,
+ - at the end of a taskgroup region,
+ - in an implicit barrier region, and
+ - in an explicit barrier region.
+
+In particular, we can use the :code:`taskyield` construct to force a task scheduling point.
+
+.. code-block:: c
+
+    #pragma omp taskyield new-line
+ 
+Note that the above list is not complete.
+
+By default, task regions are **tied** to the the initially assigned thread and **only** the initially assigned thread can later resume the execution of the suspended task region.
+This behaviour can be changed with the :code:`untied` in which case any thread is allowed to resume the execution.
+
+Mergeable and final clauses
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :code:`mergeable` and :code:`final` clauses can be used to reduce the number of generated tasks in a deep nested task generation trees.
+
+First, we need more terminology:
+
+:Undeferred task:   A task for which execution is not deferred with respect to its generating task region. 
+                    That is, its **generating task region is suspended until execution of the structured block associated with the undeferred task is completed**.
+
+:Included task:     A task for which execution is sequentially **included in the generating task region**. 
+                    That is, an included task is **undeferred** and executed by the encountering thread.
+                    
+:Merged task:       A task for which the data environment, inclusive of ICVs, is the same as that of its generating task region.
+
+:Mergeable task:    A task that may be a merged task if it is an undeferred task or an included task.
+
+:Final task:        A task that forces all of its child tasks to become final and included tasks.
+
+The :code:`mergeable` clause indicates that the task is mergeable.
+
+If :code:`scalar-expression` is evaluated as true, then the :code:`final(scalar-expression)` clause indicates that the task is final.
