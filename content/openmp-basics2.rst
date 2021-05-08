@@ -12,7 +12,7 @@ As we saw earlier, **all threads within the team** execute the **entire structur
 Only a very limited number of parallel algorithms can be implemented in this way.
 It is much more common that we have a set of mutually independent operations which we want to execute in parallel.
 
-One way of accomplishing this are with the **sections** and **section** constructs:
+One way of accomplishing this is with the **sections** and **section** constructs:
 
 .. code-block:: c
 
