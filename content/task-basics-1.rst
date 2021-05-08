@@ -92,7 +92,7 @@ Let us return to the earlier "Hello world" program:
     :emphasize-lines: 4,6
 
     #include <stdio.h>
-    
+
     int main() {
         #pragma omp parallel
         {
@@ -297,7 +297,7 @@ This can be accomplished by combining the :code:`parallel` and :code:`single` co
     :emphasize-lines: 4-5,7
 
     #include <stdio.h>
-    
+
     int main() {
         #pragma omp parallel
         #pragma omp single nowait
@@ -421,6 +421,8 @@ A task can create new **child tasks**:
 .. code-block:: c
     :linenos:
     :emphasize-lines: 7-8
+    
+    #include <stdio.h>
     
     int main() {
         #pragma omp parallel

@@ -51,7 +51,7 @@ Let us modify the program by adding an OpenMP pragma:
     :emphasize-lines: 4
 
     #include <stdio.h>
-    
+
     int main() {
         #pragma omp parallel
         printf("Hello world!\n");
