@@ -52,8 +52,8 @@ The final materials are pushed just before the course.
    :maxdepth: 1
    
    starpu
+   starpu-lu
    two-sided-algorithms
-   offloading
 
 .. toctree::
    :caption: Miscellanous
