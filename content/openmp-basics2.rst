@@ -25,6 +25,17 @@ One way of accomplishing this are with the **sections** and **section** construc
         ...
     }
 
+where clause is one of the following:
+
+.. code-block:: c
+
+    private(list)
+    firstprivate(list)
+    lastprivate([ lastprivate-modifier:] list)
+    reduction([reduction-modifier ,] reduction-identifier : list)
+    allocate([allocator :] list)
+    nowait
+
 The structured blocks that follow the :code:`section` constructs inside the :code:`sections` construct are distributed among the threads within the team:
 
 .. figure:: img/section.png
