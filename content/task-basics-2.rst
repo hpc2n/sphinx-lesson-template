@@ -25,7 +25,7 @@ If is very commont that a set of tasks is created inside a loop:
     }
     
 This is not always very convenient.
-For example, the resulting task granularity can be too fine and may want to combine several loop iterations into a single tasks:
+For example, the resulting task granularity can be too fine and we may want to combine several loop iterations into a single tasks:
 
 .. code-block:: c
     :linenos:
@@ -145,9 +145,9 @@ The :code:`taskgroup` construct specifies a wait on completion of** child tasks*
     #pragma omp taskgroup [clause[[,] clause] ...] new-line 
         structured-block
         
-Note that the :code:`taskgroup` construct is **not** standalone construct.
+Note that the :code:`taskgroup` construct is **not** a standalone construct.
 Instead, we must enclose the task generating region with it.
-All tasks generated inside a :code:`taskgroup` region are waited at the end of the region.
+All tasks generated inside a :code:`taskgroup` region are waited for at the end of the region.
 
 .. challenge::
 
@@ -249,7 +249,7 @@ The most relevant ones of these are the following:
 
 The :code:`locator-list` argument lists all involved variables: :code:`var1, var2, ..., varN`.
 A construct can have **multiple** :code:`depend` clauses, one for each :code:`dependence-type`.
-The :code:`depend` clause is much more powerful that this but during this course we are going to use only the basic functionality.
+The :code:`depend` clause is much more powerful than this but during this course we are going to use only the basic functionality.
 
 As an example, consider the following ill-defined program:
 
@@ -330,7 +330,7 @@ That is,
  - the second task is going to read and write from/into the variable :code:`number`, and
  - the third task is going to read from the variable :code:`number`.
 
-These clauses force the OpenMP implementation to execute the tasks in a order that respects the induces task dependencies:
+These clauses force the OpenMP implementation to execute the tasks in an order that respects the induced task dependencies:
  
 .. code-block:: bash
     :emphasize-lines: 3-4
@@ -461,7 +461,7 @@ This behaviour can be changed with the :code:`untied` in which case any thread i
 Mergeable and final clauses
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :code:`mergeable` and :code:`final` clauses can be used to reduce the number of generated tasks in a deep nested task generation trees.
+The :code:`mergeable` and :code:`final` clauses can be used to reduce the number of generated tasks in deep nested task generation trees.
 
 First, we need more terminology:
 
