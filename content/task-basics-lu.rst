@@ -269,8 +269,8 @@ We can compile and test the algorithm:
 
     $ gcc -o scalar scalar.c  -Wall ${LIBLAPACK} ${LIBBLAS}
     $ ./scalar 3000
-    Time = 40.999184 s
-    Residual = 1.708803E-15
+    Time = TODO
+    Residual = TODO
 
 Above, :code:`${LIBLAPACK}` and :code:`${LIBBLAS}` are the LAPACK and BLAS libraries, respectively.
 
@@ -415,6 +415,10 @@ Test program
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    
     void blocked_lu(int block_size, int n, int ldA, double *A)
     {
         // allocate and fill an array that stores the block pointers
@@ -463,6 +467,10 @@ Test program
         free(blocks);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    
     // computes C <- L * U
     void mul_lu(int n, int lda, int ldb, double const *A, double *B)
     {
@@ -586,8 +594,8 @@ We can compile and test the algorithm:
 
     $ gcc -o coarse-blocked coarse-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
     $ ./coarse-blocked 3000 128
-    Time = 0.925868 s
-    Residual = 3.997311E-16
+    Time = TODO
+    Residual = TODO
 
 The second argument is the block size.
 We can see that the blocked variant is significantly faster even before it is parallelized.
@@ -669,10 +677,10 @@ Challenge
 
     .. code-block:: bash
 
-        $ gcc -o section-coarse-blocked section-coarse-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
+        $ gcc -o section-coarse-blocked section-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./section-coarse-blocked 3000 128
-        Time = 0.927376 s
-        Residual = 3.861916E-16
+        Time = TODO
+        Residual = TODO
         
     .. code-block:: c
         :linenos:
@@ -736,10 +744,10 @@ Challenge
         
     .. code-block:: bash
 
-        $ gcc -o task-coarse-blocked task-coarse-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
+        $ gcc -o task-coarse-blocked task-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./task-coarse-blocked 3000 128
-        Time = 0.925464 s
-        Residual = 3.852532E-16
+        Time = TODO
+        Residual = TODO
         
     No difference in run time due to limited level of parallelism.
     
@@ -922,6 +930,10 @@ Test program
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    
     void blocked_lu(int block_size, int n, int ldA, double *A)
     {
         // allocate and fill an array that stores the block pointers
@@ -1028,6 +1040,10 @@ Test program
         free(blocks);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    
     // computes C <- L * U
     void mul_lu(int n, int lda, int ldb, double const *A, double *B)
     {
@@ -1145,6 +1161,13 @@ Test program
         return ret;
     }
 
+.. code-block:: bash
+
+    $ gcc -o finely-blocked finely-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
+    $ ./finely-blocked 3000 128
+    Time = TODO
+    Residual = TODO
+    
 Challenge
 """""""""
 
@@ -1281,3 +1304,11 @@ Challenge
                 free(blocks[i]);
             free(blocks);
         }
+
+        
+    .. code-block:: bash
+
+        $ gcc -o task-finely-blocked task-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
+        $ ./task-finely-blocked 3000 128
+        Time = TODO
+        Residual = TODO
