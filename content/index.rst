@@ -51,7 +51,8 @@ Task-based parallelism in scientific computing
    :maxdepth: 1
    
    two-sided-algorithms
-   starpu
+   starpu1
+   starpu2
    starpu-lu
 
 .. toctree::
