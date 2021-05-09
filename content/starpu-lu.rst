@@ -8,6 +8,8 @@ Example: LU factorization
 .. challenge::
 
     Parallize the finely-blocked LU factorization algorithm using StarPU.
+    
+    See: :doc:`task-basics-lu`
 
 .. solution::
 
