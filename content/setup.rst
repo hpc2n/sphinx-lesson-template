@@ -65,7 +65,7 @@ You can **load** the module using the :code:`ml <module>` command:
 
 .. code-block:: bash
 
-    $ ml foss MATLAB/2019b.Update2
+    $ ml MATLAB/2019b.Update2
 
 You can **list loaded modules** using the :code:`ml` command:
 
