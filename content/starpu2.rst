@@ -373,6 +373,75 @@ If two tasks are given the same data handle in their argument lists, then an **i
 Distributed memory
 ^^^^^^^^^^^^^^^^^^
 
+StarPU supports distributed memory through MPI in three different ways:
+
+ 1. Without StarPU-MPI. 
+ 
+     - A programmer must manually transfer the data between StarPU data handles and MPI.
+     - Not generally recommended but might be a good stopgap solution. 
+ 
+ 2. With StarPU-MPI.
+ 
+     - A programmer replaces the :code:`MPI_Recv()` and :code:`MPI_Send()` calls with :code:`starpu_mpi_irecv_detached()` and :code:`starpu_mpi_isend_detached()` calls.
+       These functions act directly on the StarPU data handles.
+     
+ 3. With MPI Insert Task Utility.
+ 
+     - A programmer replaces the :code:`starpu_task_insert()` calls with :code:`starpu_mpi_task_insert()` calls.
+       In addition, must use :code:`starpu_mpi_data_register()` function to tell which MPI process owns each data handle.
+
+The second and third approach allocate one CPU core for MPI communications.
+In the third approach, the :code:`starpu_mpi_task_insert()` function takes into account the task dependencies and the data distribution, and **generates the necessary communication pattern automatically**:
+
+.. figure:: img/mpi.png
+
+In the above illustration, each MPI process has a copy of the entire task graph. 
+Two things can happen:
+
+ 1. If the MPI process is going to execute a task, it can **receive** any missing data handle from the MPI process that owns the data handle.
+ 2. If the MPI process is not going to execute a task, it will **send** any data handles it owns to the MPI process that is going to execute the task.
+ 
+This all happens automatically and asynchronously. 
+The task implementations do not require any modifications!
+StarPU-MPI also implements a MPI cache that caches data handles that were not modified.
+
 Accelerators
 ^^^^^^^^^^^^
 
+As you may remember, a StarPU codeled included a field for CUDA implementations:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 11
+
+    struct starpu_codelet
+    {
+        uint32_t where;
+        int (*can_execute)(unsigned workerid, struct starpu_task *task, unsigned nimpl);
+        enum starpu_codelet_type type;
+        int max_parallelism;
+        starpu_cpu_func_t cpu_func STARPU_DEPRECATED;
+        starpu_cuda_func_t cuda_func STARPU_DEPRECATED;
+        starpu_opencl_func_t opencl_func STARPU_DEPRECATED;
+        starpu_cpu_func_t cpu_funcs[STARPU_MAXIMPLEMENTATIONS];
+        starpu_cuda_func_t cuda_funcs[STARPU_MAXIMPLEMENTATIONS];
+        char cuda_flags[STARPU_MAXIMPLEMENTATIONS];
+        starpu_opencl_func_t opencl_funcs[STARPU_MAXIMPLEMENTATIONS];
+        char opencl_flags[STARPU_MAXIMPLEMENTATIONS];
+        starpu_mic_func_t mic_funcs[STARPU_MAXIMPLEMENTATIONS];
+        starpu_mpi_ms_func_t mpi_ms_funcs[STARPU_MAXIMPLEMENTATIONS];
+        const char *cpu_funcs_name[STARPU_MAXIMPLEMENTATIONS];
+        int nbuffers;
+        enum starpu_data_access_mode modes[STARPU_NMAXBUFS];
+        enum starpu_data_access_mode *dyn_modes;
+        unsigned specific_nodes;
+        int nodes[STARPU_NMAXBUFS];
+        int *dyn_nodes;
+        struct starpu_perfmodel *model;
+        struct starpu_perfmodel *energy_model;
+        unsigned long per_worker_stats[STARPU_NMAXWORKERS];
+        const char *name;
+        unsigned color;
+        int flags;
+        int checked;
+    };
