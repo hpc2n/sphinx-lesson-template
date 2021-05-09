@@ -4,8 +4,6 @@ StarPU runtime system (part 1)
 .. objectives::
 
  - Understand the basics of StarPU
- - Understand how StarPU supports distributed memory
- - Understand how StarPU supports GPUs
 
 `StarPU <https://starpu.gitlabpages.inria.fr/>`__ (*A Unified Runtime System for Heterogeneous Multicore Architectures*) is a programming API for shared-memory and distributed-memory parallel programming in C and C++ languages.
 StarPU can also be used through OpenMP pragmas and provides the necessary routines and support to natively access most of its functionalities from Fortran 2008+ codes.
