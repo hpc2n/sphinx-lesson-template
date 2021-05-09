@@ -3,7 +3,12 @@ OpenMP task basics (part 1)
 
 .. objectives::
 
- - Understand the basics of OpenMP tasks
+ - Learn the basic terminology.
+ - Learn about the :code:`task` construct.
+ - Learn more about data sharing rules.
+ - Learn how to construct a task graph in a three-based manner.
+ - Learn how to construct a task graph in a centralised manner.
+ - Learn how to wait tasks to complete their execution.
 
 Terminology
 ^^^^^^^^^^^

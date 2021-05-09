@@ -3,7 +3,8 @@ OpenMP task basics (part 2)
 
 .. objectives::
 
- - Understand more about the OpenMP tasks
+ - Learn about :code:`taskloop` and :code:`taskgroup` constructs.
+ - Learn about :code:`depend`, :code:`priority`, :code:`untied`, :code:`mergeable`, and :code:`final` clauses.
 
 Task loop
 ^^^^^^^^^

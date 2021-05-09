@@ -3,8 +3,12 @@ Introduction to OpenMP (part 2)
 
 .. objectives::
 
- - Understand the basics of OpenMP
- 
+ - Learn about the :code:`sections` and :code:`section` constructs.
+ - Learn about the :code:`loop` and :code:`for` constructs.
+ - Learn about the :code:`single` and :code:`master` constructs.
+ - Learn about the :code:`critical` construct.
+ - Learn about the :code:`barrier` construct.
+
 Section construct
 ^^^^^^^^^^^^^^^^^
 

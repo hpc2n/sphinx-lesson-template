@@ -3,7 +3,8 @@ Introduction to OpenMP (part 1)
 
 .. objectives::
 
- - Understand the basics of OpenMP
+ - Learn about the :code:`parallel` construct.
+ - Learn about data sharing rules.
 
 `OpenMP <https://www.openmp.org/>`__ (*Open Multi-Processing*) is a programming API for shared-memory parallel programming in C, C++, and Fortran languages.
 It is based on **pragmas** or **directives** which augment the source code and change how a compiler processes the source code.
