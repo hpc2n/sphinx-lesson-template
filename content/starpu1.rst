@@ -202,7 +202,7 @@ The printed warning is related to the fact that StarPU's default scheduler is no
 Codelets and tasks
 ^^^^^^^^^^^^^^^^^^
 
-When StarPU is initialized, the creates a set of **worker threads**.
+When StarPU is initialized, it creates a set of **worker threads**.
 Usually each CPU core gets its own worker thread.
 Depending on the configuration, one or more CPU cores (and GPU worker threads) are allocated for managing any GPUs.
 All tasks are placed into a task pool from which the worker threads pick tasks as they become ready for scheduling.
@@ -459,7 +459,7 @@ The task arguments are passed to the `starpu_task_insert` function which **packs
 StarPU later passes the task arguments to the task implementation.
 For each task argument, we must pass three arguments to the `starpu_task_insert` function:
 
- 1. `STARPU_VALUE` tells StarPU that we are passing a task arguments to the task.
+ 1. `STARPU_VALUE` tells StarPU that we are passing task arguments to the task.
  2. Immedietly after `STARPU_VALUE`, we pass a **pointer** to the task arguments. 
  3. The pointer is followed by the size of the task arguments.
 
@@ -472,7 +472,7 @@ The task arguments are **unpacked** with the `starpu_codelet_unpack_args` functi
 
 The first argument is the second argument passed to the task implementation (`cl_arg`).
 After it, we must pass pointers to variables to which the `starpu_codelet_unpack_args` function is going to unpack the task arguments.
-The types of these variables must match the type of the task argument:
+The types of these variables must match the type of the task arguments:
 
 .. code-block:: c
     :linenos:
