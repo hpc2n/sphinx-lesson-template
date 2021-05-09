@@ -92,7 +92,7 @@ Each data handle must be **unregistered** before the main thread can access it a
     
 This blocks the main thread until all related tasks have been executed.
 
-The easiest way to pass a data handles to a task is to declare it in the related codelet:
+The easiest way to pass a data handle to a task is to declare it in the related codelet:
     
 .. code-block:: c
     :linenos:
@@ -388,7 +388,7 @@ StarPU supports distributed memory through MPI in three different ways:
  3. With MPI Insert Task Utility.
  
      - A programmer replaces the :code:`starpu_task_insert()` calls with :code:`starpu_mpi_task_insert()` calls.
-       In addition, must use :code:`starpu_mpi_data_register()` function to tell which MPI process owns each data handle.
+       In addition, one must use the :code:`starpu_mpi_data_register()` function to tell which MPI process owns each data handle.
 
 The second and third approach allocate one CPU core for MPI communications.
 In the third approach, the :code:`starpu_mpi_task_insert()` function takes into account the task dependencies and the data distribution, and **generates the necessary communication pattern automatically**:
@@ -408,7 +408,7 @@ StarPU-MPI also implements a MPI cache that caches data handles that were not mo
 Accelerators
 ^^^^^^^^^^^^
 
-As you may remember, a StarPU codeled included a field for CUDA implementations:
+As you may remember, a StarPU codelet included a field for CUDA implementations:
 
 .. code-block:: c
     :linenos:
