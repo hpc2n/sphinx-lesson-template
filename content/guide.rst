@@ -39,3 +39,7 @@ For presentations, it is beneficial to enter either the **plain mode** or the **
 
 :Plain mode:            Add :code:`?plain` to the URL.
 :Presentation mode:     Add :code:`?minipres` to the URL.
+
+If you are using Google Chrome, you can open the browser in the app mode::
+
+    $ google-chrome --app=https://hpc2n.github.io/Task-based-parallelism/branch/master/
