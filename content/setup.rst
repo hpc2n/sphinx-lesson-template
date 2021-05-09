@@ -106,7 +106,7 @@ This is normal and you should **NOT** force unload them.
             $ ml purge
             $ ml fosscuda/2020b buildenv
     
-       The :code:`fosscuda` module loads the GNU compiler, the CUDA SDK and several other libraries. 
+       The :code:`fosscuda` module loads the GNU compiler, the CUDA SDK and several other libraries. In this example we are using the version 2020b. 
        The :code:`buildenv` module sets certain environment variables that are necessary for source code compilation.
        
     2. Investigate which modules were loaded.
@@ -120,7 +120,7 @@ This is normal and you should **NOT** force unload them.
 Compile C code
 ^^^^^^^^^^^^^^
 
-Once the correct toolchain (:code:`foss`) has been loaded, we can compile C source files (:code:`*.c`) with the GNU compiler:
+Once the correct toolchain (:code:`foss/2020b`) has been loaded, we can compile C source files (:code:`*.c`) with the GNU compiler:
 
 .. code-block:: bash
 
@@ -145,7 +145,7 @@ The :code:`-Wall` causes the compiler to print additional warnings.
 Compile CUDA code
 ^^^^^^^^^^^^^^^^^
 
-Once the correct toolchain (:code:`fosscuda`) has been loaded, we can compile CU source files (:code:`*.cu`) with the :code:`nvcc` compiler:
+Once the correct toolchain (:code:`fosscuda/2020b`) has been loaded, we can compile CU source files (:code:`*.cu`) with the :code:`nvcc` compiler:
 
 .. code-block:: bash
 
