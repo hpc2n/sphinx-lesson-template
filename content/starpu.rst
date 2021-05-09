@@ -617,6 +617,9 @@ However, the built-in data interfaces for scalars, vectors and matrices are adeq
         uintptr_t ptr,
         size_t size 
     )
+    
+    #define STARPU_VARIABLE_GET_PTR (interface)
+    #define STARPU_VARIABLE_GET_ELEMSIZE (interface)
 
 Above, `home_node` is the **memory node** where the variable is initially stored.
 In most cases, the variable is initially stored in the main memory (`STARPU_MAIN_RAM`).
@@ -630,6 +633,10 @@ The argument `ptr` is a pointer to the variable (in the main memory) and the arg
         uint32_t nx,
         size_t elemsize 
     )
+    
+    #define STARPU_VECTOR_GET_PTR (interface)
+    #define STARPU_VECTOR_GET_NX (interface)
+    #define STARPU_VECTOR_GET_ELEMSIZE (interface)
 
 Above, the argument `nx` is the length of the vector and the argument `elemsize` is the size of a vector element.
     
@@ -643,6 +650,12 @@ Above, the argument `nx` is the length of the vector and the argument `elemsize`
         uint32_t ny,
         size_t elemsize 
     )
+    
+    #define STARPU_MATRIX_GET_PTR (interface)
+    #define STARPU_MATRIX_GET_NX (interface)
+    #define STARPU_MATRIX_GET_NY (interface)
+    #define STARPU_MATRIX_GET_LD (interface)
+    #define STARPU_MATRIX_GET_ELEMSIZE (interface)
 
 Above, the argument `ld` is the leading dimension of the matrix (row-major order), the argument `xn` is the width of the matrix and the argument `ny` is the height of the matrix.
 
