@@ -106,7 +106,7 @@ This is normal and you should **NOT** force unload them.
             $ ml purge
             $ ml fosscuda/2020b buildenv
     
-       The :code:`fosscuda` module loads the GNU compiler, the CUDA SDK and several other libraries. In this example we are using the version 2020b. 
+       The :code:`fosscuda/2020b` module loads the GNU compiler (version 2020b), the CUDA SDK and several other libraries. 
        The :code:`buildenv` module sets certain environment variables that are necessary for source code compilation.
        
     2. Investigate which modules were loaded.
