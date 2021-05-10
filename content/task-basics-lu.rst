@@ -349,7 +349,7 @@ The two-dimensional array :code:`blocks` contains the addresses of the upper-lef
 That is, :code:`blocks[i-1][j-1]` is the block on the :code:`i`'th row and :code:`j`'th column of the matrix.
 We then loop over the diagonal blocks as follows:
 
- 1. We factorize the diagonal block using the scalar algorithm (:code:`simple_lu`).
+ 1. We factorize the diagonal blocks using the scalar algorithm (:code:`simple_lu`).
 
  2. The sub-factor matrices are used to update the block row and the block column by solving two matrix equations (:code:`dtrsm_`).
 
