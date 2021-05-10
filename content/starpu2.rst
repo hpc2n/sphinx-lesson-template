@@ -561,7 +561,7 @@ As you may remember, a StarPU codelet included a field for CUDA implementations:
         int checked;
     };
 
-Unfortunately we do not have time to cover all the complexities that come with offloading computations to GPUs.
+Unfortunately we do not have time to cover all the complexities related to GPU offloading.
 Instead, we will simply consider the following example:
 
 .. code-block:: c
@@ -608,7 +608,7 @@ Instead, we will simply consider the following example:
         return 0;
     }
 
-That is, we must a task implementation (:code:`hello_world_cuda`) that inserts the CUDA kernel to the provided local CUDA stream.
+That is, we must add a task implementation (:code:`hello_world_cuda`) that inserts a CUDA kernel (:code:`say_hello`) to the provided local CUDA stream (:code:`stream`).
 Note how the naive :code:`eager` scheduler prefers to use the CPU implementation where as the GPU-aware :code:`dm` scheduler prefers the GPU:
     
 .. code-block:: bash
@@ -676,5 +676,5 @@ StarPU also supports regression based performance models (:code:`STARPU_REGRESSI
         .type = STARPU_REGRESSION_BASED
     };
     
-By default, StarPU calculates the model argument from the amount of memory required to store all involved data handles.
+By default, StarPU calculates the model argument (base) from the amount of memory required to store all involved data handles.
 However, a programmer may provide a custom function for this.
