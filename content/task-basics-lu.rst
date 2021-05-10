@@ -124,6 +124,7 @@ We can validate the result with the following test program:
     #include <stdio.h>
     #include <stdlib.h>
     #include <time.h>
+    #include <omp.h>
 
     extern void dtrmm_(char const *, char const *, char const *, char const *,
         int const *, int const *, double const *, double const *, int const *,
@@ -367,6 +368,7 @@ Test program
     #include <stdio.h>
     #include <stdlib.h>
     #include <time.h>
+    #include <omp.h>
 
     extern double dnrm2_(int const *, double const *, int const *);
 
@@ -401,6 +403,12 @@ Test program
     int MIN(int a, int b)
     {
         return a < b ? a : b;
+    }
+    
+    // returns the maxinum of a and b
+    int MAX(int a, int b)
+    {
+        return a > b ? a : b;
     }
 
     void simple_lu(int n, int ldA, double *A)
@@ -882,6 +890,7 @@ Test program
     #include <stdio.h>
     #include <stdlib.h>
     #include <time.h>
+    #include <omp.h>
 
     extern double dnrm2_(int const *, double const *, int const *);
 
@@ -916,6 +925,12 @@ Test program
     int MIN(int a, int b)
     {
         return a < b ? a : b;
+    }
+    
+    // returns the maxinum of a and b
+    int MAX(int a, int b)
+    {
+        return a > b ? a : b;
     }
 
     void simple_lu(int n, int ldA, double *A)
@@ -1310,5 +1325,166 @@ Challenge
 
         $ gcc -o task-finely-blocked task-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./task-finely-blocked 3000 128
+        Time = TODO
+        Residual = TODO
+
+Priorities
+^^^^^^^^^^
+
+We can prioritize the critical path by using the following **offsets**:
+
+.. figure:: img/priorities.png
+
+Above, the priority is given by :code:`omp_get_max_task_priority() - offset`.
+
+.. challenge::
+
+    Parallelize the finely-blocked algorithm using :code:`task` constructs and :code:`depend` and :code:`priority` clauses.
+    
+.. solution::
+
+    .. code-block:: c
+        :linenos:
+        :emphasize-lines: 3,40,64,90,122
+    
+        void blocked_lu(int block_size, int n, int ldA, double *A)
+        {
+            int max_prio = omp_get_max_task_priority();
+            
+            // allocate and fill an array that stores the block pointers
+            int block_count = DIVCEIL(n, block_size);
+            double ***blocks = (double ***) malloc(block_count*sizeof(double**));
+            for (int i = 0; i < block_count; i++) {
+                blocks[i] = (double **) malloc(block_count*sizeof(double*));
+
+                for (int j = 0; j < block_count; j++)
+                    blocks[i][j] = A+(j*ldA+i)*block_size;
+            }
+
+            // iterate through the diagonal blocks
+
+            #pragma omp parallel
+            #pragma omp single nowait
+            for (int i = 0; i < block_count; i++) {
+
+                // calculate block size
+                int dsize = MIN(block_size, n-i*block_size);
+
+                // process the current diagonal block
+                //
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+   ## - process (read-write)
+                // |  |##|  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                // |  |  |  |  |
+                // +--+--+--+--+
+                //
+
+                #pragma omp task \
+                    default(none) shared(blocks) firstprivate(i, dsize, ldA) \
+                    depend(inout:blocks[i][i]) \
+                    priority(max_prio)
+                simple_lu(dsize, ldA, blocks[i][i]);
+
+                // process the blocks to the right of the current diagonal block
+                for (int j = i+1; j < block_count; j++) {
+                    int width = MIN(block_size, n-j*block_size);
+
+                    // blocks[i][j] <- L1(blocks[i][i]) \ blocks[i][j]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |rr|##|xx|   xx - process (read-write)
+                    // +--+--+--+--+   rr - read
+                    // |  |  |  |  |
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+
+                    //
+
+                    #pragma omp task \
+                        default(none) shared(blocks) \
+                        firstprivate(i, j, dsize, width, one, ldA) \
+                        depend(in:blocks[i][i]) depend(inout:blocks[i][j]) \
+                        priority(MAX(0, max_prio-j+i))
+                    dtrsm_("Left", "Lower", "No transpose", "Unit triangular",
+                        &dsize, &width, &one, blocks[i][i], &ldA, blocks[i][j], &ldA);
+                }
+
+                // process the blocks below the current diagonal block
+                for (int j = i+1; j < block_count; j++) {
+                    int height = MIN(block_size, n-j*block_size);
+
+                    // blocks[j][i] <- U(blocks[i][i]) / blocks[j][i]
+                    //
+                    // +--+--+--+--+
+                    // |  |  |  |  |
+                    // +--+--+--+--+   ## - process (read-write), current iteration
+                    // |  |rr|  |  |   xx - process (read-write)
+                    // +--+--+--+--+   rr - read
+                    // |  |##|  |  |
+                    // +--+--+--+--+
+                    // |  |xx|  |  |
+                    // +--+--+--+--+
+                    //
+
+                    #pragma omp task \
+                        default(none) shared(blocks) \
+                        firstprivate(i, j, dsize, height, one, ldA) \
+                        depend(in:blocks[i][i]) depend(inout:blocks[j][i]) \
+                        priority(MAX(0, max_prio-j+i))
+                    dtrsm_("Right", "Upper", "No Transpose", "Not unit triangular",
+                        &height, &dsize, &one, blocks[i][i], &ldA, blocks[j][i], &ldA);
+                }
+
+                // process the trailing matrix
+
+                for (int ii = i+1; ii < block_count; ii++) {
+                    for (int jj = i+1; jj < block_count; jj++) {
+                        int width = MIN(block_size, n-jj*block_size);
+                        int height = MIN(block_size, n-ii*block_size);
+
+                        // blocks[ii][jj] <-
+                        //               blocks[ii][jj] - blocks[ii][i] * blocks[i][jj]
+                        //
+                        // +--+--+--+--+
+                        // |  |  |  |  |
+                        // +--+--+--+--+   ## - process (read-write), current iteration
+                        // |  |  |rr|..|   xx - process (read-write)
+                        // +--+--+--+--+   rr - read, current iteration
+                        // |  |rr|##|xx|   .. - read
+                        // +--+--+--+--+
+                        // |  |..|xx|xx|
+                        // +--+--+--+--+
+                        //
+
+                        #pragma omp task \
+                            default(none) shared(blocks) \
+                            firstprivate(i, ii, jj) \
+                            firstprivate(dsize, width, height, one, minus_one, ldA) \
+                            depend(in:blocks[ii][i],blocks[i][jj]) \
+                            depend(inout:blocks[ii][jj]) \
+                            priority(MAX(MAX(0, max_prio-ii+i), MAX(0, max_prio-jj+i))) 
+                        dgemm_("No Transpose", "No Transpose",
+                            &height, &width, &dsize, &minus_one, blocks[ii][i],
+                            &ldA, blocks[i][jj], &ldA, &one, blocks[ii][jj], &ldA);
+                    }
+                }
+            }
+
+            // free allocated resources
+            for (int i = 0; i < block_count; i++)
+                free(blocks[i]);
+            free(blocks);
+        }
+        
+    .. code-block:: bash
+
+        $ gcc -o prio-finely-blocked prio-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
+        $ ./prio-finely-blocked 3000 128
         Time = TODO
         Residual = TODO

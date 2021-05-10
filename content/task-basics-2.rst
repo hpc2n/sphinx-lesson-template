@@ -431,6 +431,7 @@ As discussed during an earlier lecture, we can give each task a **priority** in 
 
 In OpenMP, the priority is given using the :code:`priority(priority-value)` clause.
 The :code:`priority-value` is a **non-negative integer expression** and higher value implies higher priority.
+You can enquiry the maxinum priority with the :code:`omp_get_max_task_priority()` function.
 
 Untied clause and taskyield construct
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
