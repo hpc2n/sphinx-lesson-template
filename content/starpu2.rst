@@ -415,7 +415,7 @@ Consider the following example where each MPI process writes its rank to a data 
     #include <starpu.h>
     #include <starpu_mpi.h>
 
-    // a codelet that initializes a data handle with MPI process' world rank
+    // a codelet that initializes a data handle with a MPI process' world rank
 
     void write_number_cpu(void *buffers[], void *cl_arg)
     {
