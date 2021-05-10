@@ -17,7 +17,7 @@ Task-based parallelism in scientific computing
 
 **Helpers:** Birgitte Brydsö, Pedro Ojeda-May
 
-**Original author:** Mirko Myllykoski
+**Original author:** Mirko Myllykoski (sprint 2021)
 
 **Prerequisites:**
 

@@ -17,7 +17,7 @@ Task-based parallelism in scientific computing
 
 :Helpers: Birgitte Brydsö, Pedro Ojeda-May
 
-:Original author: Mirko Myllykoski
+:Original author: Mirko Myllykoski (spring 2021)
 
 :Registration: https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
 
