@@ -19,6 +19,8 @@ Task-based parallelism in scientific computing
 
 :Original author: Mirko Myllykoski (spring 2021)
 
+:Recordings: https://www.youtube.com/playlist?list=PL6jMHLEmPVLyVIp67mW1cRj0xbL-6iFMY
+
 :Registration: https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
 
 .. prereq::
