@@ -1,11 +1,11 @@
 Task-based parallelism in scientific computing
 ==============================================
 
-**Abstract:** The purpose of the course is to learn when a code could benefit from task-based parallelism, and how to apply it. A task-based algorithm comprises of a set of self-contained tasks that have well-defined inputs and outputs. This differs from the common practice of organizing an implementation into subroutines in that a task-based implementation does not call the associated computation kernels directly, instead it is the role of a runtime system to schedule the task to various computational resources, such as CPU cores and GPUs. One of the main benefits of this approach is that the underlying parallelism is exposed automatically as the runtime system gradually traverses the resulting task graph.
+**Abstract:** The purpose of the course is to learn when a code could benefit from task-based parallelism, and how to apply it. A task-based algorithm is comprised of a set of self-contained tasks that have well-defined inputs and outputs. This differs from the common practice of organizing an implementation into subroutines in that a task-based implementation does not call the associated computation kernels directly, instead it is the role of a runtime system to schedule the tasks to various computational resources, such as CPU cores and GPUs. One of the main benefits of this approach is that the underlying parallelism is exposed automatically as the runtime system gradually traverses the resulting task graph.
 
 **Content:** The course mainly focuses on the task-pragmas implemented in the newer incarnations of OpenMP. Other task-based runtime systems, e.g., StarPU, and GPU offloading are briefly discussed.
 
-**Format:** The course will be three half-days and comprises of lectures and hands-on sessions. This is an online-only course (Zoom).
+**Format:** The course will be three half-days and comprised of lectures and hands-on sessions. This is an online-only course (Zoom).
 
 **Audience:** This HPC2N course is part of the PRACE Training courses. It is open for academics and people who work at industry in PRACE member countries.
 
@@ -17,7 +17,7 @@ Task-based parallelism in scientific computing
 
 **Helpers:** Birgitte Brydsö, Pedro Ojeda-May
 
-**Original author:** Mirko Myllykoski (sprint 2021)
+**Original author:** Mirko Myllykoski (spring 2021)
 
 **Prerequisites:**
 
