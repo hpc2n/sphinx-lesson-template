@@ -409,6 +409,7 @@ Consider the following example where each MPI process writes its rank to a data 
 
 .. code-block:: c
     :linenos:
+    :emphasize-lines: 48-50,63-64,69-72,76-79,86
     
     #include <stdio.h>
     #include <starpu.h>
@@ -483,7 +484,7 @@ Consider the following example where each MPI process writes its rank to a data 
                 STARPU_EXECUTE_ON_DATA, handles[i], // data handles owner executes
                 STARPU_W, handles[i], 0);
             
-        // print a data handle that belongs to a neighbouring MPI process
+        // insert tasks that print the data handles
         for (int i = 0; i < world_size; i++)
             starpu_mpi_task_insert(
                 MPI_COMM_WORLD, &read_number_cl, 
@@ -505,6 +506,7 @@ Consider the following example where each MPI process writes its rank to a data 
 We are going to launch four MPI processes and allocate two CPU cores for each process:
     
 .. code-block:: bash
+    :emphasize-lines: 3-10
 
     $ gcc -o my_program my_program.c -lstarpu-1.3 -lstarpumpi-1.3 -lmpi -Wall
     $ STARPU_WORKERS_NOBIND=1 mpirun -n 4 --map-by :PE=2 ./my_program 
@@ -558,3 +560,64 @@ As you may remember, a StarPU codelet included a field for CUDA implementations:
         int flags;
         int checked;
     };
+
+Unfortunately we do not have time to cover all the complexities that come with offloading computations to GPUs.
+Instead, we will simply consider the following example:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 9-12,14-21,25
+
+    #include <stdio.h>
+    #include <starpu.h>
+
+    void hello_world_cpu(void *buffers[], void *cl_arg)
+    {
+        printf("The host says, Hello world!\n");
+    }
+
+    __global__ void say_hello()
+    {
+        printf("A device says, Hello world!\n");
+    }
+
+    void hello_world_cuda(void *buffers[], void *cl_arg)
+    {
+        cudaStream_t stream = starpu_cuda_get_local_stream();
+        say_hello<<<1, 1 , 0, stream>>>();
+        cudaError err = cudaStreamSynchronize(stream);
+        if (err != cudaSuccess)
+            STARPU_CUDA_REPORT_ERROR(err);
+    }
+
+    struct starpu_codelet hello_world_cl = {
+        .cpu_funcs = { hello_world_cpu },
+        .cuda_funcs = { hello_world_cuda }
+    };
+
+    int main()
+    {
+        if (starpu_init(NULL) != 0)
+            printf("Failed to initialize Starpu.\n");
+
+        starpu_task_insert(&hello_world_cl, 0);
+
+        starpu_task_wait_for_all();
+        starpu_shutdown();
+
+        return 0;
+    }
+
+That is, we must a task implementation (:code:`hello_world_cuda`) that inserts the CUDA kernel to the provided local CUDA stream.
+Note how the naive :code:`eager` scheduler prefers to use the CPU implementation where as the GPU-aware :code:`dm` scheduler prefers the GPU:
+    
+.. code-block:: bash
+    :emphasize-lines: 3,5
+
+    $ nvcc -o my_program my_program.cu -lstarpu-1.3 -Xcompiler="-Wall"
+    $ STARPU_SCHED=eager ./my_program 
+    The host says, Hello world!
+    $ STARPU_SCHED=dm ./my_program 
+    A device says, Hello world!
+
+    
