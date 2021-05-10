@@ -28,6 +28,6 @@ Task-based parallelism in scientific computing
 
 **Materials:** https://hpc2n.github.io/Task-based-parallelism/branch/master/
 
-**Recording::: https://www.youtube.com/playlist?list=PL6jMHLEmPVLyVIp67mW1cRj0xbL-6iFMY
+**Recordings:** https://www.youtube.com/playlist?list=PL6jMHLEmPVLyVIp67mW1cRj0xbL-6iFMY
 
 **Registration:** https://www.hpc2n.umu.se/events/courses/task-based-parallelism-spring-2021
