@@ -620,4 +620,61 @@ Note how the naive :code:`eager` scheduler prefers to use the CPU implementation
     $ STARPU_SCHED=dm ./my_program 
     A device says, Hello world!
 
+If we want to obtain a reasonable performance using GPUs, we must define a performance model for each codelet:
+
+.. code-block:: c
+    :linenos:
+    :emphasize-lines: 24
+
+    struct starpu_codelet
+    {
+        uint32_t where;
+        int (*can_execute)(unsigned workerid, struct starpu_task *task, unsigned nimpl);
+        enum starpu_codelet_type type;
+        int max_parallelism;
+        starpu_cpu_func_t cpu_func STARPU_DEPRECATED;
+        starpu_cuda_func_t cuda_func STARPU_DEPRECATED;
+        starpu_opencl_func_t opencl_func STARPU_DEPRECATED;
+        starpu_cpu_func_t cpu_funcs[STARPU_MAXIMPLEMENTATIONS];
+        starpu_cuda_func_t cuda_funcs[STARPU_MAXIMPLEMENTATIONS];
+        char cuda_flags[STARPU_MAXIMPLEMENTATIONS];
+        starpu_opencl_func_t opencl_funcs[STARPU_MAXIMPLEMENTATIONS];
+        char opencl_flags[STARPU_MAXIMPLEMENTATIONS];
+        starpu_mic_func_t mic_funcs[STARPU_MAXIMPLEMENTATIONS];
+        starpu_mpi_ms_func_t mpi_ms_funcs[STARPU_MAXIMPLEMENTATIONS];
+        const char *cpu_funcs_name[STARPU_MAXIMPLEMENTATIONS];
+        int nbuffers;
+        enum starpu_data_access_mode modes[STARPU_NMAXBUFS];
+        enum starpu_data_access_mode *dyn_modes;
+        unsigned specific_nodes;
+        int nodes[STARPU_NMAXBUFS];
+        int *dyn_nodes;
+        struct starpu_perfmodel *model;
+        struct starpu_perfmodel *energy_model;
+        unsigned long per_worker_stats[STARPU_NMAXWORKERS];
+        const char *name;
+        unsigned color;
+        int flags;
+        int checked;
+    };
     
+In the simplest case, the model can use the run time history to predict the execution times:
+
+.. code-block:: c
+    :linenos:
+    
+    struct starpu_perfmodel model = {
+        .type = STARPU_HISTORY_BASED
+    };
+    
+StarPU also supports regression based performance models (:code:`STARPU_REGRESSION_BASED`, :code:`STARPU_NL_REGRESSION_BASED`, :code:`STARPU_MULTIPLE_REGRESSION_BASED`):
+
+.. code-block:: c
+    :linenos:
+    
+    struct starpu_perfmodel model = {
+        .type = STARPU_REGRESSION_BASED
+    };
+    
+By default, StarPU calculates the model argument from the amount of memory required to store all involved data handles.
+However, a programmer may provide a custom function for this.
