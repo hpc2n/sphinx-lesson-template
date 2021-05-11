@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>OpenMP task basics (part 2) &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Example: LU factorization" href="../task-basics-lu/" />
+    <link rel="prev" title="OpenMP task basics (part 1)" href="../task-basics-1/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OpenMP task basics (part 2)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#task-loop">Task loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#task-group">Task group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#depend-clause">Depend clause</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#priority-clause">Priority clause</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#untied-clause-and-taskyield-construct">Untied clause and taskyield construct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mergeable-and-final-clauses">Mergeable and final clauses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>OpenMP task basics (part 2)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/task-basics-2.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="openmp-task-basics-part-2">
+<h1>OpenMP task basics (part 2)<a class="headerlink" href="#openmp-task-basics-part-2" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Learn about <code class="code docutils literal notranslate"><span class="pre">taskloop</span></code> and <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> constructs.</p></li>
+<li><p>Learn about <code class="code docutils literal notranslate"><span class="pre">depend</span></code>, <code class="code docutils literal notranslate"><span class="pre">priority</span></code>, <code class="code docutils literal notranslate"><span class="pre">untied</span></code>, <code class="code docutils literal notranslate"><span class="pre">mergeable</span></code>, and <code class="code docutils literal notranslate"><span class="pre">final</span></code> clauses.</p></li>
+</ul>
+</div>
+<div class="section" id="task-loop">
+<h2>Task loop<a class="headerlink" href="#task-loop" title="Permalink to this headline">¶</a></h2>
+<p>If is very commont that a set of tasks is created inside a loop:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#pragma omp parallel</span>
+<span class="cp">#pragma omp single</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp task</span>
+</span><span class="hll">        <span class="n">task_implementation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span>    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>This is not always very convenient.
+For example, the resulting task granularity can be too fine and we may want to combine several loop iterations into a single tasks:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#pragma omp parallel</span>
+<span class="cp">#pragma omp single</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">int</span> <span class="n">per_task</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+</span><span class="hll">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">per_task</span><span class="p">)</span> <span class="p">{</span>
+</span>        <span class="cp">#pragma omp task</span>
+        <span class="p">{</span>
+<span class="hll">            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">per_task</span> <span class="o">&amp;&amp;</span> <span class="n">i</span><span class="o">+</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span><span class="hll">                <span class="n">task_implementation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">]);</span>
+</span>        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>As you can clearly see, the resulting code is quite complicated and easy to implement incorrectly.
+Fortunately the <code class="code docutils literal notranslate"><span class="pre">taskloop</span></code> construct can be used to solve this issue:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp taskloop [clause[[,] clause] ...] new-line</span>
+    <span class="k">for</span><span class="o">-</span><span class="n">loops</span>
+</pre></div>
+</div>
+<p>The construct specifies that <strong>the iterations of the loops will be executed in parallel using tasks</strong>.
+We can thus write the earlier example in a much shorter form:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#pragma omp parallel</span>
+<span class="cp">#pragma omp single</span>
+<span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp taskloop</span>
+</span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">task_implementation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>Unless otherwise specified, the number of iterations assigned to each task is decided by the OpenMP implementation.
+We can change this behaviour with clauses:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">([</span> <span class="nl">taskloop</span> <span class="p">:]</span> <span class="n">scalar</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+<span class="n">shared</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">reduction</span><span class="p">([</span><span class="k">default</span> <span class="p">,]</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">in_reduction</span><span class="p">(</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+<span class="k">default</span><span class="p">(</span><span class="n">shared</span> <span class="o">|</span> <span class="n">none</span><span class="p">)</span>
+<span class="hll"><span class="n">grainsize</span><span class="p">(</span><span class="n">grain</span><span class="o">-</span><span class="n">size</span><span class="p">)</span>
+</span><span class="hll"><span class="n">num_tasks</span><span class="p">(</span><span class="n">num</span><span class="o">-</span><span class="n">tasks</span><span class="p">)</span>
+</span><span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="n">final</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="n">expr</span><span class="p">)</span>
+<span class="n">priority</span><span class="p">(</span><span class="n">priority</span><span class="o">-</span><span class="n">value</span><span class="p">)</span>
+<span class="n">untied</span>
+<span class="n">mergeable</span>
+<span class="n">nogroup</span>
+<span class="n">allocate</span><span class="p">([</span><span class="nl">allocator</span> <span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In particular, the <code class="code docutils literal notranslate"><span class="pre">grainsize</span></code> sets the number of iterations assigned to each tasks and the <code class="code docutils literal notranslate"><span class="pre">num_tasks</span></code> sets the number of tasks generated.</p>
+</div>
+<div class="section" id="task-group">
+<h2>Task group<a class="headerlink" href="#task-group" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="code docutils literal notranslate"><span class="pre">taskwait</span></code> construct specifies that the current task region is suspended until the completion of child tasks of the current task.
+However, the construct <strong>does not</strong> specify that the current task region is suspended until the completion of <strong>descendants of the child tasks</strong>:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single</span>
+    <span class="p">{</span>
+        <span class="cp">#pragma omp task</span>
+        <span class="p">{</span>
+<span class="hll">            <span class="cp">#pragma omp task</span>
+</span><span class="hll">            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hi.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+<span class="hll">        <span class="cp">#pragma omp taskwait</span>
+</span>
+<span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Goodbye.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the above example, the tasks that prints the <code class="code docutils literal notranslate"><span class="pre">Hello</span></code> line is a descendant of the child task that prints the <code class="code docutils literal notranslate"><span class="pre">Hi</span></code> line.
+As we can see, it is possible that the descendant gets executed after the <code class="code docutils literal notranslate"><span class="pre">taskwait</span></code> region:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+Hi.
+<span class="hll">Goodbye.
+</span><span class="hll">Hello.
+</span></pre></div>
+</div>
+<p>Tasks and their descendent tasks can be synchronized by containing them in a <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> region.
+The <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> construct specifies a wait on completion of** child tasks** of the current task and <strong>their descendent tasks</strong>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp taskgroup [clause[[,] clause] ...] new-line</span>
+    <span class="n">structured</span><span class="o">-</span><span class="n">block</span>
+</pre></div>
+</div>
+<p>Note that the <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> construct is <strong>not</strong> a standalone construct.
+Instead, we must enclose the task generating region with it.
+All tasks generated inside a <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> region are waited for at the end of the region.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the following code such that the two tasks are enclosed inside a <code class="code docutils literal notranslate"><span class="pre">taskgroup</span></code> region:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single</span>
+    <span class="p">{</span>
+        <span class="cp">#pragma omp task</span>
+        <span class="p">{</span>
+            <span class="cp">#pragma omp task</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hi.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Goodbye.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single nowait</span>
+    <span class="p">{</span>
+
+<span class="hll">        <span class="cp">#pragma omp taskgroup</span>
+</span><span class="hll">        <span class="p">{</span>
+</span>            <span class="cp">#pragma omp task</span>
+            <span class="p">{</span>
+                <span class="cp">#pragma omp task</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hi.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+            <span class="p">}</span>
+<span class="hll">        <span class="p">}</span>
+</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Goodbye.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">Hi.
+</span><span class="hll">Hello.
+</span><span class="hll">Goodbye.
+</span>$ ./my_program
+<span class="hll">Hello.
+</span><span class="hll">Hi.
+</span><span class="hll">Goodbye.
+</span></pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="depend-clause">
+<h2>Depend clause<a class="headerlink" href="#depend-clause" title="Permalink to this headline">¶</a></h2>
+<p>Up to this point, we have only discussed tasks that are either mutually independent or are related to each other due to the fact that they are generated in a nested manner.
+In the earlier lecture, we talked about <strong>task dependencies</strong>.
+Since OpenMP 4.5, most task-related OpenMP constructs have accepted the <code class="code docutils literal notranslate"><span class="pre">depend</span></code> clause:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">depend</span><span class="p">([</span><span class="n">depend</span><span class="o">-</span><span class="n">modifier</span><span class="p">,]</span><span class="n">dependence</span><span class="o">-</span><span class="nl">type</span> <span class="p">:</span> <span class="n">locator</span><span class="o">-</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">dependence-type</span></code> is one of the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="n">in</span>
+</span><span class="hll"><span class="n">out</span>
+</span><span class="hll"><span class="n">inout</span>
+</span><span class="n">mutexinoutset</span>
+<span class="n">depobj</span>
+</pre></div>
+</div>
+<p>The most relevant ones of these are the following:</p>
+<dl class="field-list simple">
+<dt class="field-odd">in</dt>
+<dd class="field-odd"><p>Input variable(s).</p>
+</dd>
+<dt class="field-even">out</dt>
+<dd class="field-even"><p>Output variable(s).</p>
+</dd>
+<dt class="field-odd">inout</dt>
+<dd class="field-odd"><p>Input and output variable(s).</p>
+</dd>
+</dl>
+<p>The <code class="code docutils literal notranslate"><span class="pre">locator-list</span></code> argument lists all involved variables: <code class="code docutils literal notranslate"><span class="pre">var1,</span> <span class="pre">var2,</span> <span class="pre">...,</span> <span class="pre">varN</span></code>.
+A construct can have <strong>multiple</strong> <code class="code docutils literal notranslate"><span class="pre">depend</span></code> clauses, one for each <code class="code docutils literal notranslate"><span class="pre">dependence-type</span></code>.
+The <code class="code docutils literal notranslate"><span class="pre">depend</span></code> clause is much more powerful than this but during this course we are going to use only the basic functionality.</p>
+<p>As an example, consider the following ill-defined program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single nowait</span>
+    <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp task</span>
+</span><span class="hll">        <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span>
+<span class="hll">        <span class="cp">#pragma omp task</span>
+</span><span class="hll">        <span class="p">{</span>
+</span><span class="hll">            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the number is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">);</span>
+</span><span class="hll">            <span class="n">number</span><span class="o">++</span><span class="p">;</span>
+</span><span class="hll">        <span class="p">}</span>
+</span>
+<span class="hll">        <span class="cp">#pragma omp task</span>
+</span><span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the final number is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">);</span>
+</span>    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>As expected, the result is not well-defined:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">I think the number is <span class="m">1</span>
+</span><span class="hll">I think the final number is <span class="m">1</span>
+</span>$ ./my_program
+<span class="hll">I think the final number is <span class="m">1</span>
+</span><span class="hll">I think the number is <span class="m">1</span>
+</span></pre></div>
+</div>
+<p>We can fix the issue by defining input and output variables for each task:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single nowait</span>
+    <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp task depend(out: number)</span>
+</span>        <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="hll">        <span class="cp">#pragma omp task depend(inout: number)</span>
+</span>        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the number is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">);</span>
+            <span class="n">number</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+
+<span class="hll">        <span class="cp">#pragma omp task depend(in: number)</span>
+</span>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the final number is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>That is,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the first task is going to write into the variable <code class="code docutils literal notranslate"><span class="pre">number</span></code>,</p></li>
+<li><p>the second task is going to read and write from/into the variable <code class="code docutils literal notranslate"><span class="pre">number</span></code>, and</p></li>
+<li><p>the third task is going to read from the variable <code class="code docutils literal notranslate"><span class="pre">number</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>These clauses force the OpenMP implementation to execute the tasks in an order that respects the induced task dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">I think the number is <span class="m">1</span>
+</span><span class="hll">I think the final number is <span class="m">2</span>
+</span></pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Parallelize the following program using tasks:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#define N 15</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+
+    <span class="n">fib_numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">fib_numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span> <span class="o">+</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="mi">-2</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The Fibonacci numbers are:&quot;</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot; %d&quot;</span><span class="p">,</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+The Fibonacci numbers are: <span class="m">1</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">5</span> <span class="m">8</span> <span class="m">13</span> <span class="m">21</span> <span class="m">34</span> <span class="m">55</span> <span class="m">89</span> <span class="m">144</span> <span class="m">233</span> <span class="m">377</span> <span class="m">610</span>
+</pre></div>
+</div>
+<p><strong>Hint:</strong> <code class="code docutils literal notranslate"><span class="pre">locator-list</span></code> can contain array elements.</p>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#define N 15</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+
+    <span class="cp">#pragma omp parallel</span>
+    <span class="cp">#pragma omp single</span>
+    <span class="p">{</span>
+
+        <span class="cp">#pragma omp task default(none) shared(fib_numbers) \</span>
+<span class="cp">            depend(out: fib_numbers[0])</span>
+        <span class="n">fib_numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+        <span class="cp">#pragma omp task default(none) shared(fib_numbers) \</span>
+<span class="cp">            depend(out: fib_numbers[1])</span>
+        <span class="n">fib_numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="cp">#pragma omp task \</span>
+<span class="cp">                default(none) shared(fib_numbers) firstprivate(i) \</span>
+<span class="cp">                depend(in: fib_numbers[i-1], fib_numbers[i-2]) \</span>
+<span class="cp">                depend(out: fib_numbers[i])</span>
+            <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span> <span class="o">+</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="mi">-2</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The Fibonacci numbers are:&quot;</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot; %d&quot;</span><span class="p">,</span> <span class="n">fib_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+The Fibonacci numbers are: <span class="m">1</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">5</span> <span class="m">8</span> <span class="m">13</span> <span class="m">21</span> <span class="m">34</span> <span class="m">55</span> <span class="m">89</span> <span class="m">144</span> <span class="m">233</span> <span class="m">377</span> <span class="m">610</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="priority-clause">
+<h2>Priority clause<a class="headerlink" href="#priority-clause" title="Permalink to this headline">¶</a></h2>
+<p>As discussed during an earlier lecture, we can give each task a <strong>priority</strong> in an attempt to help the runtime system to schedule the tasks in a more optimal order.</p>
+<p>In OpenMP, the priority is given using the <code class="code docutils literal notranslate"><span class="pre">priority(priority-value)</span></code> clause.
+The <code class="code docutils literal notranslate"><span class="pre">priority-value</span></code> is a <strong>non-negative integer expression</strong> and higher value implies higher priority.
+You can enquiry the maxinum priority with the <code class="code docutils literal notranslate"><span class="pre">omp_get_max_task_priority()</span></code> function.</p>
+</div>
+<div class="section" id="untied-clause-and-taskyield-construct">
+<h2>Untied clause and taskyield construct<a class="headerlink" href="#untied-clause-and-taskyield-construct" title="Permalink to this headline">¶</a></h2>
+<p>Threads are allowed to <strong>suspend</strong> the current task region at a <strong>task scheduling point</strong> in order to execute a different task.
+A task scheduling point can occur</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>during the generation of an explicit task,</p></li>
+<li><p>the point immediately following the generation of an explicit task,</p></li>
+<li><p>after the point of completion of the structured block associated with a task,</p></li>
+<li><p>in a <code class="code docutils literal notranslate"><span class="pre">taskyield</span></code> region,</p></li>
+<li><p>in a <code class="code docutils literal notranslate"><span class="pre">taskwait</span></code> region,</p></li>
+<li><p>at the end of a taskgroup region,</p></li>
+<li><p>in an implicit barrier region, and</p></li>
+<li><p>in an explicit barrier region.</p></li>
+</ul>
+</div></blockquote>
+<p>In particular, we can use the <code class="code docutils literal notranslate"><span class="pre">taskyield</span></code> construct to force a task scheduling point.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp taskyield new-line</span>
+</pre></div>
+</div>
+<p>Note that the above list is not complete.</p>
+<p>By default, task regions are <strong>tied</strong> to the the initially assigned thread and <strong>only</strong> the initially assigned thread can later resume the execution of the suspended task region.
+This behaviour can be changed with the <code class="code docutils literal notranslate"><span class="pre">untied</span></code> in which case any thread is allowed to resume the execution.</p>
+</div>
+<div class="section" id="mergeable-and-final-clauses">
+<h2>Mergeable and final clauses<a class="headerlink" href="#mergeable-and-final-clauses" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="code docutils literal notranslate"><span class="pre">mergeable</span></code> and <code class="code docutils literal notranslate"><span class="pre">final</span></code> clauses can be used to reduce the number of generated tasks in deep nested task generation trees.</p>
+<p>First, we need more terminology:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Undeferred task</dt>
+<dd class="field-odd"><p>A task for which execution is not deferred with respect to its generating task region.
+That is, its <strong>generating task region is suspended until execution of the structured block associated with the undeferred task is completed</strong>.</p>
+</dd>
+<dt class="field-even">Included task</dt>
+<dd class="field-even"><p>A task for which execution is sequentially <strong>included in the generating task region</strong>.
+That is, an included task is <strong>undeferred</strong> and executed by the encountering thread.</p>
+</dd>
+<dt class="field-odd">Merged task</dt>
+<dd class="field-odd"><p>A task for which the data environment, inclusive of ICVs, is the same as that of its generating task region.</p>
+</dd>
+<dt class="field-even">Mergeable task</dt>
+<dd class="field-even"><p>A task that may be a merged task if it is an undeferred task or an included task.</p>
+</dd>
+<dt class="field-odd">Final task</dt>
+<dd class="field-odd"><p>A task that forces all of its child tasks to become final and included tasks.</p>
+</dd>
+</dl>
+<p>The <code class="code docutils literal notranslate"><span class="pre">mergeable</span></code> clause indicates that the task is mergeable.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">scalar-expression</span></code> is evaluated as true, then the <code class="code docutils literal notranslate"><span class="pre">final(scalar-expression)</span></code> clause indicates that the task is final.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../task-basics-lu/" class="btn btn-neutral float-right" title="Example: LU factorization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../task-basics-1/" class="btn btn-neutral float-left" title="OpenMP task basics (part 1)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

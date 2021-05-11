@@ -1,0 +1,1085 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>StarPU runtime system (part 1) &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="StarPU runtime system (part 2)" href="../starpu2/" />
+    <link rel="prev" title="Demonstration: Two-sided matrix algorithms" href="../two-sided-algorithms/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">StarPU runtime system (part 1)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#benefits-and-downsides">Benefits and downsides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-use-starpu">How to use StarPU</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialization-and-shutdown">Initialization and shutdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hello-world">Hello world</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#codelets-and-tasks">Codelets and tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#task-arguments">Task arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>StarPU runtime system (part 1)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/starpu1.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="starpu-runtime-system-part-1">
+<h1>StarPU runtime system (part 1)<a class="headerlink" href="#starpu-runtime-system-part-1" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand the basics of StarPU</p></li>
+</ul>
+</div>
+<p><a class="reference external" href="https://starpu.gitlabpages.inria.fr/">StarPU</a> (<em>A Unified Runtime System for Heterogeneous Multicore Architectures</em>) is a programming API for shared-memory and distributed-memory parallel programming in C and C++ languages.
+StarPU can also be used through OpenMP pragmas and provides the necessary routines and support to natively access most of its functionalities from Fortran 2008+ codes.
+StarPU supports accelerator devices such as GPUs.</p>
+<div class="section" id="benefits-and-downsides">
+<h2>Benefits and downsides<a class="headerlink" href="#benefits-and-downsides" title="Permalink to this headline">¶</a></h2>
+<p>StarPU has several benefits:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The StarPU API is very <strong>rich</strong> and partly <strong>modular</strong>.</p>
+<ul class="simple">
+<li><p>A programmer can, for example, implement a custom modular scheduler.</p></li>
+</ul>
+</li>
+<li><p>StarPU uses <strong>performance models</strong> to predict which computational resource is optimal in a given situation.</p>
+<ul class="simple">
+<li><p>A programmer does not need to decide between a CPU and a GPU.</p></li>
+<li><p>StarPU does scheduling decisions dynamically during run time.</p></li>
+</ul>
+</li>
+<li><p>StarPU supports distributed memory.</p>
+<ul class="simple">
+<li><p>The MPI communications are done <strong>implicitly</strong>.</p></li>
+<li><p>A programmer only needs to specify the data distribution.</p></li>
+<li><p>The communication pattern is automatically derived from the task graph and the data distribution.</p></li>
+</ul>
+</li>
+</ol>
+</div></blockquote>
+<p>However, when compared to OpenMP tasks, StarPU has a few downsides:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The API is more complex and requires more involvement from the programmer.</p></li>
+<li><p>The performance models are only as good as their calibration data.</p></li>
+<li><p>OpenMP is a well-established standard. StarPU is not.</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="how-to-use-starpu">
+<h2>How to use StarPU<a class="headerlink" href="#how-to-use-starpu" title="Permalink to this headline">¶</a></h2>
+<p>Three ways to use StarPU:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>C extension: Simple pragma-based approach (does not work with all compilers).</p></li>
+<li><p>StarPU API: More powerful but complex (“traditional” C library).</p></li>
+<li><p>StarPU API with helper functions: Simplifies certain things (<strong>our choice</strong>).</p></li>
+</ol>
+</div></blockquote>
+<div class="section" id="initialization-and-shutdown">
+<h3>Initialization and shutdown<a class="headerlink" href="#initialization-and-shutdown" title="Permalink to this headline">¶</a></h3>
+<p>Since StarPU is a C library, <strong>a programmer must initialize and shutdown the runtime system</strong>.
+The following three basic steps are necessary:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Include <cite>starpu.h</cite> header file:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+</pre></div>
+</div>
+</li>
+<li><p>Initialize StarPU runtime system by calling <cite>starpu_init</cite>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">starpu_init</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_conf</span> <span class="o">*</span><span class="n">conf</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Finally, shutdown StarPU runtime sytem by calling <cite>starpu_shutdown()</cite>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">starpu_shutdown</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul>
+<li><p>Either unregister all data handles using blocking calls (to be covered) or call <cite>starpu_task_wait_for_all()</cite> before shutting StarPU down:</p>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">starpu_task_wait_for_all</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="hello-world">
+<h3>Hello world<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h3>
+<p>Let us consider the following “Hello world” program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+</span>
+<span class="hll"><span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="hll"><span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="hll">    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+</span><span class="hll"><span class="p">};</span>
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll">    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="hll">    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span>
+<span class="hll">    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+</span><span class="hll">    <span class="n">starpu_shutdown</span><span class="p">();</span>
+</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>Clearly this example is much more complicated than the corresponding OpenMP “Hello world” program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp parallel</span>
+</span>    <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp task</span>
+</span>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>In addition to initialising and shutting down StarPU, we have also introduced a separate <cite>hello_world_cpu</cite> function that contains the <cite>printf</cite> statement and a <cite>hello_world_cl</cite> C struct that contains a pointer to the <cite>hello_world_cpu</cite> function.
+The task itself is created using the <cite>starpu_task_insert</cite> function.</p>
+<p>For compilation, we must link the binary with the StarPU library:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="hll">$ ml purge
+</span><span class="hll">$ ml GCC/10.2.0 CUDA/11.1.1 OpenMPI/4.0.5 StarPU/1.3.7
+</span><span class="hll">$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+</span><span class="hll">$ ./starpu_program
+</span><span class="o">[</span>starpu<span class="o">][</span>initialize_lws_policy<span class="o">]</span> Warning: you are running the default lws scheduler,
+which is not a very smart scheduler, <span class="k">while</span> the system has GPUs or several memory
+nodes. Make sure to <span class="nb">read</span> the StarPU documentation about adding performance models
+<span class="k">in</span> order to be able to use the dmda or dmdas scheduler instead.
+<span class="hll">Hello world!
+</span></pre></div>
+</div>
+<p>The printed warning is related to the fact that StarPU’s default scheduler is not smart enough to handle GPUs correctly.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the StarPU “Hello world” program such that 8 tasks are created.</p>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<p>The simplest solution is to introduce a <cite>for</cite> loop:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="hll">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span>        <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+$ ./starpu_program
+<span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span><span class="hll">Hello world!
+</span></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="codelets-and-tasks">
+<h2>Codelets and tasks<a class="headerlink" href="#codelets-and-tasks" title="Permalink to this headline">¶</a></h2>
+<p>When StarPU is initialized, it creates a set of <strong>worker threads</strong>.
+Usually each CPU core gets its own worker thread.
+Depending on the configuration, one or more CPU cores (and GPU worker threads) are allocated for managing any GPUs.
+All tasks are placed into a task pool from which the worker threads pick tasks as they become ready for scheduling.</p>
+<p>Each <strong>task type</strong> is defined within a StarPU <strong>codelet</strong>:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_codelet</span>
+<span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">where</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">can_execute</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="n">workerid</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">starpu_task</span> <span class="o">*</span><span class="n">task</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">nimpl</span><span class="p">);</span>
+    <span class="k">enum</span> <span class="n">starpu_codelet_type</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">max_parallelism</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+<span class="hll">    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+</span><span class="hll">    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+</span>    <span class="kt">char</span> <span class="n">cuda_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+<span class="hll">    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+</span>    <span class="kt">char</span> <span class="n">opencl_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mic_func_t</span> <span class="n">mic_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mpi_ms_func_t</span> <span class="n">mpi_ms_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cpu_funcs_name</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nbuffers</span><span class="p">;</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="n">modes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="o">*</span><span class="n">dyn_modes</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">specific_nodes</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nodes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">dyn_nodes</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">energy_model</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">per_worker_stats</span><span class="p">[</span><span class="n">STARPU_NMAXWORKERS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">color</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">checked</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>Each task type can have <strong>multiple implementations</strong>.
+In the earlier “Hello world” example, the <cite>hello_world_cl</cite> had just one CPU implementation:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"><span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+<span class="hll">    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+</span><span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>In addition to having multiple CPU implementations, a codelet can contain several <strong>CUDA implementations</strong> (<cite>cuda_funcs</cite>) and <strong>OpenCL implementations</strong> (<cite>opencl_funcs</cite>).
+All functions that implement the codelet have a similar prototype:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_cpu_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_cuda_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_opencl_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the “Hello world” program as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Create a second implementation called <cite>hi_world_cpu</cite> that prints “Hi!”.</p></li>
+<li><p>Add the new implementation to the codelet as a first implementation.</p></li>
+</ol>
+</div></blockquote>
+<p><strong>Hint:</strong> The <cite>cpu_funcs</cite> field is a regular C array.</p>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="kt">void</span> <span class="nf">hi_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hi!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+<span class="hll">    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hi_world_cpu</span><span class="p">,</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+</span><span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+$ ./starpu_program
+<span class="hll">Hi!
+</span></pre></div>
+</div>
+</div>
+<p>In the “Hello world” example, we simply call the <cite>starpu_task_insert</cite> function and pass it the corresponding codelet.
+The function accepts an arbitrary number of arguments and the argument list is terminated with <cite>0</cite>.
+Only the codelet is mandatory:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">starpu_task_insert</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="o">*</span><span class="n">cl</span><span class="p">,</span> <span class="p">...)</span>
+</pre></div>
+</div>
+<p>The <cite>starpu_task_insert</cite> function is simply a convenient helper function that makes task creating easier.
+Without it, we must first create a StarPU <strong>task</strong>:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_task</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<span class="hll">    <span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="o">*</span><span class="n">cl</span><span class="p">;</span>
+</span>    <span class="kt">int32_t</span> <span class="n">where</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nbuffers</span><span class="p">;</span>
+    <span class="n">starpu_data_handle_t</span> <span class="o">*</span><span class="n">dyn_handles</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o">**</span><span class="n">dyn_interfaces</span><span class="p">;</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="o">*</span><span class="n">dyn_modes</span><span class="p">;</span>
+    <span class="n">starpu_data_handle_t</span> <span class="n">handles</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">interfaces</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="n">modes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>We can see that the <cite>cl</cite> field links the task to the codelet that provides the task implementations.
+Many of the fields in the <cite>starpu_task</cite> struct are reserved for internal use and should not be modified directly.</p>
+<p>If we want, we can create and insert the task manually:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="hll">    <span class="k">struct</span> <span class="nc">starpu_task</span> <span class="o">*</span><span class="n">task</span> <span class="o">=</span> <span class="n">starpu_task_create</span><span class="p">();</span>
+</span><span class="hll">    <span class="n">task</span><span class="o">-&gt;</span><span class="n">cl</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">;</span>
+</span>
+<span class="hll">    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_task_submit</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to submit the task.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <cite>starpu_task</cite> C struct is freed automatially after the task has been executed.</p>
+</div>
+<div class="section" id="task-arguments">
+<h2>Task arguments<a class="headerlink" href="#task-arguments" title="Permalink to this headline">¶</a></h2>
+<p>Let us return to the task implementations:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_cpu_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_cuda_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">starpu_opencl_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">**</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note that each task implementation accepts two arguments:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The first argument is a pointer to an array of <strong>data handles</strong>.</p></li>
+<li><p>The second argument is a pointer to a struture that contains a list of <strong>task arguments</strong>.</p></li>
+</ol>
+</div></blockquote>
+<p>We will first discuss the task arguments as it is signicantly simpler than the data handles:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
+</span><span class="hll">    <span class="n">starpu_codelet_unpack_args</span><span class="p">(</span><span class="n">cl_arg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str</span><span class="p">);</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</span><span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">char</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span>
+<span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">str</span><span class="p">),</span>
+</span>        <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+$ ./starpu_program
+<span class="hll">Hello world!
+</span></pre></div>
+</div>
+<p>The task arguments are passed to the <cite>starpu_task_insert</cite> function which <strong>packs</strong> them to the <cite>starpu_task</cite> C struct.
+StarPU later passes the task arguments to the task implementation.
+For each task argument, we must pass three arguments to the <cite>starpu_task_insert</cite> function:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><cite>STARPU_VALUE</cite> tells StarPU that we are passing task arguments to the task.</p></li>
+<li><p>Immedietly after <cite>STARPU_VALUE</cite>, we pass a <strong>pointer</strong> to the task arguments.</p></li>
+<li><p>The pointer is followed by the size of the task arguments.</p></li>
+</ol>
+</div></blockquote>
+<p>The packing procedure copies the value of the task arguments.
+The task arguments are <strong>unpacked</strong> with the <cite>starpu_codelet_unpack_args</cite> function:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">starpu_codelet_unpack_args</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span> <span class="n">cl_arg</span><span class="p">,</span> <span class="p">...)</span>
+</pre></div>
+</div>
+<p>The first argument is the second argument passed to the task implementation (<cite>cl_arg</cite>).
+After it, we must pass pointers to variables to which the <cite>starpu_codelet_unpack_args</cite> function is going to unpack the task arguments.
+The types of these variables must match the type of the task arguments:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll">    <span class="n">ARG_TYPE1</span> <span class="n">arg1</span><span class="p">;</span>
+</span><span class="hll">    <span class="n">ARG_TYPE2</span> <span class="n">arg2</span><span class="p">;</span>
+</span><span class="hll">    <span class="p">...</span>
+</span><span class="hll">    <span class="n">ARG_TYPEX</span> <span class="n">argX</span><span class="p">;</span>
+</span><span class="hll">    <span class="n">starpu_codelet_unpack_args</span><span class="p">(</span><span class="n">cl_arg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="p">...,</span> <span class="n">argX</span><span class="p">);</span>
+</span>    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll">    <span class="n">ARG_TYPE1</span> <span class="n">arg1</span><span class="p">;</span>
+</span><span class="hll">    <span class="n">ARG_TYPE2</span> <span class="n">arg2</span><span class="p">;</span>
+</span><span class="hll">    <span class="p">...</span>
+</span><span class="hll">    <span class="n">ARG_TYPEX</span> <span class="n">argX</span><span class="p">;</span>
+</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span>
+<span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arg1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">arg1</span><span class="p">),</span>
+</span><span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arg2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">arg2</span><span class="p">),</span>
+</span><span class="hll">        <span class="p">...,</span>
+</span><span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argX</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">argX</span><span class="p">),</span>
+</span>        <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the following program such that the task accepts two integer arguments (<cite>int</cite>) and prints their sum:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+</span><span class="hll">    <span class="n">starpu_codelet_unpack_args</span><span class="p">(</span><span class="n">cl_arg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d + %d = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+</span><span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span>
+<span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
+</span><span class="hll">        <span class="n">STARPU_VALUE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">b</span><span class="p">),</span>
+</span>        <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+$ ./starpu_program
+<span class="hll"><span class="m">10</span> + <span class="nv">7</span> <span class="o">=</span> <span class="m">17</span>
+</span></pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../starpu2/" class="btn btn-neutral float-right" title="StarPU runtime system (part 2)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../two-sided-algorithms/" class="btn btn-neutral float-left" title="Demonstration: Two-sided matrix algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

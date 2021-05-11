@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to OpenMP (part 2) &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="OpenMP task basics (part 1)" href="../task-basics-1/" />
+    <link rel="prev" title="Introduction to OpenMP (part 1)" href="../openmp-basics1/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to OpenMP (part 2)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#section-construct">Section construct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallel-loop-construct">Parallel loop construct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#single-and-master-constructs">Single and master constructs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#critical-construct">Critical  construct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#barrier-construct">Barrier construct</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to OpenMP (part 2)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/openmp-basics2.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-to-openmp-part-2">
+<h1>Introduction to OpenMP (part 2)<a class="headerlink" href="#introduction-to-openmp-part-2" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Learn about the <code class="code docutils literal notranslate"><span class="pre">sections</span></code> and <code class="code docutils literal notranslate"><span class="pre">section</span></code> constructs.</p></li>
+<li><p>Learn about the <code class="code docutils literal notranslate"><span class="pre">loop</span></code> and <code class="code docutils literal notranslate"><span class="pre">for</span></code> constructs.</p></li>
+<li><p>Learn about the <code class="code docutils literal notranslate"><span class="pre">single</span></code> and <code class="code docutils literal notranslate"><span class="pre">master</span></code> constructs.</p></li>
+<li><p>Learn about the <code class="code docutils literal notranslate"><span class="pre">critical</span></code> construct.</p></li>
+<li><p>Learn about the <code class="code docutils literal notranslate"><span class="pre">barrier</span></code> construct.</p></li>
+</ul>
+</div>
+<div class="section" id="section-construct">
+<h2>Section construct<a class="headerlink" href="#section-construct" title="Permalink to this headline">¶</a></h2>
+<p>As we saw earlier, <strong>all threads within the team</strong> execute the <strong>entire structured block</strong> that follows a parallel construct.
+Only a very limited number of parallel algorithms can be implemented in this way.
+It is much more common that we have a set of mutually independent operations which we want to execute in parallel.</p>
+<p>One way of accomplishing this is with the <strong>sections</strong> and <strong>section</strong> constructs:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>#pragma omp sections [clause[ [,] clause] ... ] new-line
+{
+    [#pragma omp section new-line]
+        structured-block
+    [#pragma omp section new-line
+        structured-block]
+    ...
+}
+</pre></div>
+</div>
+<p>where clause is one of the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">lastprivate</span><span class="p">([</span> <span class="n">lastprivate</span><span class="o">-</span><span class="nl">modifier</span><span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">reduction</span><span class="p">([</span><span class="n">reduction</span><span class="o">-</span><span class="n">modifier</span> <span class="p">,]</span> <span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">allocate</span><span class="p">([</span><span class="nl">allocator</span> <span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">nowait</span>
+</pre></div>
+</div>
+<p>The structured blocks that follow the <code class="code docutils literal notranslate"><span class="pre">section</span></code> constructs inside the <code class="code docutils literal notranslate"><span class="pre">sections</span></code> construct are distributed among the threads within the team:</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/section.png"><img alt="../_images/section.png" src="../_images/section.png" style="width: 510.0px; height: 305.25px;" /></a>
+</div>
+<p>Each structured block is executed only <strong>once</strong>:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+<span class="hll">    <span class="cp">#pragma omp parallel</span>
+</span>    <span class="p">{</span>
+<span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Everyone!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="hll">        <span class="cp">#pragma omp sections</span>
+</span>        <span class="p">{</span>
+<span class="hll">            <span class="cp">#pragma omp section</span>
+</span><span class="hll">            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Only me!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="hll">            <span class="cp">#pragma omp section</span>
+</span><span class="hll">            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;No one else!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="hll">            <span class="cp">#pragma omp section</span>
+</span><span class="hll">            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Just me!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">Everyone!
+</span><span class="hll">Only me!
+</span><span class="hll">No one <span class="k">else</span>!
+</span><span class="hll">Just me!
+</span><span class="hll">Everyone!
+</span><span class="hll">Everyone!
+</span><span class="hll">...
+</span></pre></div>
+</div>
+<p>Note how the <code class="code docutils literal notranslate"><span class="pre">Everyone!</span></code> lines are printed multiple times but the other three lines are printed only once.</p>
+<p>If we want, we can merge the <code class="code docutils literal notranslate"><span class="pre">parallel</span></code> and <code class="code docutils literal notranslate"><span class="pre">sections</span></code> constructs together:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+<span class="hll">    <span class="cp">#pragma omp parallel sections</span>
+</span>    <span class="p">{</span>
+        <span class="cp">#pragma omp section</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Only me!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+        <span class="cp">#pragma omp section</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;No one else!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+        <span class="cp">#pragma omp section</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Just me!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">Just me!
+</span><span class="hll">No one <span class="k">else</span>!
+</span><span class="hll">Only me!
+</span></pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Parallelize the following program using the <code class="code docutils literal notranslate"><span class="pre">sections</span></code> and <code class="code docutils literal notranslate"><span class="pre">section</span></code> constructs:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">;</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="mi">14</span><span class="p">;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">44</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;a = %d, b = %d, c = %d, d = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>The program should print <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">5,</span> <span class="pre">b</span> <span class="pre">=</span> <span class="pre">14,</span> <span class="pre">c</span> <span class="pre">=</span> <span class="pre">19,</span> <span class="pre">d</span> <span class="pre">=</span> <span class="pre">49</span></code>.
+Pay attention to the data dependencies.
+You may have to add more than one <code class="code docutils literal notranslate"><span class="pre">parallel</span></code> construct.</p>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<p>The statements <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">5;</span></code> and <code class="code docutils literal notranslate"><span class="pre">b</span> <span class="pre">=</span> <span class="pre">14;</span></code> can be executed in parallel and we therefore add one <code class="code docutils literal notranslate"><span class="pre">parallel</span> <span class="pre">sections</span></code> construct for them.
+The statements <code class="code docutils literal notranslate"><span class="pre">c</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b;</span></code> and <code class="code docutils literal notranslate"><span class="pre">d</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">44;</span></code> can be executed in parallel and we therefore add another <code class="code docutils literal notranslate"><span class="pre">parallel</span> <span class="pre">sections</span></code> construct for them.</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">;</span>
+
+<span class="hll">    <span class="cp">#pragma omp parallel sections</span>
+</span><span class="hll">    <span class="p">{</span>
+</span><span class="hll">        <span class="cp">#pragma omp section</span>
+</span>        <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="hll">        <span class="cp">#pragma omp section</span>
+</span>        <span class="n">b</span> <span class="o">=</span> <span class="mi">14</span><span class="p">;</span>
+<span class="hll">    <span class="p">}</span>
+</span><span class="hll">    <span class="cp">#pragma omp parallel sections</span>
+</span><span class="hll">    <span class="p">{</span>
+</span><span class="hll">        <span class="cp">#pragma omp section</span>
+</span>        <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+<span class="hll">        <span class="cp">#pragma omp section</span>
+</span>        <span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">44</span><span class="p">;</span>
+<span class="hll">    <span class="p">}</span>
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;a = %d, b = %d, c = %d, d = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="nv">a</span> <span class="o">=</span> <span class="m">5</span>, <span class="nv">b</span> <span class="o">=</span> <span class="m">14</span>, <span class="nv">c</span> <span class="o">=</span> <span class="m">19</span>, <span class="nv">d</span> <span class="o">=</span> <span class="m">49</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="parallel-loop-construct">
+<h2>Parallel loop construct<a class="headerlink" href="#parallel-loop-construct" title="Permalink to this headline">¶</a></h2>
+<p>Most programs contain several loops and parallelizing these loops is often a natural way to add some parallelism to a program.
+The <code class="code docutils literal notranslate"><span class="pre">loop</span></code> construct does exactly that:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp loop [clause[ [,] clause] ... ] new-line</span>
+    <span class="k">for</span><span class="o">-</span><span class="n">loops</span>
+</pre></div>
+</div>
+<p>The construct tells OpenMP that the loop iterations are free of data dependencies and can therefore be executed in parallel.
+The loop iterator is <code class="code docutils literal notranslate"><span class="pre">private</span></code> by default:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp parallel</span>
+</span>    <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp loop</span>
+</span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The loop iterator is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">The loop iterator is <span class="m">1</span>.
+</span><span class="hll">The loop iterator is <span class="m">4</span>.
+</span><span class="hll">The loop iterator is <span class="m">0</span>.
+</span><span class="hll">The loop iterator is <span class="m">2</span>.
+</span><span class="hll">The loop iterator is <span class="m">3</span>.
+</span></pre></div>
+</div>
+<p>Like many other constructs, the <code class="code docutils literal notranslate"><span class="pre">loop</span></code> construct accepts several clauses:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">bind</span><span class="p">(</span><span class="n">binding</span><span class="p">)</span>
+<span class="hll"><span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span><span class="n">order</span><span class="p">(</span><span class="n">concurrent</span><span class="p">)</span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">reduction</span><span class="p">([</span><span class="k">default</span> <span class="p">,]</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In particular, the <code class="code docutils literal notranslate"><span class="pre">collapse</span></code> clause allows us to collapse <code class="code docutils literal notranslate"><span class="pre">n</span></code> nested loops into a single parallel loop.
+Otherwise, only the iterations of the outermost loop are executed in parallel.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Collapse the two nested loops in the following program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cp">#pragma omp parallel</span>
+    <span class="p">{</span>
+        <span class="cp">#pragma omp loop</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The loop iterators are %d and %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">1</span>.
+</span><span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">2</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">1</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">2</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">1</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">2</span>.
+</span></pre></div>
+</div>
+<p>Note how the innermost loop is always executed sequentially.
+What changes?</p>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cp">#pragma omp parallel</span>
+    <span class="p">{</span>
+<span class="hll">        <span class="cp">#pragma omp loop collapse(2)</span>
+</span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The loop iterators are %d and %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">2</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">1</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">1</span>.
+</span><span class="hll">The loop iterators are <span class="m">2</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">2</span>.
+</span><span class="hll">The loop iterators are <span class="m">0</span> and <span class="m">2</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">0</span>.
+</span><span class="hll">The loop iterators are <span class="m">1</span> and <span class="m">1</span>.
+</span></pre></div>
+</div>
+<p>Note that the iterations from both loops are now executed in an arbitrary order.</p>
+</div>
+<p>If we want, we can merge the <code class="code docutils literal notranslate"><span class="pre">parallel</span></code> and <code class="code docutils literal notranslate"><span class="pre">loop</span></code> constructs together:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp parallel loop</span>
+</span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The loop iterator is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">The loop iterator is <span class="m">4</span>.
+</span><span class="hll">The loop iterator is <span class="m">0</span>.
+</span><span class="hll">The loop iterator is <span class="m">2</span>.
+</span><span class="hll">The loop iterator is <span class="m">3</span>.
+</span><span class="hll">The loop iterator is <span class="m">1</span>.
+</span></pre></div>
+</div>
+<p>Or use an older <code class="code docutils literal notranslate"><span class="pre">for</span></code> construct:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp parallel for</span>
+</span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The loop iterator is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">The loop iterator is <span class="m">3</span>.
+</span><span class="hll">The loop iterator is <span class="m">1</span>.
+</span><span class="hll">The loop iterator is <span class="m">0</span>.
+</span><span class="hll">The loop iterator is <span class="m">2</span>.
+</span><span class="hll">The loop iterator is <span class="m">4</span>.
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="single-and-master-constructs">
+<h2>Single and master constructs<a class="headerlink" href="#single-and-master-constructs" title="Permalink to this headline">¶</a></h2>
+<p>It is sometimes necessary to execute a structured block only once inside a parallel region.
+The <code class="code docutils literal notranslate"><span class="pre">single</span></code> construct does exactly this:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp single [clause[ [,] clause] ... ] new-line</span>
+    <span class="n">structured</span><span class="o">-</span><span class="n">block</span>
+</pre></div>
+</div>
+<p>The structured block is executed <strong>only once</strong> by <strong>one of the threads</strong> in the team:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">    <span class="cp">#pragma omp parallel</span>
+</span>    <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;In parallel.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="hll">        <span class="cp">#pragma omp single</span>
+</span>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Only once.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;More in parallel.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+In parallel.
+<span class="hll">Only once.
+</span>In parallel.
+In parallel.
+...
+In parallel.
+<span class="hll">More <span class="k">in</span> parallel.
+</span><span class="hll">More <span class="k">in</span> parallel.
+</span><span class="hll">...
+</span><span class="hll">More <span class="k">in</span> parallel.
+</span></pre></div>
+</div>
+<p>Note that all <code class="code docutils literal notranslate"><span class="pre">In</span> <span class="pre">parallel</span></code> lines and the <code class="code docutils literal notranslate"><span class="pre">Only</span> <span class="pre">once</span></code> line are printed before any <code class="code docutils literal notranslate"><span class="pre">More</span> <span class="pre">in</span> <span class="pre">parallel</span></code> lines are printed.
+This happens because the <code class="code docutils literal notranslate"><span class="pre">single</span></code> construct introduces an <strong>implicit barrier to the exit of the single region</strong>.
+That is, all threads in the team must wait until one of the threads has executed the structured block that is associated with the <code class="code docutils literal notranslate"><span class="pre">single</span></code> construct:</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/barrier.png"><img alt="../_images/barrier.png" src="../_images/barrier.png" style="width: 605.1999999999999px; height: 260.09999999999997px;" /></a>
+</div>
+<p>We can disable this behaviour using the <code class="code docutils literal notranslate"><span class="pre">nowait</span></code> clause:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">copyprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">allocate</span><span class="p">([</span><span class="nl">allocator</span> <span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+<span class="hll"><span class="n">nowait</span>
+</span></pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">single</span></code> construct is closely connected to the <code class="code docutils literal notranslate"><span class="pre">master</span></code> construct:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp master new-line</span>
+    <span class="n">structured</span><span class="o">-</span><span class="n">block</span>
+</pre></div>
+</div>
+<p>However, there are two primary differences:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Only the <strong>master</strong> thread of the current team can execute the associated structured block.</p></li>
+<li><p>There is no implied barrier either on entry to, or exit from, the master region.</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="critical-construct">
+<h2>Critical  construct<a class="headerlink" href="#critical-construct" title="Permalink to this headline">¶</a></h2>
+<p>It is sometimes necessary to allow only one thread to execute a structured block concurrently:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp critical [(name) [[,] hint(hint-expression)] ] new-line</span>
+    <span class="n">structured</span><span class="o">-</span><span class="n">block</span>
+</pre></div>
+</div>
+<p>Several <code class="code docutils literal notranslate"><span class="pre">critical</span></code> constructs can be joined together by giving them the same name:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp critical (protect_x)</span>
+    <span class="n">x</span><span class="o">++</span><span class="p">;</span>
+
+<span class="p">...</span>
+
+<span class="cp">#pragma omp critical (protect_x)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">15</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the following program such that the <code class="code docutils literal notranslate"><span class="pre">printf</span></code> and <code class="code docutils literal notranslate"><span class="pre">number++</span></code> statements are protected:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="cp">#pragma omp parallel</span>
+<span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the number is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">++</span><span class="p">);</span>
+</span>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="cp">#pragma omp parallel</span>
+<span class="hll">    <span class="cp">#pragma omp critical</span>
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I think the number is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">++</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -Wall -fopenmp
+$ ./my_program
+<span class="hll">I think the number is <span class="m">1</span>.
+</span><span class="hll">I think the number is <span class="m">2</span>.
+</span><span class="hll">I think the number is <span class="m">3</span>.
+</span><span class="hll">I think the number is <span class="m">4</span>.
+</span>...
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="barrier-construct">
+<h2>Barrier construct<a class="headerlink" href="#barrier-construct" title="Permalink to this headline">¶</a></h2>
+<p>Finally, we can add an <strong>explicit</strong> barrier:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp barrier new-line</span>
+</pre></div>
+</div>
+<p>That is, all threads in the team must wait until all other threads in the team have encountered the <code class="code docutils literal notranslate"><span class="pre">barrier</span></code> construct:</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/barrier.png"><img alt="../_images/barrier.png" src="../_images/barrier.png" style="width: 605.1999999999999px; height: 260.09999999999997px;" /></a>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../task-basics-1/" class="btn btn-neutral float-right" title="OpenMP task basics (part 1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../openmp-basics1/" class="btn btn-neutral float-left" title="Introduction to OpenMP (part 1)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

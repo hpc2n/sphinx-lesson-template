@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to task-based parallelism &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Introduction to OpenMP (part 1)" href="../openmp-basics1/" />
+    <link rel="prev" title="Introduction to Kebnekaise" href="../setup/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to task-based parallelism</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parallel-computation-and-hpc">Parallel computation and HPC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-is-high-performance-computing">What is High Performance Computing?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-models">Memory models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#programming-models">Programming models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functions-and-data-dependencies">Functions and data dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tasks-and-task-dependencies">Tasks and task dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-about-task-graphs">More about task graphs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#real-world-task-graph">Real-world task graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#critical-path">Critical path</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#task-scheduling-and-priorities">Task scheduling and priorities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-should-we-schedule-this-task-graph">How should we schedule this task graph?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#heuristics-scheduling-approach">Heuristics scheduling approach</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#task-granularity">Task granularity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#benefits-of-task-based-parallelism">Benefits of task-based parallelism</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to task-based parallelism</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/motivation.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-to-task-based-parallelism">
+<h1>Introduction to task-based parallelism<a class="headerlink" href="#introduction-to-task-based-parallelism" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>A quick reference to parallel computation and HPC.</p></li>
+<li><p>Understand the basics of task-based parallelism.</p></li>
+<li><p>Understand the theoretical benefits of task-based parallelism.</p></li>
+</ul>
+</div>
+<div class="section" id="parallel-computation-and-hpc">
+<h2>Parallel computation and HPC<a class="headerlink" href="#parallel-computation-and-hpc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="what-is-high-performance-computing">
+<h3>What is High Performance Computing?<a class="headerlink" href="#what-is-high-performance-computing" title="Permalink to this headline">¶</a></h3>
+<p><em>High Performance Computing most generally refers to the practice of aggregating computing power in a way that delivers much higher performance than one could get out of a typical desktop computer or workstation in order to solve large problems in science, engineering, or business.</em> (<a class="reference external" href="https://insidehpc.com/hpc-basic-training/what-is-hpc/">insideHPC.com</a>)</p>
+<dl class="simple">
+<dt>What does this mean?</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Aggregating computing power</dt><dd><ul>
+<li><p>Kebnekaise: 602 nodes in 15 racks totalling 19288 cores</p></li>
+<li><p>Your laptop: 4 cores</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Higher performance</dt><dd><ul>
+<li><p>Kebnekaise: 728,000 billion arithmetical operations per second</p></li>
+<li><p>Your laptop: 200 billion arithmetical operations per second</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Solve large problems</dt><dd><ul>
+<li><p><strong>Time:</strong> The time required to form a solution to the problem is very long.</p></li>
+<li><p><strong>Memory:</strong> The solution of the problem requires a lot of memory and/or storage.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/hpc.png"><img alt="../_images/hpc.png" src="../_images/hpc.png" style="width: 387.09999999999997px; height: 389.9px;" /></a>
+</div>
+</div>
+<div class="section" id="memory-models">
+<h3>Memory models<a class="headerlink" href="#memory-models" title="Permalink to this headline">¶</a></h3>
+<p>When it comes to the memory layout, (super)computers can be divided into two primary categories:</p>
+<dl class="field-list">
+<dt class="field-odd">Shared memory</dt>
+<dd class="field-odd"><p>A <strong>single</strong> memory space for all data:</p>
+<ul class="simple">
+<li><p>Everyone can access the same data.</p></li>
+<li><p>Straightforward to use.</p></li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/sm.png"><img alt="../_images/sm.png" src="../_images/sm.png" style="width: 224.7px; height: 151.89999999999998px;" /></a>
+</div>
+</dd>
+<dt class="field-even">Distributed memory</dt>
+<dd class="field-even"><p><strong>Multiple distinct</strong> memory spaces for the data:</p>
+<ul class="simple">
+<li><p>Everyone has direct access only to the <strong>local data</strong>.</p></li>
+<li><p>Requires <strong>communication</strong> and <strong>data transfers</strong>.</p></li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/dm.png"><img alt="../_images/dm.png" src="../_images/dm.png" style="width: 224.7px; height: 246.39999999999998px;" /></a>
+</div>
+</dd>
+</dl>
+<p>Computing clusters and supercomputers are generally distributed memory machines:</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/memory.png"><img alt="../_images/memory.png" src="../_images/memory.png" style="width: 387.09999999999997px; height: 389.9px;" /></a>
+</div>
+</div>
+<div class="section" id="programming-models">
+<h3>Programming models<a class="headerlink" href="#programming-models" title="Permalink to this headline">¶</a></h3>
+<p>The programming model changes when we aim for extra performance and/or memory:</p>
+<dl class="field-list">
+<dt class="field-odd">Single-core</dt>
+<dd class="field-odd"><p>Matlab, Python, C, Fortran, …</p>
+<ul class="simple">
+<li><p><strong>Single stream of operations</strong> (thread).</p></li>
+<li><p><strong>Single pool of data</strong>.</p></li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/single-core.png"><img alt="../_images/single-core.png" src="../_images/single-core.png" style="width: 79.1px; height: 196.0px;" /></a>
+</div>
+</dd>
+<dt class="field-even">Multi-core</dt>
+<dd class="field-even"><p>Vectorized Matlab, pthreads, <strong>OpenMP</strong></p>
+<ul>
+<li><p><strong>Multiple</strong> streams of operations (multiple threads).</p></li>
+<li><p>Single pool of data.</p></li>
+<li><p>Extra challenges:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Work distribution</strong>.</p></li>
+<li><p><strong>Coordination</strong> (synchronization, etc).</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/multi-core.png"><img alt="../_images/multi-core.png" src="../_images/multi-core.png" style="width: 274.4px; height: 196.0px;" /></a>
+</div>
+</dd>
+<dt class="field-odd">Distributed memory</dt>
+<dd class="field-odd"><p><strong>MPI</strong>, …</p>
+<ul>
+<li><p>Multiple streams of operations (multiple threads).</p></li>
+<li><p><strong>Multiple</strong> pools of data.</p></li>
+<li><p>Extra challenges:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Work distribution.</p></li>
+<li><p>Coordination (synchronization, etc).</p></li>
+<li><p><strong>Data distribution</strong>.</p></li>
+<li><p><strong>Communication</strong> and <strong>data transfers</strong>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/distributed-memory.png"><img alt="../_images/distributed-memory.png" src="../_images/distributed-memory.png" style="width: 275.79999999999995px; height: 230.29999999999998px;" /></a>
+</div>
+</dd>
+<dt class="field-even">Accelerators / GPUs</dt>
+<dd class="field-even"><p><strong>CUDA</strong>, OpenCL, OpenACC, OpenMP, …</p>
+<ul>
+<li><p>Single/multiple streams of operations on the <strong>host device</strong>.</p></li>
+<li><p>Many <strong>lightweight</strong> streams of operations on the <strong>accelerator</strong>.</p></li>
+<li><p>Multiple pools of data on <strong>multiple layers</strong>.</p></li>
+<li><p>Extra challenges:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Work distribution.</p></li>
+<li><p>Coordination (synchronization, etc).</p></li>
+<li><p>Data distribution across <strong>multiple memory spaces</strong>.</p></li>
+<li><p>Communication and data transfers.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/gpu.png"><img alt="../_images/gpu.png" src="../_images/gpu.png" style="width: 335.29999999999995px; height: 320.59999999999997px;" /></a>
+</div>
+</dd>
+<dt class="field-odd">Hybrid</dt>
+<dd class="field-odd"><p>MPI <strong>+</strong> OpenMP, OpenMP <strong>+</strong> CUDA, MPI <strong>+</strong> CUDA, …</p>
+<ul class="simple">
+<li><p>Combines the benefits and the downsides of several programming models.</p></li>
+</ul>
+<div class="figure align-left">
+<a class="reference internal image-reference" href="../_images/hybrid.png"><img alt="../_images/hybrid.png" src="../_images/hybrid.png" style="width: 514.15px; height: 212.55px;" /></a>
+</div>
+</dd>
+<dt class="field-even">Task-based</dt>
+<dd class="field-even"><p>OpenMP tasks, StarPU</p>
+<ul class="simple">
+<li><p>Does task-based programming count as a separate programming model?</p></li>
+<li><p>StarPU = (implicit) MPI + (implicit) pthreads + CUDA</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="functions-and-data-dependencies">
+<h2>Functions and data dependencies<a class="headerlink" href="#functions-and-data-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Imagine the following computer program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">function1</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">function2</span><span class="p">(</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+    <span class="n">function1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+    <span class="n">function2</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>The program consists of two functions, <code class="code docutils literal notranslate"><span class="pre">function1</span></code> and <code class="code docutils literal notranslate"><span class="pre">function2</span></code>, that are called <strong>one after another</strong> from the <code class="code docutils literal notranslate"><span class="pre">main</span></code> function.
+The first function reads the variables <code class="code docutils literal notranslate"><span class="pre">a</span></code> and <code class="code docutils literal notranslate"><span class="pre">b</span></code>, and the second function reads the variable <code class="code docutils literal notranslate"><span class="pre">b</span></code>:</p>
+<div class="figure align-default">
+<img alt="../_images/functions_nodep.png" src="../_images/functions_nodep.png" />
+</div>
+<p>The program prints the line <code class="code docutils literal notranslate"><span class="pre">The</span> <span class="pre">sum</span> <span class="pre">is</span> <span class="pre">17.</span></code> twice.
+The key observation is that the two functions calls are <strong>independent</strong> of each other.
+More importantly, the two functions can be executed in <strong>parallel</strong>:</p>
+<div class="figure align-default">
+<img alt="../_images/functions_nodep_parallel.png" src="../_images/functions_nodep_parallel.png" />
+</div>
+<p>Let us modify the the program slightly:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="hll"><span class="kt">void</span> <span class="nf">function1</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="o">*</span><span class="n">b</span><span class="p">);</span>
+</span><span class="hll">    <span class="o">*</span><span class="n">b</span> <span class="o">+=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="kt">void</span> <span class="nf">function2</span><span class="p">(</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+<span class="hll">    <span class="n">function1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+</span>    <span class="n">function2</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>This time the function <code class="code docutils literal notranslate"><span class="pre">function1</span></code> modifies the variable <code class="code docutils literal notranslate"><span class="pre">b</span></code>:</p>
+<div class="figure align-default">
+<img alt="../_images/functions_dep.png" src="../_images/functions_dep.png" />
+</div>
+<p>Therefore, the two function calls are <strong>not</strong> independent of each other and changing the order would change the printed lines.
+Furthermore, executing the two functions in parallel would lead to an <strong>undefined result</strong> as the execution order would be arbitrary.</p>
+<p>We could say that <strong>in this particular context</strong>, the function <code class="code docutils literal notranslate"><span class="pre">function2</span></code> is <strong>dependent</strong> on the function <code class="code docutils literal notranslate"><span class="pre">function1</span></code>.
+That is, the function <code class="code docutils literal notranslate"><span class="pre">function1</span></code> must be executed completely before the function <code class="code docutils literal notranslate"><span class="pre">function2</span></code> can be executed:</p>
+<div class="figure align-default">
+<img alt="../_images/functions_dep_explicit.png" src="../_images/functions_dep_explicit.png" />
+</div>
+<p>However, this <strong>data dependency</strong> exists only when these two functions are called in this particular sequence using these particular arguments.
+In a different context, this particular data dependency does not exists.
+We can therefore conclude that the <strong>data dependencies are separate from the functions definitions</strong>.</p>
+</div>
+<div class="section" id="tasks-and-task-dependencies">
+<h2>Tasks and task dependencies<a class="headerlink" href="#tasks-and-task-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Based on the previous discussion, we need an object that can be described as the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The operation that is to be performed (implementation).</p></li>
+<li><p>The data that is involved in the operation (input and output).</p></li>
+<li><p>The way in which the operations are related to other operations (dependencies).</p></li>
+</ol>
+</div></blockquote>
+<p>We call these objects <strong>tasks</strong>.
+The previous example code can be described using two tasks:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Task 1</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Operation: <code class="code docutils literal notranslate"><span class="pre">function1</span></code>.</p></li>
+<li><p>Input: variables <code class="code docutils literal notranslate"><span class="pre">a</span></code> and <code class="code docutils literal notranslate"><span class="pre">b</span></code>.</p></li>
+<li><p>Output: updated variable <code class="code docutils literal notranslate"><span class="pre">b</span></code>.</p></li>
+<li><p>Depends on: none</p></li>
+</ul>
+</dd>
+<dt class="field-even">Task 2</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Operation: <code class="code docutils literal notranslate"><span class="pre">function2</span></code>.</p></li>
+<li><p>Input: variable <code class="code docutils literal notranslate"><span class="pre">b</span></code>.</p></li>
+<li><p>Output: none.</p></li>
+<li><p>Depends on: Task 1</p></li>
+</ul>
+</dd>
+</dl>
+<p>We can represent the <strong>task dependencies</strong> using a Directed Acyclic Graph (DAG).
+This DAG is generally referred to as the <strong>task graph</strong>:</p>
+<div class="figure align-default">
+<img alt="../_images/functions_dep_tasks.png" src="../_images/functions_dep_tasks.png" />
+</div>
+<p>If we know what the <strong>sequential order</strong> to execute the tasks is, then we can deduce the <em>task dependencies</em> from the <em>data dependencies</em>.
+This is indeed what happens in practice as a programmer generally defines only</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the task implementations, and</p></li>
+<li><p>the input and output variables.</p></li>
+</ul>
+</div></blockquote>
+<p>So-called <strong>runtime systems</strong> then deduce the task dependencies from the sequential order and the input and output variables.
+We say that the task graph is constructed <strong>implicitly</strong>.
+The runtime system then executes the task in a <strong>sequentially consistent order</strong>.
+That is, the runtime system may execute the task in any order as long as it respects the task dependencies.</p>
+<p>A task-graph can also be constructed <strong>explicitly</strong>, i.e. a programmer defines both</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the task implementations and</p></li>
+<li><p>the task dependencies.</p></li>
+</ul>
+</div></blockquote>
+<p>This can reduce the overhead that arises from the construction of the task graph.</p>
+</div>
+<div class="section" id="more-about-task-graphs">
+<h2>More about task graphs<a class="headerlink" href="#more-about-task-graphs" title="Permalink to this headline">¶</a></h2>
+<p>Let us consider a slightly more complicated situation.
+Consider an algorithm that consists of three steps that are iterated multiple times:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Compute a <strong>diagonal block</strong> (orange).</p></li>
+<li><p>Update the corresponding block row and column (blue).</p></li>
+<li><p>Update the corresponding trailing matrix (green).</p></li>
+</ol>
+</div></blockquote>
+<p>We do not need to know how the tasks are implemented.
+We are only interested in the task dependencies:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/blocked_lu_simple.png"><img alt="../_images/blocked_lu_simple.png" src="../_images/blocked_lu_simple.png" style="width: 574.0px; height: 408.09999999999997px;" /></a>
+</div>
+<p>That is,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the block row and column updates are dependent on the computed diagonal block,</p></li>
+<li><p>the trailing matrix updates are dependent on the block row and column updates, and</p></li>
+<li><p>the next diagonal block is dependent on one of the trailing matrix updates.</p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="real-world-task-graph">
+<h3>Real-world task graph<a class="headerlink" href="#real-world-task-graph" title="Permalink to this headline">¶</a></h3>
+<p>We can represent these tasks and the related task dependencies using a task graph:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/lu_task_graph.png"><img alt="../_images/lu_task_graph.png" src="../_images/lu_task_graph.png" style="width: 674.8px; height: 412.29999999999995px;" /></a>
+</div>
+<p>We can see that this task graph is much more complicated than the previous one.
+On the left, we can see how much parallelism can be exposed if we implement the algorithm using nested loops without considering the task graph:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span>
+    <span class="n">compute</span> <span class="n">diagonal</span> <span class="n">block</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">parallel</span> <span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">update</span> <span class="n">block</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="n">using</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">parallel</span> <span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">update</span> <span class="n">block</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="n">using</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">parallel</span> <span class="k">for</span> <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">jj</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">update</span> <span class="n">block</span> <span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">jj</span><span class="p">]</span> <span class="n">using</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">jj</span><span class="p">]</span> <span class="ow">and</span> <span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can observe that the degree of parallelism decreases as the algorithm progresses.
+This can cause <strong>load balancing issues</strong> as more and more CPU cores become idle during the last iterations:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/lu_task_graph2.png"><img alt="../_images/lu_task_graph2.png" src="../_images/lu_task_graph2.png" style="width: 674.8px; height: 412.29999999999995px;" /></a>
+</div>
+<p>However, as shown on the right, we could have advanced to the same diagonal block by executing only a subset of the tasks.
+The <strong>delayed tasks</strong> can be used to keep the otherwise idle CPU cores busy.</p>
+</div>
+<div class="section" id="critical-path">
+<h3>Critical path<a class="headerlink" href="#critical-path" title="Permalink to this headline">¶</a></h3>
+<p>In this particular example, we have executed the tasks in such a manner that only the absolutely necessary tasks are executed.
+We can also find the <strong>longest path through the task graph</strong> (when measured in the terms of execution time):</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/lu_task_graph3.png"><img alt="../_images/lu_task_graph3.png" src="../_images/lu_task_graph3.png" style="width: 674.8px; height: 412.29999999999995px;" /></a>
+</div>
+<p>This so-called <strong>critical path</strong> gives us a <strong>lower bound</strong> for the execution time of the algorithm.
+The algorithm cannot be executed any faster than this no matter how many CPU cores are used.
+We can take advantage of the critical path only when we consider the task graph.</p>
+</div>
+</div>
+<div class="section" id="task-scheduling-and-priorities">
+<h2>Task scheduling and priorities<a class="headerlink" href="#task-scheduling-and-priorities" title="Permalink to this headline">¶</a></h2>
+<p>Let us consider a different algorithm.
+Again, the details are not important as we only care about the data dependencies:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/chain_flow.png"><img alt="../_images/chain_flow.png" src="../_images/chain_flow.png" style="width: 634.1999999999999px; height: 331.2px;" /></a>
+</div>
+<p>We can see that the task graph consists of three types of tasks:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Process window (W)</dt>
+<dd class="field-odd"><p>Perform a computation operation inside a diagonal window (a set of small orthogonal transformations).
+In the above illustration, we have six <strong>overlapping</strong> diagonal windows.</p>
+</dd>
+<dt class="field-even">Right update (R)</dt>
+<dd class="field-even"><p>Updates the matrix from the right (orthogonal transformation).
+Each process window task induces a set of right update tasks.</p>
+</dd>
+<dt class="field-odd">Left update (L)</dt>
+<dd class="field-odd"><p>Updates the matrix from the left (orthogonal transformation).
+Each process window task induces a set of left update tasks.</p>
+</dd>
+</dl>
+<p>We know two additional things about the algorithm:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The process window tasks are more time consuming than the left and right update tasks.</p></li>
+<li><p>The left and right update tasks are equally time consuming.</p></li>
+</ol>
+</div></blockquote>
+<div class="section" id="how-should-we-schedule-this-task-graph">
+<h3>How should we schedule this task graph?<a class="headerlink" href="#how-should-we-schedule-this-task-graph" title="Permalink to this headline">¶</a></h3>
+<p>We can quite easily discover the critical path:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/chain_flow3.png"><img alt="../_images/chain_flow3.png" src="../_images/chain_flow3.png" style="width: 475.15000000000003px; height: 358.8px;" /></a>
+</div>
+<p>In order for us to advance along the critical path, we must also execute the <strong>critical path dependencies</strong>:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/chain_flow4.png"><img alt="../_images/chain_flow4.png" src="../_images/chain_flow4.png" style="width: 475.15000000000003px; height: 358.8px;" /></a>
+</div>
+<p>In the above illustration, we have executed only the critical path and its dependencies.
+However, we do not have to restrict ourselves in this manner since other tasks are <strong>ready for scheduling</strong>:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/chain_flow5.png"><img alt="../_images/chain_flow5.png" src="../_images/chain_flow5.png" style="width: 475.15000000000003px; height: 358.8px;" /></a>
+</div>
+<p>We could therefore use any idle cores to execute these tasks.
+However, since the left update tasks (L) <strong>feed back to the critical path</strong>, we may want to <strong>prioritize</strong> them over the right update tasks (R).
+This would indirectly <strong>accelerate the critical path</strong> as the next batch of left update tasks (L) becomes available earlier:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/chain_flow6.png"><img alt="../_images/chain_flow6.png" src="../_images/chain_flow6.png" style="width: 475.15000000000003px; height: 358.8px;" /></a>
+</div>
+<p>We must of course remember that task graphs are usually much more complicated than this:</p>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/dag.png"><img alt="../_images/dag.png" src="../_images/dag.png" style="width: 700.0px; height: 204.04999999999998px;" /></a>
+</div>
+<p>The above task graph comes from the so-called QR algorithm when it is applied to a very small matrix.
+We could probably figure out a close-to-optimal scheduling order from this task graph.
+However, the task graph is heavily preprocessed and its generation took <strong>several minutes</strong> whereas the execution time of the algorithm is just <strong>a few hundred milliseconds</strong>.</p>
+</div>
+<div class="section" id="heuristics-scheduling-approach">
+<h3>Heuristics scheduling approach<a class="headerlink" href="#heuristics-scheduling-approach" title="Permalink to this headline">¶</a></h3>
+<p>We therefore need an <strong>automated approach for traversing the task graph</strong>.</p>
+<p>We have two options:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Analyse the entire task graph and locate the critical path. Schedule tasks that are on the critical path and their dependencies as early as possible.</p></li>
+<li><p>Rely on <strong>heuristics</strong>.</p></li>
+</ol>
+</div></blockquote>
+<p>The first approach would lead to optimal performance but assumes that</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>we know the entire task graph and</p></li>
+<li><p>we know how long each task is going to take to execute.</p></li>
+</ul>
+</div></blockquote>
+<p>We generally do not have this information, especially if we are dealing with an iterative algorithm.</p>
+<p>Most runtime systems therefore rely on <strong>list-based heuristics</strong> and <strong>priorities</strong>.
+That is, a runtime system maintains four task pools:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Submitted tasks</dt>
+<dd class="field-odd"><p>Tasks that are not scheduled and are not ready for scheduling.</p>
+</dd>
+<dt class="field-even">Ready tasks</dt>
+<dd class="field-even"><p>Tasks that are not scheduled and are ready for scheduling.</p>
+</dd>
+<dt class="field-odd">Active tasks</dt>
+<dd class="field-odd"><p>Tasks that are scheduled, i.e. are currently being executed.</p>
+</dd>
+<dt class="field-even">Completed tasks</dt>
+<dd class="field-even"><p>Tasks that have been scheduled.</p>
+</dd>
+</dl>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/scheduling.png"><img alt="../_images/scheduling.png" src="../_images/scheduling.png" style="width: 598.8px; height: 729.0px;" /></a>
+</div>
+<p>A runtime system follows these basic rules:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>When a task becomes ready for scheduling, i.e. all its dependencies have been satisfied, it is moved from the <em>submitted pool</em> to the <em>ready pool</em>.</p></li>
+<li><p>A task is moved from the <em>ready pool</em> to the <em>active pool</em> when it is scheduled for execution on a computational resource.</p>
+<ul class="simple">
+<li><p>A programmer may define a priority for each task.
+These priorities are taken into account when a task is selected for execution from the <em>ready pool</em>.</p></li>
+</ul>
+</li>
+<li><p>A task is moved from the <em>active pool</em> to the <em>completed pool</em> when the related computational resource has finished executing the task.</p>
+<ul class="simple">
+<li><p>Any tasks, that depend on the current tasks and have all their other dependencies satisfied, are moved from the <em>submitted pool</em> to the <em>ready pool</em>.</p></li>
+</ul>
+</li>
+</ol>
+</div></blockquote>
+<p>This approach is relatively simple to implement using (ordered) lists.
+However, the runtime system’s view of the task graph is very narrow as it sees only the <em>ready pool</em> when it is doing the actual scheduling decisions.
+In particular, <strong>note that the task priorities take effect only when a task becomes ready for scheduling</strong>.</p>
+</div>
+</div>
+<div class="section" id="task-granularity">
+<h2>Task granularity<a class="headerlink" href="#task-granularity" title="Permalink to this headline">¶</a></h2>
+<p>Task granularity tells us how “large” the tasks are and how many of them there are.
+This can affect the performance because</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>the use of the runtime system introduces some additional overhead,</p></li>
+<li><p>different task sizes lead to different task-specific performance, and</p></li>
+<li><p>the <em>ready pool</em> size depends on the initial <em>submitted pool</em> size.</p></li>
+</ol>
+</div></blockquote>
+<p>For example, consider the earlier example:</p>
+<div class="figure align-default">
+<img alt="../_images/granuality.png" src="../_images/granuality.png" />
+</div>
+<p>If the task granularity is very <strong>coarse</strong>, then</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>the number of tasks is very low and the runtime system therefore does not introduce that much overhead,</p></li>
+<li><p>the tasks are relatively large and have a relatively high task-specific performance, and</p></li>
+<li><p>only a very small number of tasks can be ready for scheduling at any given time.</p></li>
+</ol>
+</div></blockquote>
+<p>If the task granularity is very <strong>fine</strong>, then</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>the number of tasks is very high and the runtime system therefore introduces a lot of additional overhead,</p></li>
+<li><p>the tasks are very small and have a very low task-specific performance, and</p></li>
+<li><p>a very large number of tasks can be ready for scheduling at any given time.</p></li>
+</ol>
+</div></blockquote>
+<p>It is therefore very important that the task granularity is <strong>balanced</strong>:</p>
+<div class="figure align-default">
+<img alt="../_images/granuality2.png" src="../_images/granuality2.png" />
+</div>
+<p>Both of these extremes lead to lowered performance.
+We want to keep most computational resources busy most of the time.</p>
+</div>
+<div class="section" id="benefits-of-task-based-parallelism">
+<h2>Benefits of task-based parallelism<a class="headerlink" href="#benefits-of-task-based-parallelism" title="Permalink to this headline">¶</a></h2>
+<p>Let us summarise some of the major benefits of task-based parallelism:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Automatic parallelism</dt>
+<dd class="field-odd"><p>If the task task graph has <strong>potential for parallel computation</strong>, then the runtime system can discover it.
+An algorithm that has been implemented in a task-manner can therefore parallelise automatically.</p>
+</dd>
+<dt class="field-even">No synchronization</dt>
+<dd class="field-even"><p>A parallel algorithm often involves several synchronization points.
+Sometimes these synchronization points arise from the underlying data dependencies.
+However, it is quite often the case that <strong>synchronisation points are used to simplify the implementation</strong>.
+The latter type of <strong>synchronisation points are not necessary</strong> in a task-based implementation.</p>
+</dd>
+<dt class="field-odd">Better load balancing</dt>
+<dd class="field-odd"><p>The tasks are scheduled <strong>dynamically</strong> to the various computational resources.
+Furthermore, <strong>low-priority tasks can be delayed</strong> until the computational resources start becoming idle.
+These two factors help to improve the load balancing.</p>
+</dd>
+<dt class="field-even">Shortened critical path</dt>
+<dd class="field-even"><p>If we help the runtime system by defining priorities, the runtime system can complete the critical path earlier.</p>
+</dd>
+<dt class="field-odd">GPUs and other accelerators</dt>
+<dd class="field-odd"><p>Tasks can be scheduled to accelerator devices such as GPUs.
+This can happen dynamically using performance models (StarPU).</p>
+</dd>
+<dt class="field-even">Distributed memory</dt>
+<dd class="field-even"><p>The task graph and data distribution induces the necessary communication patterns (StarPU).</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../openmp-basics1/" class="btn btn-neutral float-right" title="Introduction to OpenMP (part 1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../setup/" class="btn btn-neutral float-left" title="Introduction to Kebnekaise" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

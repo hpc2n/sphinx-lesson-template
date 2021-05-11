@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to Kebnekaise &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Introduction to task-based parallelism" href="../motivation/" />
+    <link rel="prev" title="Introduction to HPC2N" href="../hpc2n-intro/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to Kebnekaise</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modules-and-toolchains">Modules and toolchains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compile-c-code">Compile C code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compile-cuda-code">Compile CUDA code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#course-project-and-reservation">Course project and reservation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submitting-jobs">Submitting jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aliases">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#batch-files">Batch files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#job-queue">Job queue</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to Kebnekaise</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/setup.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-to-kebnekaise">
+<h1>Introduction to Kebnekaise<a class="headerlink" href="#introduction-to-kebnekaise" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Learn how to load the necessary modules on Kebnekaise.</p></li>
+<li><p>Learn how to compile C code on Kebnekaise.</p></li>
+<li><p>Learn how to compile CUDA code on Kebnekaise.</p></li>
+<li><p>Learn how to place jobs to the batch queue.</p></li>
+<li><p>Learn how to use the course project and reservations.</p></li>
+</ul>
+</div>
+<div class="section" id="modules-and-toolchains">
+<h2>Modules and toolchains<a class="headerlink" href="#modules-and-toolchains" title="Permalink to this headline">¶</a></h2>
+<p>You need to <strong>load the correct toolchain</strong> before compiling your code on Kebnekaise.</p>
+<p>The <strong>available modules</strong> are listed using the <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">avail</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml avail
+------------------------- /hpc2n/eb/modules/all/Core --------------------------
+Bison/3.0.5                        fosscuda/2020a
+Bison/3.3.2                        fosscuda/2020b        <span class="o">(</span>D<span class="o">)</span>
+Bison/3.5.3                        gaussian/16.C.01-AVX2
+Bison/3.7.1                <span class="o">(</span>D<span class="o">)</span>     gcccuda/2019b
+CUDA/8.0.61                        gcccuda/2020a
+CUDA/10.1.243              <span class="o">(</span>D<span class="o">)</span>     gcccuda/2020b         <span class="o">(</span>D<span class="o">)</span>
+...
+</pre></div>
+</div>
+<p>The list shows the modules you can load directly, and so may change if you have loaded modules.</p>
+<p>In order to see all the modules, including those that have prerequisites to load, use the command <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">spider</span></code>. Many types of application software fall in this category.</p>
+<p>You can find more <strong>information</strong> regarding a particular module using the <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">spider</span> <span class="pre">&lt;module&gt;</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml spider MATLAB
+
+---------------------------------------------------------------------------
+MATLAB: MATLAB/2019b.Update2
+---------------------------------------------------------------------------
+    Description:
+    MATLAB is a high-level language and interactive environment that
+    enables you to perform computationally intensive tasks faster than
+    with traditional programming languages such as C, C++, and Fortran.
+
+
+    This module can be loaded directly: module load MATLAB/2019b.Update2
+
+    Help:
+    <span class="nv">Description</span>
+    <span class="o">===========</span>
+    MATLAB is a high-level language and interactive environment
+    that enables you to perform computationally intensive tasks faster than with
+    traditional programming languages such as C, C++, and Fortran.
+
+
+    More <span class="nv">information</span>
+    <span class="o">================</span>
+    - Homepage: http://www.mathworks.com/products/matlab
+</pre></div>
+</div>
+<p>You can <strong>load</strong> the module using the <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">&lt;module&gt;</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml MATLAB/2019b.Update2
+</pre></div>
+</div>
+<p>You can <strong>list loaded modules</strong> using the <code class="code docutils literal notranslate"><span class="pre">ml</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml
+
+Currently Loaded Modules:
+ <span class="m">1</span><span class="o">)</span> snicenvironment     <span class="o">(</span>S<span class="o">)</span>   <span class="m">7</span><span class="o">)</span> libevent/2.1.11    <span class="m">13</span><span class="o">)</span> PMIx/3.0.2
+ <span class="m">2</span><span class="o">)</span> systemdefault       <span class="o">(</span>S<span class="o">)</span>   <span class="m">8</span><span class="o">)</span> numactl/2.0.12     <span class="m">14</span><span class="o">)</span> impi/2018.4.274
+ <span class="m">3</span><span class="o">)</span> GCCcore/8.2.0             <span class="m">9</span><span class="o">)</span> XZ/5.2.4           <span class="m">15</span><span class="o">)</span> imkl/2019.1.144
+ <span class="m">4</span><span class="o">)</span> zlib/1.2.11              <span class="m">10</span><span class="o">)</span> libxml2/2.9.8      <span class="m">16</span><span class="o">)</span> intel/2019a
+ <span class="m">5</span><span class="o">)</span> binutils/2.31.1          <span class="m">11</span><span class="o">)</span> libpciaccess/0.14  <span class="m">17</span><span class="o">)</span> MATLAB/2019b.Update2
+ <span class="m">6</span><span class="o">)</span> iccifort/2019.1.144      <span class="m">12</span><span class="o">)</span> hwloc/1.11.11
+
+Where:
+ S:  Module is Sticky, requires --force to unload or purge
+</pre></div>
+</div>
+<p>You can <strong>unload all modules</strong> using the <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">purge</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml purge
+The following modules were not unloaded:
+  <span class="o">(</span>Use <span class="s2">&quot;module --force purge&quot;</span> to unload all<span class="o">)</span>:
+
+  <span class="m">1</span><span class="o">)</span> systemdefault   <span class="m">2</span><span class="o">)</span> snicenvironment
+</pre></div>
+</div>
+<p>Note that the <code class="code docutils literal notranslate"><span class="pre">ml</span> <span class="pre">purge</span></code> command will warn that two modules were not unloaded.
+This is normal and you should <strong>NOT</strong> force unload them.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<ol class="arabic">
+<li><p>Load the FOSS CUDA toolchain for source code compilation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ml purge
+$ ml fosscuda/2020b buildenv
+</pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">fosscuda/2020b</span></code> module loads the GNU compiler (version 2020b), the CUDA SDK and several other libraries.
+The <code class="code docutils literal notranslate"><span class="pre">buildenv</span></code> module sets certain environment variables that are necessary for source code compilation.</p>
+</li>
+<li><p>Investigate which modules were loaded.</p></li>
+<li><p>Purge all modules.</p></li>
+<li><p>Find the latest FOSS toolchain (<code class="code docutils literal notranslate"><span class="pre">foss</span></code>). Load it and the <code class="code docutils literal notranslate"><span class="pre">buildenv</span></code> module.
+Investigate the loaded modules.
+Purge all modules.</p></li>
+</ol>
+</div>
+</div>
+<div class="section" id="compile-c-code">
+<h2>Compile C code<a class="headerlink" href="#compile-c-code" title="Permalink to this headline">¶</a></h2>
+<p>Once the correct toolchain (<code class="code docutils literal notranslate"><span class="pre">foss/2020b</span></code>) has been loaded, we can compile C source files (<code class="code docutils literal notranslate"><span class="pre">*.c</span></code>) with the GNU compiler:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o &lt;binary name&gt; &lt;sources&gt; -Wall
+</pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">-Wall</span></code> causes the compiler to print additional warnings.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Compile the following “Hello world” program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="compile-cuda-code">
+<h2>Compile CUDA code<a class="headerlink" href="#compile-cuda-code" title="Permalink to this headline">¶</a></h2>
+<p>Once the correct toolchain (<code class="code docutils literal notranslate"><span class="pre">fosscuda/2020b</span></code>) has been loaded, we can compile CU source files (<code class="code docutils literal notranslate"><span class="pre">*.cu</span></code>) with the <code class="code docutils literal notranslate"><span class="pre">nvcc</span></code> compiler:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ nvcc -o &lt;binary name&gt; &lt;sources&gt; -Xcompiler<span class="o">=</span><span class="s2">&quot;-Wall&quot;</span>
+</pre></div>
+</div>
+<p>This passes the <code class="code docutils literal notranslate"><span class="pre">-Wall</span></code> flag to <code class="code docutils literal notranslate"><span class="pre">g++</span></code>. The flag causes the compiler to print extra warnings.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Compile the following “Hello world” program:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="n">__global__</span> <span class="kt">void</span> <span class="n">say_hello</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;A device says, Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The host says, Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="n">say_hello</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+    <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="course-project-and-reservation">
+<h2>Course project and reservation<a class="headerlink" href="#course-project-and-reservation" title="Permalink to this headline">¶</a></h2>
+<p>During the course, you can use the <strong>course reservations</strong> (snic2021-22-272-cpu-day[1|2|3] and snic2021-22-272-gpu-day[1|2|3]) to get faster access to the compute nodes.
+The reservations are valid during the time 9:00-13:00 on each of the three days (10-12 May 2021).
+Note that capitalization matters for reservations!</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 41%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Day</p></th>
+<th class="head"><p>CPU only</p></th>
+<th class="head"><p>CPU + GPU</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Monday</p></td>
+<td><p>snic2021-22-272-cpu-day1</p></td>
+<td><p>snic2021-22-272-gpu-day1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tuesday</p></td>
+<td><p>snic2021-22-272-cpu-day2</p></td>
+<td><p>snic2021-22-272-gpu-day1</p></td>
+</tr>
+<tr class="row-even"><td><p>Wednesday</p></td>
+<td><p>snic2021-22-272-cpu-day3</p></td>
+<td><p>snic2021-22-272-gpu-day1</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that jobs that are submitted using a reservation are not scheduled outside the reservation time window.
+You can, however, submit jobs without the reservation as long as you are a member of an active project.
+The <strong>course project</strong> <code class="code docutils literal notranslate"><span class="pre">SNIC2021-22-272</span></code> is valid until 2021-06-01.</p>
+</div>
+<div class="section" id="submitting-jobs">
+<h2>Submitting jobs<a class="headerlink" href="#submitting-jobs" title="Permalink to this headline">¶</a></h2>
+<p>The jobs are <strong>submitted</strong> using the <code class="code docutils literal notranslate"><span class="pre">srun</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>&lt;account&gt; --ntasks<span class="o">=</span>&lt;task count&gt; --time<span class="o">=</span>&lt;time&gt; &lt;command&gt;
+</pre></div>
+</div>
+<p>This places the command into the batch queue.
+The three arguments are the project number, the number of tasks, and the requested time allocation.
+For example, the following command prints the uptime of the allocated compute node:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --ntasks<span class="o">=</span><span class="m">1</span> --time<span class="o">=</span><span class="m">00</span>:00:15 uptime
+srun: job <span class="m">12727702</span> queued and waiting <span class="k">for</span> resources
+srun: job <span class="m">12727702</span> has been allocated resources
+ <span class="m">11</span>:53:43 up <span class="m">5</span> days,  <span class="m">1</span>:23,  <span class="m">0</span> users,  load average: <span class="m">23</span>,11, <span class="m">23</span>,20, <span class="m">23</span>,27
+</pre></div>
+</div>
+<p>Note that we are using the course project, the number of tasks is set to one, and we are requesting 15 seconds.</p>
+<p>When the <strong>reservation</strong> is valid, you can specify it using the <code class="code docutils literal notranslate"><span class="pre">--reservation=&lt;reservation&gt;</span></code> argument:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --reservation<span class="o">=</span>snic2021-22-272-cpu-day1 --ntasks<span class="o">=</span><span class="m">1</span> --time<span class="o">=</span><span class="m">00</span>:00:15 uptime
+ <span class="m">11</span>:58:43 up <span class="m">6</span> days,  <span class="m">1</span>:23,  <span class="m">0</span> users,  load average: <span class="m">23</span>,11, <span class="m">22</span>,20, <span class="m">21</span>,27
+</pre></div>
+</div>
+<p>were N in dayN is either 1, 2, 3 and cpu can be replaced with gpu if you are running a GPU job.</p>
+<p>We could submit <strong>multiple tasks</strong> using the <code class="code docutils literal notranslate"><span class="pre">--ntasks=&lt;task</span> <span class="pre">count&gt;</span></code> argument:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --reservation<span class="o">=</span>snic2021-22-272-cpu-day1 --ntasks<span class="o">=</span><span class="m">4</span> --time<span class="o">=</span><span class="m">00</span>:00:15 uname -n
+b-cn0932.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+</pre></div>
+</div>
+<p>Note that all task are running on the same node.
+We could request <strong>multiple CPU cores</strong> for each task using the <code class="code docutils literal notranslate"><span class="pre">--cpus-per-task=&lt;cpu</span> <span class="pre">count&gt;</span></code> argument:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --reservation<span class="o">=</span>snic2021-22-272-cpu-day1 --ntasks<span class="o">=</span><span class="m">4</span> --cpus-per-task<span class="o">=</span><span class="m">14</span> --time<span class="o">=</span><span class="m">00</span>:00:15 uname -n
+b-cn0935.hpc2n.umu.se
+b-cn0935.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+</pre></div>
+</div>
+<p>If you want to measure the performance, it is advisable to request an <strong>exclusive access</strong> to the compute nodes (<code class="code docutils literal notranslate"><span class="pre">--exclusive</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --reservation<span class="o">=</span>snic2021-22-272-cpu-day1 --ntasks<span class="o">=</span><span class="m">4</span> --cpus-per-task<span class="o">=</span><span class="m">14</span> --exclusive --time<span class="o">=</span><span class="m">00</span>:00:15 uname -n
+b-cn0935.hpc2n.umu.se
+b-cn0935.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+b-cn0932.hpc2n.umu.se
+</pre></div>
+</div>
+<p>Finally, we could request a <strong>single Nvidia Tesla V100 GPU</strong> and 14 CPU cores using the <code class="code docutils literal notranslate"><span class="pre">--gres=gpu:v100:1,gpuexcl</span></code> argument:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ srun --account<span class="o">=</span>SNIC2021-22-272 --reservation<span class="o">=</span>snic2021-22-272-gpu-day1 --ntasks<span class="o">=</span><span class="m">1</span> --gres<span class="o">=</span>gpu:v100:1,gpuexcl --time<span class="o">=</span><span class="m">00</span>:00:15 nvidia-smi
+Wed Apr <span class="m">21</span> <span class="m">12</span>:59:15 <span class="m">2021</span>
++-----------------------------------------------------------------------------+
+<span class="p">|</span> NVIDIA-SMI <span class="m">460</span>.67       Driver Version: <span class="m">460</span>.67       CUDA Version: <span class="m">11</span>.2     <span class="p">|</span>
+<span class="p">|</span>-------------------------------+----------------------+----------------------+
+<span class="p">|</span> GPU  Name        Persistence-M<span class="p">|</span> Bus-Id        Disp.A <span class="p">|</span> Volatile Uncorr. ECC <span class="p">|</span>
+<span class="p">|</span> Fan  Temp  Perf  Pwr:Usage/Cap<span class="p">|</span>         Memory-Usage <span class="p">|</span> GPU-Util  Compute M. <span class="p">|</span>
+<span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>               MIG M. <span class="p">|</span>
+<span class="p">|</span><span class="o">===============================</span>+<span class="o">======================</span>+<span class="o">======================</span><span class="p">|</span>
+<span class="p">|</span>   <span class="m">0</span>  Tesla V100-PCIE...  On   <span class="p">|</span> <span class="m">00000000</span>:58:00.0 Off <span class="p">|</span>                    <span class="m">0</span> <span class="p">|</span>
+<span class="p">|</span> N/A   33C    P0    26W / 250W <span class="p">|</span>      0MiB / 16160MiB <span class="p">|</span>      <span class="m">0</span>%      Default <span class="p">|</span>
+<span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>                  N/A <span class="p">|</span>
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+<span class="p">|</span> Processes:                                                                  <span class="p">|</span>
+<span class="p">|</span>  GPU   GI   CI        PID   Type   Process name                  GPU Memory <span class="p">|</span>
+<span class="p">|</span>        ID   ID                                                   Usage      <span class="p">|</span>
+<span class="p">|</span><span class="o">=============================================================================</span><span class="p">|</span>
+<span class="p">|</span>  No running processes found                                                 <span class="p">|</span>
++-----------------------------------------------------------------------------+
+</pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Run both “Hello world” programs on the the compute nodes.</p>
+</div>
+</div>
+<div class="section" id="aliases">
+<h2>Aliases<a class="headerlink" href="#aliases" title="Permalink to this headline">¶</a></h2>
+<p>In order to save time, you can create an <strong>alias</strong> for a command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">alias</span> &lt;alist&gt;<span class="o">=</span><span class="s2">&quot;&lt;command&gt;&quot;</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">alias</span> <span class="nv">run_full</span><span class="o">=</span><span class="s2">&quot;srun --account=SNIC2021-22-272 --reservation=snic2021-22-272-cpu-day1 --ntasks=1 --cpus-per-task=28 --time=00:05:00&quot;</span>
+$ run_full uname -n
+b-cn0932.hpc2n.umu.se
+</pre></div>
+</div>
+</div>
+<div class="section" id="batch-files">
+<h2>Batch files<a class="headerlink" href="#batch-files" title="Permalink to this headline">¶</a></h2>
+<p>It is often more convenient to write the commands into a <strong>batch file</strong>.
+For example, we could write the following to a file called <code class="code docutils literal notranslate"><span class="pre">batch.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#SBATCH --account=SNIC2021-22-272</span>
+<span class="c1">#SBATCH --reservation=snic2021-22-272-cpu-day1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --time=00:00:15</span>
+
+ml purge
+ml foss/2020b
+
+uname -n
+</pre></div>
+</td></tr></table></div>
+<p>Note that the same arguments that were earlier passed to the <code class="code docutils literal notranslate"><span class="pre">srun</span></code> command are now given as comments.
+It is highly advisable to purge all loaded modules and re-load the required modules as the job inherits the environment.
+The batch file is submitted using the <code class="code docutils literal notranslate"><span class="pre">sbatch</span> <span class="pre">&lt;batch</span> <span class="pre">file&gt;</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sbatch batch.sh
+Submitted batch job <span class="m">12728675</span>
+</pre></div>
+</div>
+<p>By default, the output is directed to the file <code class="code docutils literal notranslate"><span class="pre">slurm-&lt;job_id&gt;.out</span></code>, where <code class="code docutils literal notranslate"><span class="pre">&lt;job_id&gt;</span></code> is the <strong>job id</strong> returned by the <code class="code docutils literal notranslate"><span class="pre">sbatch</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cat slurm-12728675.out
+The following modules were not unloaded:
+ <span class="o">(</span>Use <span class="s2">&quot;module --force purge&quot;</span> to unload all<span class="o">)</span>:
+
+ <span class="m">1</span><span class="o">)</span> systemdefault   <span class="m">2</span><span class="o">)</span> snicenvironment
+b-cn0102.hpc2n.umu.se
+</pre></div>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Write two batch files that run both “Hello world” programs on the the compute nodes.</p>
+</div>
+</div>
+<div class="section" id="job-queue">
+<h2>Job queue<a class="headerlink" href="#job-queue" title="Permalink to this headline">¶</a></h2>
+<p>You can <strong>investigate the job queue</strong> with the <code class="code docutils literal notranslate"><span class="pre">squeue</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ squeue -u <span class="nv">$USER</span>
+</pre></div>
+</div>
+<p>If you want an estimate for when the job will start running, you can give the <code class="code docutils literal notranslate"><span class="pre">squeue</span></code> command the argument <code class="code docutils literal notranslate"><span class="pre">--start</span></code>.</p>
+<p>You can <strong>cancel</strong> a job with the <code class="code docutils literal notranslate"><span class="pre">scancel</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ scancel &lt;job_id&gt;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../motivation/" class="btn btn-neutral float-right" title="Introduction to task-based parallelism" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../hpc2n-intro/" class="btn btn-neutral float-left" title="Introduction to HPC2N" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

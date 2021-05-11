@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to HPC2N &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Introduction to Kebnekaise" href="../setup/" />
+    <link rel="prev" title="Task-based parallelism in scientific computing" href="../" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to HPC2N</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-hpc2n">Overview of HPC2N</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hpc2n-management-and-personnel">HPC2N management and personnel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hpc2n-s-systems-kebnekaise">HPC2N’s systems - Kebnekaise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-projects-storage-and-accounts">Overview of projects, storage, and accounts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connecting-to-hpc2n-s-systems-and-transferring-files">Connecting to HPC2N’s systems and transferring files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#logging-in-to-kebnekaise">Logging in to Kebnekaise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-transfers">File transfers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#editors-at-hpc2n">Editors at HPC2N</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-file-system-at-hpc2n">The file system at HPC2N</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#project-storage-for-this-course">Project storage for this course</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-the-batch-system">Introduction to the batch system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu2/">StarPU runtime system (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to HPC2N</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/hpc2n-intro.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-to-hpc2n">
+<h1>Introduction to HPC2N<a class="headerlink" href="#introduction-to-hpc2n" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Get a quick overview of HPC2N.</p></li>
+<li><p>Overview of projects, storage, and accounts.</p></li>
+<li><p>Learn how to connect to HPC2N’s systems and how to transfer files.</p></li>
+<li><p>Learn about editors at HPC2N.</p></li>
+<li><p>Learn about the file system at HPC2N.</p></li>
+<li><p>Get a brief introduction to the batch system and its policies.</p></li>
+</ul>
+</div>
+<div class="section" id="overview-of-hpc2n">
+<h2>Overview of HPC2N<a class="headerlink" href="#overview-of-hpc2n" title="Permalink to this headline">¶</a></h2>
+<p>High Performance Computing Center North (HPC2N) is a national center for Scientific and Parallel Computing. It is a part of the Swedish National Infrastructure for Computing (SNIC).</p>
+<p>HPC2N is funded by the Swedish Research Council (VR) and SNIC, as well as its partners (Luleå University of Technology, Mid Sweden University, Swedish Institute of Space Physics, the Swedish University of Agricultural Sciences, and Umeå University).</p>
+<dl class="simple">
+<dt>HPC2N provides</dt><dd><ul class="simple">
+<li><p>computing resources</p></li>
+<li><p>user support (primary, advanced, dedicated)</p></li>
+<li><p>user training and education</p></li>
+</ul>
+</dd>
+</dl>
+<p>The primary user support is mainly handled by the system operators, while the advanced support and training is handled by the application experts (AEs)</p>
+</div>
+<div class="section" id="hpc2n-management-and-personnel">
+<h2>HPC2N management and personnel<a class="headerlink" href="#hpc2n-management-and-personnel" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>Management</dt><dd><ul class="simple">
+<li><p>Paolo Bientinesi, director</p></li>
+<li><p>Björn Torkelsson, deputy director</p></li>
+<li><p>Lena Hellman, administrator</p></li>
+</ul>
+</dd>
+<dt>Application experts (AE)</dt><dd><ul class="simple">
+<li><p>Jerry Eriksson</p></li>
+<li><p>Mirko Myllykoski</p></li>
+<li><p>Pedro Ojeda-May</p></li>
+</ul>
+</dd>
+<dt>System and support</dt><dd><ul class="simple">
+<li><p>Erik Andersson</p></li>
+<li><p>Birgitte Brydsö (also AE)</p></li>
+<li><p>Niklas Edmundsson</p></li>
+<li><p>Ingemar Fällman</p></li>
+<li><p>Magnus Jonsson</p></li>
+<li><p>Roger Oscarsson</p></li>
+<li><p>Åke Sandgren (also AE)</p></li>
+<li><p>Matthias Wadenstein</p></li>
+<li><p>Lars Viklund (also AE)</p></li>
+</ul>
+</dd>
+</dl>
+<p>In addition, there are several more people associated with HPC2N. See the list on <a class="reference external" href="https://www.hpc2n.umu.se/about/people">HPC2N’s webpages</a>.</p>
+</div>
+<div class="section" id="hpc2n-s-systems-kebnekaise">
+<h2>HPC2N’s systems - Kebnekaise<a class="headerlink" href="#hpc2n-s-systems-kebnekaise" title="Permalink to this headline">¶</a></h2>
+<p>HPC2N’s supercomputer is called <strong>Kebnekaise</strong>. It is named after a massif which contains some of Sweden’s largest mountain peaks.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Delivered by Lenovo. Opened for usage November 2016.</p></li>
+<li><p>Extended during 2018 with Skylake nodes and NVidia V100 GPU nodes.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Kebnekaise compute nodes</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 15%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>#</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Broadwell</p></td>
+<td><p>432</p></td>
+<td><p>Intel Xeon E5-2690v4,
+2 x 14 cores, 128 GB,
+FDR Infiniband</p></td>
+</tr>
+<tr class="row-odd"><td><p>Skylake</p></td>
+<td><p>52</p></td>
+<td><p>Intel Xeon Gold 6132,
+2 x 14 cores, 192 GB,
+EDR Infiniband, AVX-512</p></td>
+</tr>
+<tr class="row-even"><td><p>Large
+Memory</p></td>
+<td><p>20</p></td>
+<td><p>Intel Xeon E7-8860v4,
+4 x 18 cores, 3072 GB,
+EDR Infiniband</p></td>
+</tr>
+<tr class="row-odd"><td><p>KNL</p></td>
+<td><p>36</p></td>
+<td><p>Intel Xeon Phi 7250,
+68 cores, 192 GB,
+16 GB MCDRAM, FDR Infiniband</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kebnekaise GPU nodes</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 10%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>#</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2xGPU
+K80</p></td>
+<td><p>32</p></td>
+<td><p>Intel Xeon E5-2690v4,  2 x 14 cores,
+2 x NVidia K80, 4 x 2496 CUDA cores</p></td>
+</tr>
+<tr class="row-odd"><td><p>4xGPU
+K80</p></td>
+<td><p>4</p></td>
+<td><p>Intel Xeon E5-2690v4, 2 x 14 cores,
+4 x NVidia K80, 8 x 2496 CUDA cores</p></td>
+</tr>
+<tr class="row-even"><td><p>2xGPU
+V100</p></td>
+<td><p>10</p></td>
+<td><div class="line-block">
+<div class="line">Intel Xeon Gold 6132, 2 x 14 cores,</div>
+<div class="line">2 x NVidia V100, 2 x 5120 CUDA cores, 2 x 640 Tensorcores</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="simple">
+<dt>In total, Kebnekaise has</dt><dd><ul class="simple">
+<li><p>602 nodes in 15 racks</p></li>
+<li><p>19288 cores (2448 of which are KNL-cores)</p></li>
+<li><p>More than 136 TB memory</p></li>
+<li><p>984 TFlops/s Peak performance</p></li>
+<li><p>791 TFlops/s HPL (80% of Peak performance)</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Storage</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Home directory (25GB)</p></li>
+<li><p>Project storage (small, medium, large. Applied for through SUPR. Shared among project members)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="overview-of-projects-storage-and-accounts">
+<h2>Overview of projects, storage, and accounts<a class="headerlink" href="#overview-of-projects-storage-and-accounts" title="Permalink to this headline">¶</a></h2>
+<p>In order to use Kebnekaise, you must be a member of a compute project. This is handled through <a class="reference external" href="https://supr.snic.se/">SUPR</a> which is why you also need an account there.</p>
+<p><strong>There are three sizes of compute projects</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Small</p>
+<ul>
+<li><p>&lt;= 5000 core-h/month</p></li>
+<li><p>at least PhD student to apply</p></li>
+<li><p>evaluated weekly</p></li>
+</ul>
+</li>
+<li><p>Medium</p>
+<ul>
+<li><p>5000 - 200000 core-h/month</p></li>
+<li><p>at least assistant professor to apply</p></li>
+<li><p>monthly rounds</p></li>
+</ul>
+</li>
+<li><p>Large</p>
+<ul>
+<li><p>more than 200000 core-h/month</p></li>
+<li><p>bi-annual rounds</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>Note that you can still be a member of a project even if you are not in Swedish academia. The requirements are only for the PI.</p>
+<p>Since the only available storage per default is the 25 GB in a user’s home directory, most also needs to apply for storage. During the application for a compute project the applicant will be asked if they want the default extra storage of 500 GB. If this is not enough, it is necessary to apply for a storage project as well.</p>
+<p><strong>There are three sizes of storage project</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Small</p>
+<ul>
+<li><p>&lt;= 3 TB</p></li>
+<li><p>at least PhD student to apply</p></li>
+<li><p>evaluated weekly</p></li>
+</ul>
+</li>
+<li><p>Medium</p>
+<ul>
+<li><p>3 - 30 TB</p></li>
+<li><p>at least an assistant professor to apply</p></li>
+<li><p>monthly rounds</p></li>
+</ul>
+</li>
+<li><p>Large</p>
+<ul>
+<li><p>more than 30 TB</p></li>
+<li><p>bi-annual rounds</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>Project storage is shared among the project members.</p>
+<p>The compute project and the storage project can be linked together so members of the compute project automatically becomes members of the storage project.</p>
+<p>HPC2N has a webpage with more information about <a class="reference external" href="https://www.hpc2n.umu.se/account/project">projects</a>.</p>
+<p><strong>Accounts</strong></p>
+<p>When your project has been approved (or you have become a member of an approved project), you can apply for an account at HPC2N. This is done through SUPR, from the <a class="reference external" href="https://supr.snic.se/account/">account request page</a>.</p>
+<p>NOTE that if you have not signed the SNIC User Agreement we will not get the account request, so remember to do this!</p>
+<p>You can find more information about creating accounts here: <a class="reference external" href="https://www.hpc2n.umu.se/documentation/access-and-accounts/users">https://www.hpc2n.umu.se/documentation/access-and-accounts/users</a></p>
+</div>
+<div class="section" id="connecting-to-hpc2n-s-systems-and-transferring-files">
+<h2>Connecting to HPC2N’s systems and transferring files<a class="headerlink" href="#connecting-to-hpc2n-s-systems-and-transferring-files" title="Permalink to this headline">¶</a></h2>
+<p>In order to login to HPC2N, you need an SSH client and potentially an X11 server if you want to open graphical displays.</p>
+<p>If you are using Windows and do not currently have a preferred setup for connecting, we recommend using ThinLinc since that includes everything needed and is quick to install.</p>
+<dl class="simple">
+<dt>Guides</dt><dd><ul class="simple">
+<li><p>ThinLinc (all OS): <a class="reference external" href="https://www.hpc2n.umu.se/documentation/guides/thinlinc">https://www.hpc2n.umu.se/documentation/guides/thinlinc</a></p></li>
+<li><p>Various SSH clients and X11 servers:</p>
+<ul>
+<li><p>Linux: <a class="reference external" href="https://www.hpc2n.umu.se/documentation/guides/linux-connection">https://www.hpc2n.umu.se/documentation/guides/linux-connection</a></p></li>
+<li><p>Windows: <a class="reference external" href="https://www.hpc2n.umu.se/documentation/guides/windows-connection">https://www.hpc2n.umu.se/documentation/guides/windows-connection</a></p></li>
+<li><p>macOS: <a class="reference external" href="https://www.hpc2n.umu.se/documentation/guides/mac-connection">https://www.hpc2n.umu.se/documentation/guides/mac-connection</a></p></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<p><strong>Password</strong></p>
+<p>You get your first, temporary HPC2N password from this page: <a class="reference external" href="https://www.hpc2n.umu.se/forms/user/suprauth?action=pwreset">https://www.hpc2n.umu.se/forms/user/suprauth?action=pwreset</a></p>
+<p>The above page can also be used to reset your HPC2N password if you have forgotten it.</p>
+<p>Note that you are authenticating through SUPR, using that service’s login credentials!</p>
+<div class="section" id="logging-in-to-kebnekaise">
+<h3>Logging in to Kebnekaise<a class="headerlink" href="#logging-in-to-kebnekaise" title="Permalink to this headline">¶</a></h3>
+<p>Remember, the username and password for HPC2N are separate from your SUPR credentials.</p>
+<p><strong>Linux or macOS</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ssh &lt;your-hpc2n-username&gt;@kebnekaise.hpc2n.umu.se
+</pre></div>
+</div>
+<p><strong>Linux or macOS, using X11 forwarding</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ssh -Y &lt;your-hpc2n-username&gt;@kebnekaise.hpc2n.umu.se
+</pre></div>
+</div>
+<p><strong>ThinLinc</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Start the ThinLinc client</p></li>
+<li><p>Enter the name of the server: kebnekaise-tl.hpc2n.umu.se and then enter your own username at HPC2N under “Username”:</p></li>
+</ul>
+</div></blockquote>
+<a class="reference internal image-reference" href="../_images/thinlinc-startup.png"><img alt="../_images/thinlinc-startup.png" src="../_images/thinlinc-startup.png" style="width: 300pt;" /></a>
+<dl class="simple">
+<dt>There are a few settings which should be changed</dt><dd><ul class="simple">
+<li><p>Go to “Options” -&gt; “Security” and check that authentication method is set to password.</p></li>
+<li><p>Go to “Options” -&gt; “Screen” and uncheck “Full screen mode”.</p></li>
+<li><p>Enter your HPC2N password here instead of waiting for it to prompt you <em>as that will fail</em></p></li>
+</ul>
+</dd>
+</dl>
+<p>You can now click “Connect”. You should just click “Continue” when you are being told that the server’s host key is not in the registry.</p>
+<p>After a short time, the thinlinc desktop opens, running Mate. It is fairly similar to the Gnome desktop.
+All your files on HPC2N should now be available.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Login to HPC2N using ThinLinc or your SSH client of choice.</p>
+</div>
+</div>
+<div class="section" id="file-transfers">
+<h3>File transfers<a class="headerlink" href="#file-transfers" title="Permalink to this headline">¶</a></h3>
+<p>You will often need to tranfer files between different systems, for instance between HPC2N and your own computer. There are several clients for this.</p>
+<p>Note that HPC2N does <strong>not</strong> allow regular, unsecure ftp!</p>
+<dl class="simple">
+<dt>Linux</dt><dd><ul class="simple">
+<li><p>SCP or SFTP</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Using SCP. Remote <span class="o">(</span>HPC2N<span class="o">)</span> to <span class="nb">local</span>
+
+$ scp sourcefilename &lt;your-hpc2n-username&gt;@kebnekaise.hpc2n.umu.se:somedir/destfilename
+
+Using SCP. Local to remote <span class="o">(</span>HPC2N<span class="o">)</span>
+
+$ scp &lt;your-hpc2n-username@kebnekaise.hpc2n.umu.se:somedir/sourcefilename destfilename
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Windows</dt><dd><ul class="simple">
+<li><p>Download and install client: WinSCP, FileZilla (only ftp), PSCP(PSFTP, …</p></li>
+<li><p>Transfer using SFTP or SCP</p></li>
+</ul>
+</dd>
+<dt>macOS</dt><dd><ul class="simple">
+<li><p>Transfer as for Linux, using Terminal</p></li>
+<li><p>Download client: Cyberduck, Fetch, …</p></li>
+</ul>
+</dd>
+</dl>
+<p>More information in the connection guides (see section under connecting to HPC2N) and on the HPC2N file transfer documentation: <a class="reference external" href="https://www.hpc2n.umu.se/documentation/filesystems/filetransfer">https://www.hpc2n.umu.se/documentation/filesystems/filetransfer</a></p>
+</div>
+</div>
+<div class="section" id="editors-at-hpc2n">
+<h2>Editors at HPC2N<a class="headerlink" href="#editors-at-hpc2n" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>HPC2N has various editors installed</dt><dd><ul class="simple">
+<li><p>vi/vim</p></li>
+<li><p>nano</p></li>
+<li><p>emacs</p></li>
+<li><p>…</p></li>
+</ul>
+</dd>
+</dl>
+<p>Of these, <strong>nano</strong> is probably the easiest to use if you do not have previous experience with vim or emacs.</p>
+<dl class="simple">
+<dt>Example, nano</dt><dd><ul class="simple">
+<li><p>nano &lt;filename&gt;</p></li>
+<li><p>Save and exit nano: Ctrl-x</p></li>
+</ul>
+</dd>
+</dl>
+<p>Where &lt;filename&gt; is either an existing file or one that you are just creating.</p>
+<dl class="simple">
+<dt>Example, Emacs (in terminal)</dt><dd><ul class="simple">
+<li><p>Start with: emacs</p></li>
+<li><p>Open (or create) file: Ctrl-x Ctrl-f</p></li>
+<li><p>Save: Ctrl-x Ctrl-s</p></li>
+<li><p>Exit Emacs: Ctrl-x Ctrl-c</p></li>
+</ul>
+</dd>
+</dl>
+<p>NOTE: if you want to run Emacs with full functionality in a separate window, you need to login with X11 forwarding (ssh -Y or using ThinLinc).</p>
+<p><strong>Opening a terminal window in ThinLinc</strong></p>
+<p>To start a terminal window, go to the menu at the top. Click “Applications” → “System Tools” → “MATE Terminal”.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Try opening and editing a file using nano. Remember that you can create and open a new file directly as well. You will need to open a terminal window first if you are using ThinLinc.</p>
+</div>
+</div>
+<div class="section" id="the-file-system-at-hpc2n">
+<h2>The file system at HPC2N<a class="headerlink" href="#the-file-system-at-hpc2n" title="Permalink to this headline">¶</a></h2>
+<p>When you have logged in to HPC2N, you will be in your <strong>homedirectory ($HOME)</strong>. This is accessible to the batch system, but while you can run jobs from here it is only 25 GB.</p>
+<p>The <strong>project storage</strong> is likely where you want to keep most of your data and where you will run your jobs from. The size of it depends on what type of storage project your group has. Remember that it is shared between the project group members. It is usually a good idea for each project member to create a separate subdirectory for their files.</p>
+<p>Other than these two places you can also use <strong>/scratch</strong> on both the login node and the compute nodes. NOTE however that anything you put there on the login node can disappear fairly quickly. For the compute nodes /scratch will be cleaned after the job has finished running so if you use that you will need to copy the files elsewhere before your job ends.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 31%" />
+<col style="width: 14%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Project storage</p></th>
+<th class="head"><p>$HOME</p></th>
+<th class="head"><p>/scratch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">Recommended for batch</div>
+<div class="line">jobs</div>
+</div>
+</td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Backed up</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">Accessible by the batch</div>
+<div class="line">system</div>
+</div>
+</td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes (node only)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Performance</p></td>
+<td><p>High</p></td>
+<td><p>High</p></td>
+<td><p>Medium</p></td>
+</tr>
+<tr class="row-even"><td><p>Default readability</p></td>
+<td><p>Group only</p></td>
+<td><p>Owner</p></td>
+<td><p>Owner</p></td>
+</tr>
+<tr class="row-odd"><td><p>Permissions management</p></td>
+<td><p>chmod, chgrp, ACL</p></td>
+<td><p>chmod,
+chgrp,
+ACL</p></td>
+<td><p>N/A for batch
+jobs</p></td>
+</tr>
+<tr class="row-even"><td><p>Notes</p></td>
+<td><div class="line-block">
+<div class="line">Storage your group</div>
+<div class="line">get allocated through</div>
+<div class="line">the storage projects</div>
+</div>
+</td>
+<td><p>Your
+home-
+directory</p></td>
+<td><p>Per node</p></td>
+</tr>
+</tbody>
+</table>
+<p>There is more information about the filesystems at HPC2N here: <a class="reference external" href="https://www.hpc2n.umu.se/filesystems/overview">https://www.hpc2n.umu.se/filesystems/overview</a></p>
+<div class="section" id="project-storage-for-this-course">
+<h3>Project storage for this course<a class="headerlink" href="#project-storage-for-this-course" title="Permalink to this headline">¶</a></h3>
+<p>The project for this course is SNIC2021-22-272. It has default storage of 500 GB, and that is located in the default location:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/proj/nobackup/snic2021-22-272/
+</pre></div>
+</div>
+<p>Unless you ask for a different name for the directory when you apply for it you will get it named after the project’s ID.</p>
+<p>It is always recommended that users create their own subdirectory in the project storage.</p>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Open a terminal window and change directory to the course storage project’s location. Create a personal subdirectory there.</p>
+</div>
+<p>The end of the section <a class="reference internal" href="#editors-at-hpc2n">Editors at HPC2N</a> describes how to open a terminal window when using ThinLinc.</p>
+</div>
+</div>
+<div class="section" id="introduction-to-the-batch-system">
+<h2>Introduction to the batch system<a class="headerlink" href="#introduction-to-the-batch-system" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>HPC2N uses SLURM (Simple Linux Utility for Resource Management) for our batch system. It is an Open Source job scheduler which provides three key functions:</dt><dd><ul class="simple">
+<li><p>Keeps track of the available system resources</p></li>
+<li><p>Enforces local system resource usage and scheduling policies</p></li>
+<li><p>Manages a job queue, distributing work across the resources according to the policies</p></li>
+</ul>
+</dd>
+</dl>
+<p>Large/long/parallel jobs <strong>must</strong> be run through the batch system.</p>
+<p>In order to run a batch job, you either need to give commands to it on the command line, or <strong>preferrably</strong> create and submit a SLURM batch submit file/job script.</p>
+<p>Examples of using the batch system will be given in the “Using Kebnekaise” lecture.</p>
+<p>There are guides and documentation for the batch system and the policies to be found on HPC2N’s website: <a class="reference external" href="https://www.hpc2n.umu.se/support">https://www.hpc2n.umu.se/support</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../setup/" class="btn btn-neutral float-right" title="Introduction to Kebnekaise" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../" class="btn btn-neutral float-left" title="Task-based parallelism in scientific computing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

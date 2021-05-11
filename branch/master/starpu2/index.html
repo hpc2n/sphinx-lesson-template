@@ -1,0 +1,1254 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>StarPU runtime system (part 2) &mdash; Task-based parallelism in scientific computing  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Example: LU factorization" href="../starpu-lu/" />
+    <link rel="prev" title="StarPU runtime system (part 1)" href="../starpu1/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> Task-based parallelism in scientific computing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Day 1</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../hpc2n-intro/">Introduction to HPC2N</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Introduction to Kebnekaise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation/">Introduction to task-based parallelism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics1/">Introduction to OpenMP (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp-basics2/">Introduction to OpenMP (part 2)</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 2</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-1/">OpenMP task basics (part 1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-2/">OpenMP task basics (part 2)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../task-basics-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Day 3</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../two-sided-algorithms/">Demonstration: Two-sided matrix algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu1/">StarPU runtime system (part 1)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">StarPU runtime system (part 2)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-handles-and-interfaces">Data handles and interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distributed-memory">Distributed memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../starpu-lu/">Example: LU factorization</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellanous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Task-based parallelism in scientific computing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>StarPU runtime system (part 2)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/hpc2n/Task-based-parallelism/blob/master/content/starpu2.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="starpu-runtime-system-part-2">
+<h1>StarPU runtime system (part 2)<a class="headerlink" href="#starpu-runtime-system-part-2" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand more about StarPU</p></li>
+<li><p>Understand how StarPU supports distributed memory</p></li>
+<li><p>Understand how StarPU supports GPUs</p></li>
+</ul>
+</div>
+<div class="section" id="data-handles-and-interfaces">
+<h2>Data handles and interfaces<a class="headerlink" href="#data-handles-and-interfaces" title="Permalink to this headline">¶</a></h2>
+<p>A task implementation <strong>should not modify the task arguments</strong> as these changes are not propagated to the other tasks.
+Furthermore, the task arguments do not induce any task dependencies.
+They are therefore only suitable for passing static arguments to the tasks.</p>
+<p><strong>Data handles</strong> are much more flexible as any modification made in one task are passed to the other tasks and these changes also induce task dependencies.
+A data handle (<cite>starpu_data_handle_t</cite>) can encapsulate any conceivable data type.
+However, the built-in data interfaces for scalars, vectors and matrices are adequate for many use cases:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">starpu_variable_data_register</span> <span class="p">(</span><span class="n">starpu_data_handle_t</span> <span class="o">*</span><span class="n">handle</span><span class="p">,</span>
+    <span class="kt">int</span> <span class="n">home_node</span><span class="p">,</span>
+    <span class="kt">uintptr_t</span> <span class="n">ptr</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">size</span>
+<span class="p">)</span>
+
+<span class="cp">#define STARPU_VARIABLE_GET_PTR (interface)</span>
+<span class="cp">#define STARPU_VARIABLE_GET_ELEMSIZE (interface)</span>
+</pre></div>
+</div>
+<p>Above, <cite>home_node</cite> is the <strong>memory node</strong> where the variable is initially stored.
+In most cases, the variable is initially stored in the main memory (<cite>STARPU_MAIN_RAM</cite>).
+The argument <cite>ptr</cite> is a pointer to the variable (in the main memory) and the argument <cite>size</cite> is the size of the variable.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">starpu_vector_data_register</span> <span class="p">(</span><span class="n">starpu_data_handle_t</span> <span class="o">*</span> <span class="n">handle</span><span class="p">,</span>
+    <span class="kt">int</span> <span class="n">home_node</span><span class="p">,</span>
+    <span class="kt">uintptr_t</span> <span class="n">ptr</span><span class="p">,</span>
+    <span class="kt">uint32_t</span> <span class="n">nx</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">elemsize</span>
+<span class="p">)</span>
+
+<span class="cp">#define STARPU_VECTOR_GET_PTR (interface)</span>
+<span class="cp">#define STARPU_VECTOR_GET_NX (interface)</span>
+<span class="cp">#define STARPU_VECTOR_GET_ELEMSIZE (interface)</span>
+</pre></div>
+</div>
+<p>Above, the argument <cite>nx</cite> is the length of the vector and the argument <cite>elemsize</cite> is the size of a vector element.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">starpu_matrix_data_register</span> <span class="p">(</span><span class="n">starpu_data_handle_t</span> <span class="o">*</span> <span class="n">handle</span><span class="p">,</span>
+    <span class="kt">int</span> <span class="n">home_node</span><span class="p">,</span>
+    <span class="kt">uintptr_t</span> <span class="n">ptr</span><span class="p">,</span>
+    <span class="kt">uint32_t</span> <span class="n">ld</span><span class="p">,</span>
+    <span class="kt">uint32_t</span> <span class="n">nx</span><span class="p">,</span>
+    <span class="kt">uint32_t</span> <span class="n">ny</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">elemsize</span>
+<span class="p">)</span>
+
+<span class="cp">#define STARPU_MATRIX_GET_PTR (interface)</span>
+<span class="cp">#define STARPU_MATRIX_GET_NX (interface)</span>
+<span class="cp">#define STARPU_MATRIX_GET_NY (interface)</span>
+<span class="cp">#define STARPU_MATRIX_GET_LD (interface)</span>
+<span class="cp">#define STARPU_MATRIX_GET_ELEMSIZE (interface)</span>
+</pre></div>
+</div>
+<p>Above, the argument <cite>ld</cite> is the leading dimension of the matrix (row-major order), the argument <cite>xn</cite> is the width of the matrix and the argument <cite>ny</cite> is the height of the matrix.</p>
+<p>For example, the following example allocates a matrix and <strong>initializes</strong> a data handle that encapsulates the matrix:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kt">double</span> <span class="o">*</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">ld</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+<span class="hll"><span class="n">starpu_data_handle_t</span> <span class="n">handle</span><span class="p">;</span>
+</span><span class="hll"><span class="n">starpu_matrix_data_register</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">STARPU_MAIN_RAM</span><span class="p">,</span>
+</span><span class="hll">    <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">matrix</span><span class="p">,</span> <span class="n">ld</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+</span></pre></div>
+</td></tr></table></div>
+<div class="figure align-default" id="id1">
+<img alt="../_images/starpu_handles1.png" src="../_images/starpu_handles1.png" />
+<p class="caption"><span class="caption-text">Data handles.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>The above example assumes that the matrix is stored in column-major order.</p>
+<p>Each data handle must be <strong>unregistered</strong> before the main thread can access it again:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This blocks the main thread until all related tasks have been executed.</p>
+<p>The easiest way to pass a data handle to a task is to declare it in the related codelet:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_codelet</span>
+<span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">where</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">can_execute</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="n">workerid</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">starpu_task</span> <span class="o">*</span><span class="n">task</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">nimpl</span><span class="p">);</span>
+    <span class="k">enum</span> <span class="n">starpu_codelet_type</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">max_parallelism</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">cuda_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">opencl_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mic_func_t</span> <span class="n">mic_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mpi_ms_func_t</span> <span class="n">mpi_ms_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cpu_funcs_name</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+<span class="hll">    <span class="kt">int</span> <span class="n">nbuffers</span><span class="p">;</span>
+</span><span class="hll">    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="n">modes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+</span>    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="o">*</span><span class="n">dyn_modes</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">specific_nodes</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nodes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">dyn_nodes</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">energy_model</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">per_worker_stats</span><span class="p">[</span><span class="n">STARPU_NMAXWORKERS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">color</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">checked</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <cite>nbuffers</cite> field stores the total number of data handles the task accepts and the <cite>modes</cite> field tabulates an access mode for each data handle.
+The access mode can be one of the following:</p>
+<dl class="field-list simple">
+<dt class="field-odd">STARPU_NONE</dt>
+<dd class="field-odd"><p>Not documented.</p>
+</dd>
+<dt class="field-even">STARPU_R</dt>
+<dd class="field-even"><p>Read-only mode.</p>
+</dd>
+<dt class="field-odd">STARPU_W</dt>
+<dd class="field-odd"><p>Write-only mode.</p>
+</dd>
+<dt class="field-even">STARPU_RW</dt>
+<dd class="field-even"><p>Read-write mode. Equivalent to <cite>STARPU_R | STARPU_W</cite>.</p>
+</dd>
+<dt class="field-odd">STARPU_SCRATCH</dt>
+<dd class="field-odd"><p>Scratch buffer (one per device).</p>
+</dd>
+<dt class="field-even">STARPU_REDUX</dt>
+<dd class="field-even"><p>The data handle is used in a reduction-type operation.</p>
+</dd>
+<dt class="field-odd">STARPU_COMMUTE</dt>
+<dd class="field-odd"><p>Tasks can access this variable in an arbitrary order.</p>
+</dd>
+<dt class="field-even">STARPU_SSEND</dt>
+<dd class="field-even"><p>The data has to be sent using a synchronous and non-blocking mode (StarPU-MPI).</p>
+</dd>
+<dt class="field-odd">STARPU_LOCALITY</dt>
+<dd class="field-odd"><p>Tells the scheduler that the data handle is sensitive to data locality.</p>
+</dd>
+<dt class="field-even">STARPU_ACCESS_MODE_MAX</dt>
+<dd class="field-even"><p>Not documented.</p>
+</dd>
+</dl>
+<p>Note that this limits the number of data handles passed to a task to <cite>STARPU_NMAXBUFS</cite>.
+Furthermore, all tasks of a particular type must accept the <strong>same number of data handles</strong>.
+The number of data handles passed to a codelet can be arbitrary but this feature is not covered during this course.</p>
+<p>For example, the following example defines a codelet that accepts a single read-write data handle:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">codelet</span> <span class="o">=</span>
+<span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">func</span> <span class="p">},</span>
+<span class="hll">    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class="hll">    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_RW</span> <span class="p">}</span>
+</span><span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>The data handles are passed to the <cite>starpu_task_insert</cite> function:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">starpu_task_insert</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="n">codelet</span><span class="p">,</span>
+<span class="hll">    <span class="n">STARPU_RW</span><span class="p">,</span>
+</span><span class="hll">    <span class="n">handle</span><span class="p">,</span>
+</span>    <span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</td></tr></table></div>
+<p>Finally, the task implementation extracts a matching <strong>data interface</strong> from the implementation arguments:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="hll">    <span class="k">struct</span> <span class="nc">starpu_matrix_interface</span> <span class="o">*</span><span class="n">interface</span> <span class="o">=</span>
+</span><span class="hll">        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_matrix_interface</span> <span class="o">*</span><span class="p">)</span><span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span>
+<span class="hll">    <span class="kt">double</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_MATRIX_GET_PTR</span><span class="p">(</span><span class="n">interface</span><span class="p">);</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">STARPU_MATRIX_GET_NX</span><span class="p">(</span><span class="n">interface</span><span class="p">);</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="n">STARPU_MATRIX_GET_NY</span><span class="p">(</span><span class="n">interface</span><span class="p">);</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="n">ld</span> <span class="o">=</span> <span class="n">STARPU_MATRIX_GET_LD</span><span class="p">(</span><span class="n">interface</span><span class="p">);</span>
+</span>
+    <span class="n">process</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">ld</span><span class="p">,</span> <span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="figure align-default" id="id2">
+<img alt="../_images/starpu_handles2.png" src="../_images/starpu_handles2.png" />
+<p class="caption"><span class="caption-text">Data interfaces. The pointers <cite>matrix</cite> and <cite>ptr</cite> do not necessarily point to the same memory location.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>The runtime system guarantees that <strong>data resides in the device memory</strong> when a worker thread starts executing the task.
+If necessary, StarPU copies the data from one memory space to another.
+The scalar and vector data handles have their own interfaces: <cite>starpu_variable_interface</cite> and <cite>starpu_vector_interface</cite>.</p>
+<p>If two tasks are given the same data handle in their argument lists, then an <strong>implicit data dependency</strong> may be induced between the tasks:</p>
+<div class="figure align-default" id="id3">
+<img alt="../_images/starpu_depedencies.png" src="../_images/starpu_depedencies.png" />
+<p class="caption"><span class="caption-text">Two examples of data dependencies</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition-challenge challenge admonition">
+<p class="admonition-title">Challenge</p>
+<p>Modify the example below as follows:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Write a new task implementation (<cite>add_cpu</cite>) that</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>accepts three data handles (variable / <cite>int</cite>) as arguments (<cite>buffers[0]</cite>, <cite>buffers[1]</cite> and <cite>buffers[2]</cite>),</p></li>
+<li><p>extracts the data interfaces from <cite>buffers</cite>: <cite>a_i</cite>, <cite>b_i</cite> and <cite>c_i</cite></p></li>
+<li><p>adds up the first two arguments and stores the result to the third argument.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Write the corresponding codelet (<cite>add_cl</cite>).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Remember, the first two data handles are <cite>STARPU_R</cite> and the third <cite>STARPU_W</cite>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Create three integer variables (<cite>int</cite>): <cite>a</cite>, <cite>b</cite> and <cite>c</cite>. Initialize <cite>b</cite> to <cite>7</cite>.</p></li>
+<li><p>Register a data handle for each variable: <cite>a_h</cite>, <cite>b_h</cite> and <cite>c_h</cite>.</p></li>
+<li><p>Insert an <cite>init_cl</cite> task that initializes <cite>a_h</cite> to 10.</p></li>
+<li><p>Insert an <cite>add_cl</cite> task and give <cite>a_h</cite>, <cite>b_h</cite> and <cite>c_h</cite> as arguments.</p></li>
+<li><p>Unregister <cite>a_h</cite>, <cite>b_h</cite> and <cite>c_h</cite>.</p></li>
+<li><p>Print the variables <cite>a</cite>, <cite>b</cite> and <cite>c</cite>.</p></li>
+</ol>
+</div></blockquote>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// a task implementation that initializes a variable to 10</span>
+<span class="kt">void</span> <span class="nf">init_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="n">a_i</span> <span class="o">=</span>
+        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="p">)</span> <span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">a_i</span><span class="p">);</span>
+    <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// a task implementation that adds two numbers and return the sum</span>
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">init_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">init_cpu</span> <span class="p">},</span>
+    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_W</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="c1">// initialize all data handles</span>
+    <span class="n">starpu_data_handle_t</span> <span class="n">a_h</span><span class="p">;</span>
+    <span class="n">starpu_variable_data_register</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">a_h</span><span class="p">,</span> <span class="n">STARPU_MAIN_RAM</span><span class="p">,</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+
+    <span class="c1">// insert tasks</span>
+    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">init_cl</span><span class="p">,</span> <span class="n">STARPU_W</span><span class="p">,</span> <span class="n">a_h</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="c1">// unregister all data handles</span>
+    <span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">a_h</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="admonition-solution solution dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// a task implementation that initializes a variable to 10</span>
+<span class="kt">void</span> <span class="nf">init_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="n">a_i</span> <span class="o">=</span>
+        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="p">)</span> <span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">a_i</span><span class="p">);</span>
+    <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="c1">// a task implementation that adds two numbers and returns the sum</span>
+</span><span class="hll"><span class="kt">void</span> <span class="nf">add_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="n">a_i</span> <span class="o">=</span>
+</span><span class="hll">        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="p">)</span> <span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">a_i</span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="n">b_i</span> <span class="o">=</span>
+</span><span class="hll">        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="p">)</span> <span class="n">buffers</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="o">*</span><span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">b_i</span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="n">c_i</span> <span class="o">=</span>
+</span><span class="hll">        <span class="p">(</span><span class="k">struct</span> <span class="nc">starpu_variable_interface</span> <span class="o">*</span><span class="p">)</span> <span class="n">buffers</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span><span class="hll">    <span class="kt">int</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">c_i</span><span class="p">);</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="n">a</span> <span class="o">+</span> <span class="o">*</span><span class="n">b</span><span class="p">;</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="c1">// initialization codelet</span>
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">init_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">init_cpu</span> <span class="p">},</span>
+    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_W</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="hll"><span class="c1">// addition codelet</span>
+</span><span class="hll"><span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">add_cl</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="hll">    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">add_cpu</span> <span class="p">},</span>
+</span><span class="hll">    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class="hll">    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_R</span><span class="p">,</span> <span class="n">STARPU_R</span><span class="p">,</span> <span class="n">STARPU_W</span> <span class="p">}</span>
+</span><span class="hll"><span class="p">};</span>
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="hll">    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">c</span><span class="p">;</span>
+</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="c1">// initialize all data handles</span>
+<span class="hll">    <span class="n">starpu_data_handle_t</span> <span class="n">a_h</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">c_h</span><span class="p">;</span>
+</span>    <span class="n">starpu_variable_data_register</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">a_h</span><span class="p">,</span> <span class="n">STARPU_MAIN_RAM</span><span class="p">,</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+<span class="hll">    <span class="n">starpu_variable_data_register</span><span class="p">(</span>
+</span><span class="hll">        <span class="o">&amp;</span><span class="n">b_h</span><span class="p">,</span> <span class="n">STARPU_MAIN_RAM</span><span class="p">,</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">b</span><span class="p">));</span>
+</span><span class="hll">    <span class="n">starpu_variable_data_register</span><span class="p">(</span>
+</span><span class="hll">        <span class="o">&amp;</span><span class="n">c_h</span><span class="p">,</span> <span class="n">STARPU_MAIN_RAM</span><span class="p">,</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">c</span><span class="p">));</span>
+</span>
+    <span class="c1">// insert tasks</span>
+    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">init_cl</span><span class="p">,</span> <span class="n">STARPU_W</span><span class="p">,</span> <span class="n">a_h</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="hll">    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">add_cl</span><span class="p">,</span> <span class="n">STARPU_R</span><span class="p">,</span> <span class="n">a_h</span><span class="p">,</span> <span class="n">STARPU_R</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">STARPU_W</span><span class="p">,</span> <span class="n">c_h</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span>
+    <span class="c1">// unregister all data handles</span>
+    <span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">a_h</span><span class="p">);</span>
+<span class="hll">    <span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">b_h</span><span class="p">);</span>
+</span><span class="hll">    <span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">c_h</span><span class="p">);</span>
+</span>
+<span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d + %d = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o starpu_program starpu_program.c -Wall -lstarpu-1.3
+$ ./starpu_program
+<span class="m">10</span> + <span class="nv">7</span> <span class="o">=</span> <span class="m">17</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="distributed-memory">
+<h2>Distributed memory<a class="headerlink" href="#distributed-memory" title="Permalink to this headline">¶</a></h2>
+<p>StarPU supports distributed memory through MPI in three different ways:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Without StarPU-MPI.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A programmer must manually transfer the data between StarPU data handles and MPI.</p></li>
+<li><p>Not generally recommended but might be a good stopgap solution.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>With StarPU-MPI.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A programmer replaces the <code class="code docutils literal notranslate"><span class="pre">MPI_Recv()</span></code> and <code class="code docutils literal notranslate"><span class="pre">MPI_Send()</span></code> calls with <code class="code docutils literal notranslate"><span class="pre">starpu_mpi_irecv_detached()</span></code> and <code class="code docutils literal notranslate"><span class="pre">starpu_mpi_isend_detached()</span></code> calls.
+These functions act directly on the StarPU data handles.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>With MPI Insert Task Utility.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A programmer replaces the <code class="code docutils literal notranslate"><span class="pre">starpu_task_insert()</span></code> calls with <code class="code docutils literal notranslate"><span class="pre">starpu_mpi_task_insert()</span></code> calls.
+In addition, one must use the <code class="code docutils literal notranslate"><span class="pre">starpu_mpi_data_register()</span></code> function to tell which MPI process owns each data handle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+<p>The second and third approach allocate one CPU core for MPI communications.
+In the third approach, the <code class="code docutils literal notranslate"><span class="pre">starpu_mpi_task_insert()</span></code> function takes into account the task dependencies and the data distribution, and <strong>generates the necessary communication pattern automatically</strong>:</p>
+<div class="figure align-default">
+<img alt="../_images/mpi.png" src="../_images/mpi.png" />
+</div>
+<p>In the above illustration, each MPI process has a copy of the entire task graph.
+Two things can happen:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>If the MPI process is going to execute a task, it can <strong>receive</strong> any missing data handle from the MPI process that owns the data handle.</p></li>
+<li><p>If the MPI process is not going to execute a task, it will <strong>send</strong> any data handles it owns to the MPI process that is going to execute the task.</p></li>
+</ol>
+</div></blockquote>
+<p>This all happens automatically and asynchronously.
+The task implementations do not require any modifications!
+StarPU-MPI also implements a MPI cache that caches data handles that were not modified.</p>
+<p>Consider the following example where each MPI process writes its rank to a data handle and then passes it to the neighbouring MPI process:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu_mpi.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// a codelet that initializes a data handle with a MPI process&#39; world rank</span>
+
+<span class="kt">void</span> <span class="nf">write_number_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">world_rank</span> <span class="o">=</span> <span class="n">starpu_mpi_world_rank</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+
+    <span class="o">*</span><span class="n">value</span> <span class="o">=</span> <span class="n">world_rank</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Rank %d writes value %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">world_rank</span><span class="p">,</span> <span class="o">*</span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">write_number_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">write_number_cpu</span> <span class="p">},</span>
+    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_W</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// a codelet that prints the contents of a data handle</span>
+
+<span class="kt">void</span> <span class="nf">read_number_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">world_rank</span> <span class="o">=</span> <span class="n">starpu_mpi_world_rank</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span> <span class="n">STARPU_VARIABLE_GET_PTR</span><span class="p">(</span><span class="n">buffers</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Rank %d reads value %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">world_rank</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">read_number_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">read_number_cpu</span> <span class="p">},</span>
+    <span class="p">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">STARPU_R</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// initialize MPI</span>
+    <span class="kt">int</span> <span class="n">thread_support</span><span class="p">;</span>
+    <span class="n">MPI_Init_thread</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">***</span><span class="p">)</span><span class="o">&amp;</span><span class="n">argv</span><span class="p">,</span> <span class="n">MPI_THREAD_MULTIPLE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">thread_support</span><span class="p">);</span>
+
+    <span class="c1">// initialize StarPU</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="hll">    <span class="c1">// initialize StarPU-MPI</span>
+</span><span class="hll">    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_mpi_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu-MPI.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+    <span class="c1">// query world communicator&#39;s size</span>
+    <span class="kt">int</span> <span class="n">world_size</span> <span class="o">=</span> <span class="n">starpu_mpi_world_size</span><span class="p">();</span>
+
+    <span class="c1">// initialize all data handles</span>
+    <span class="n">starpu_data_handle_t</span> <span class="n">handles</span><span class="p">[</span><span class="n">world_size</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">world_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// register a data handle that is going to be initialized later</span>
+        <span class="n">starpu_variable_data_register</span><span class="p">(</span>
+            <span class="o">&amp;</span><span class="n">handles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">-1</span><span class="p">,</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+<span class="hll">        <span class="c1">// register data handle&#39;s owner and tag</span>
+</span><span class="hll">        <span class="n">starpu_mpi_data_register</span><span class="p">(</span><span class="n">handles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span>    <span class="p">}</span>
+
+    <span class="c1">// insert tasks that initialize the data handles</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">world_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="hll">        <span class="n">starpu_mpi_task_insert</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">write_number_cl</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">STARPU_EXECUTE_ON_DATA</span><span class="p">,</span> <span class="n">handles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="c1">// data handles owner executes</span>
+</span><span class="hll">            <span class="n">STARPU_W</span><span class="p">,</span> <span class="n">handles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">);</span>
+</span>
+    <span class="c1">// insert tasks that print the data handles</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">world_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="hll">        <span class="n">starpu_mpi_task_insert</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">read_number_cl</span><span class="p">,</span>
+</span><span class="hll">            <span class="n">STARPU_EXECUTE_ON_NODE</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>          <span class="c1">// rank i executes</span>
+</span><span class="hll">            <span class="n">STARPU_R</span><span class="p">,</span> <span class="n">handles</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">world_size</span><span class="p">],</span> <span class="mi">0</span><span class="p">);</span>
+</span>
+    <span class="c1">// unregister all data handles</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">world_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">starpu_data_unregister</span><span class="p">(</span><span class="n">handles</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+    <span class="c1">// de-initialize everything</span>
+<span class="hll">    <span class="n">starpu_mpi_shutdown</span><span class="p">();</span>
+</span>    <span class="n">starpu_shutdown</span><span class="p">();</span>
+    <span class="n">MPI_Finalize</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>We are going to launch four MPI processes and allocate two CPU cores for each process:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ gcc -o my_program my_program.c -lstarpu-1.3 -lstarpumpi-1.3 -lmpi -Wall
+$ <span class="nv">STARPU_WORKERS_NOBIND</span><span class="o">=</span><span class="m">1</span> mpirun -n <span class="m">4</span> --map-by :PE<span class="o">=</span><span class="m">2</span> ./my_program
+<span class="hll">Rank <span class="m">1</span> writes value <span class="m">1</span>.
+</span><span class="hll">Rank <span class="m">0</span> writes value <span class="m">0</span>.
+</span><span class="hll">Rank <span class="m">2</span> writes value <span class="m">2</span>.
+</span><span class="hll">Rank <span class="m">3</span> reads value <span class="m">0</span>.
+</span><span class="hll">Rank <span class="m">3</span> writes value <span class="m">3</span>.
+</span><span class="hll">Rank <span class="m">0</span> reads value <span class="m">1</span>.
+</span><span class="hll">Rank <span class="m">1</span> reads value <span class="m">2</span>.
+</span><span class="hll">Rank <span class="m">2</span> reads value <span class="m">3</span>.
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="accelerators">
+<h2>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this headline">¶</a></h2>
+<p>As you may remember, a StarPU codelet included a field for CUDA implementations:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_codelet</span>
+<span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">where</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">can_execute</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="n">workerid</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">starpu_task</span> <span class="o">*</span><span class="n">task</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">nimpl</span><span class="p">);</span>
+    <span class="k">enum</span> <span class="n">starpu_codelet_type</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">max_parallelism</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+<span class="hll">    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+</span>    <span class="kt">char</span> <span class="n">cuda_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">opencl_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mic_func_t</span> <span class="n">mic_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mpi_ms_func_t</span> <span class="n">mpi_ms_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cpu_funcs_name</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nbuffers</span><span class="p">;</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="n">modes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="o">*</span><span class="n">dyn_modes</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">specific_nodes</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nodes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">dyn_nodes</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">energy_model</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">per_worker_stats</span><span class="p">[</span><span class="n">STARPU_NMAXWORKERS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">color</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">checked</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>Unfortunately we do not have time to cover all the complexities related to GPU offloading.
+Instead, we will simply consider the following example:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;starpu.h&gt;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">hello_world_cpu</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;The host says, Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="hll"><span class="n">__global__</span> <span class="kt">void</span> <span class="n">say_hello</span><span class="p">()</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;A device says, Hello world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="hll"><span class="kt">void</span> <span class="n">hello_world_cuda</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffers</span><span class="p">[],</span> <span class="kt">void</span> <span class="o">*</span><span class="n">cl_arg</span><span class="p">)</span>
+</span><span class="hll"><span class="p">{</span>
+</span><span class="hll">    <span class="n">cudaStream_t</span> <span class="n">stream</span> <span class="o">=</span> <span class="n">starpu_cuda_get_local_stream</span><span class="p">();</span>
+</span><span class="hll">    <span class="n">say_hello</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</span><span class="hll">    <span class="n">cudaError</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+</span><span class="hll">    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">STARPU_CUDA_REPORT_ERROR</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="k">struct</span> <span class="nc">starpu_codelet</span> <span class="n">hello_world_cl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">cpu_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cpu</span> <span class="p">},</span>
+<span class="hll">    <span class="p">.</span><span class="n">cuda_funcs</span> <span class="o">=</span> <span class="p">{</span> <span class="n">hello_world_cuda</span> <span class="p">}</span>
+</span><span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">starpu_init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Starpu.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">starpu_task_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hello_world_cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">starpu_task_wait_for_all</span><span class="p">();</span>
+    <span class="n">starpu_shutdown</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>That is, we must add a task implementation (<code class="code docutils literal notranslate"><span class="pre">hello_world_cuda</span></code>) that inserts a CUDA kernel (<code class="code docutils literal notranslate"><span class="pre">say_hello</span></code>) to the provided local CUDA stream (<code class="code docutils literal notranslate"><span class="pre">stream</span></code>).
+Note how the naive <code class="code docutils literal notranslate"><span class="pre">eager</span></code> scheduler prefers to use the CPU implementation where as the GPU-aware <code class="code docutils literal notranslate"><span class="pre">dm</span></code> scheduler prefers the GPU:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ nvcc -o my_program my_program.cu -lstarpu-1.3 -Xcompiler<span class="o">=</span><span class="s2">&quot;-Wall&quot;</span>
+$ <span class="nv">STARPU_SCHED</span><span class="o">=</span>eager ./my_program
+<span class="hll">The host says, Hello world!
+</span>$ <span class="nv">STARPU_SCHED</span><span class="o">=</span>dm ./my_program
+<span class="hll">A device says, Hello world!
+</span></pre></div>
+</div>
+<p>If we want to obtain a reasonable performance using GPUs, we must define a performance model for each codelet:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_codelet</span>
+<span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">where</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">can_execute</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="n">workerid</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">starpu_task</span> <span class="o">*</span><span class="n">task</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">nimpl</span><span class="p">);</span>
+    <span class="k">enum</span> <span class="n">starpu_codelet_type</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">max_parallelism</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_func</span> <span class="n">STARPU_DEPRECATED</span><span class="p">;</span>
+    <span class="n">starpu_cpu_func_t</span> <span class="n">cpu_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_cuda_func_t</span> <span class="n">cuda_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">cuda_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_opencl_func_t</span> <span class="n">opencl_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">opencl_flags</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mic_func_t</span> <span class="n">mic_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="n">starpu_mpi_ms_func_t</span> <span class="n">mpi_ms_funcs</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cpu_funcs_name</span><span class="p">[</span><span class="n">STARPU_MAXIMPLEMENTATIONS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nbuffers</span><span class="p">;</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="n">modes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="k">enum</span> <span class="n">starpu_data_access_mode</span> <span class="o">*</span><span class="n">dyn_modes</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">specific_nodes</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nodes</span><span class="p">[</span><span class="n">STARPU_NMAXBUFS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">dyn_nodes</span><span class="p">;</span>
+<span class="hll">    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">model</span><span class="p">;</span>
+</span>    <span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="o">*</span><span class="n">energy_model</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">per_worker_stats</span><span class="p">[</span><span class="n">STARPU_NMAXWORKERS</span><span class="p">];</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">color</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">checked</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the simplest case, the model can use the run time history to predict the execution times:</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">STARPU_HISTORY_BASED</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>StarPU also supports regression based performance models (<code class="code docutils literal notranslate"><span class="pre">STARPU_REGRESSION_BASED</span></code>, <code class="code docutils literal notranslate"><span class="pre">STARPU_NL_REGRESSION_BASED</span></code>, <code class="code docutils literal notranslate"><span class="pre">STARPU_MULTIPLE_REGRESSION_BASED</span></code>):</p>
+<div class="highlight-c notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">starpu_perfmodel</span> <span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">STARPU_REGRESSION_BASED</span>
+<span class="p">};</span>
+</pre></div>
+</td></tr></table></div>
+<p>By default, StarPU calculates the model argument (base) from the amount of memory required to store all involved data handles.
+However, a programmer may provide a custom function for this.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../starpu-lu/" class="btn btn-neutral float-right" title="Example: LU factorization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../starpu1/" class="btn btn-neutral float-left" title="StarPU runtime system (part 1)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
