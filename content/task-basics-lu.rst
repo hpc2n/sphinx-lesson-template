@@ -270,8 +270,8 @@ We can compile and test the algorithm:
 
     $ gcc -o scalar scalar.c  -Wall ${LIBLAPACK} ${LIBBLAS}
     $ ./scalar 3000
-    Time = TODO
-    Residual = TODO
+    Time = 120.412646 s
+    Residual = 1.780586E-15
 
 Above, :code:`${LIBLAPACK}` and :code:`${LIBBLAS}` are the LAPACK and BLAS libraries, respectively.
 
@@ -602,8 +602,8 @@ We can compile and test the algorithm:
 
     $ gcc -o coarse-blocked coarse-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
     $ ./coarse-blocked 3000 128
-    Time = TODO
-    Residual = TODO
+    Time = 0.480420 s
+    Residual = 3.917427E-16
 
 The second argument is the block size.
 We can see that the blocked variant is significantly faster even before it is parallelized.
@@ -687,8 +687,8 @@ Challenge
 
         $ gcc -o section-coarse-blocked section-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./section-coarse-blocked 3000 128
-        Time = TODO
-        Residual = TODO
+        Time = 0.551918 s
+        Residual = 3.958161E-16
         
     .. code-block:: c
         :linenos:
@@ -754,10 +754,10 @@ Challenge
 
         $ gcc -o task-coarse-blocked task-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./task-coarse-blocked 3000 128
-        Time = TODO
-        Residual = TODO
+        Time = 0.554252 s
+        Residual = 3.743216E-16
         
-    No difference in run time due to limited level of parallelism.
+    No difference or a slight increase in run time due to limited level of parallelism.
     
 Finely-blocked algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1180,8 +1180,8 @@ Test program
 
     $ gcc -o finely-blocked finely-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
     $ ./finely-blocked 3000 128
-    Time = TODO
-    Residual = TODO
+    Time = 0.587407 s
+    Residual = 3.958161E-16
     
 Challenge
 """""""""
@@ -1325,8 +1325,8 @@ Challenge
 
         $ gcc -o task-finely-blocked task-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
         $ ./task-finely-blocked 3000 128
-        Time = TODO
-        Residual = TODO
+        Time = 0.140051 s
+        Residual = 3.882186E-16
 
 Priorities
 ^^^^^^^^^^
