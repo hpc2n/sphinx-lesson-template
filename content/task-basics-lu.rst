@@ -269,7 +269,7 @@ We can compile and test the algorithm:
 .. code-block:: bash
 
     $ gcc -o scalar scalar.c  -Wall ${LIBLAPACK} ${LIBBLAS}
-    $ ./scalar 3000
+    $ OMP_NUM_THREADS=1 ./scalar 3000
     Time = 120.412646 s
     Residual = 1.780586E-15
 
@@ -601,7 +601,7 @@ We can compile and test the algorithm:
 .. code-block:: bash
 
     $ gcc -o coarse-blocked coarse-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
-    $ ./coarse-blocked 3000 128
+    $ OMP_NUM_THREADS=1 ./coarse-blocked 3000 128
     Time = 0.480420 s
     Residual = 3.917427E-16
 
@@ -686,7 +686,7 @@ Challenge
     .. code-block:: bash
 
         $ gcc -o section-coarse-blocked section-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
-        $ ./section-coarse-blocked 3000 128
+        $ OMP_NUM_THREADS=28 ./section-coarse-blocked 3000 128
         Time = 0.551918 s
         Residual = 3.958161E-16
         
@@ -753,7 +753,7 @@ Challenge
     .. code-block:: bash
 
         $ gcc -o task-coarse-blocked task-coarse-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
-        $ ./task-coarse-blocked 3000 128
+        $ OMP_NUM_THREADS=28 ./task-coarse-blocked 3000 128
         Time = 0.554252 s
         Residual = 3.743216E-16
         
@@ -1179,7 +1179,7 @@ Test program
 .. code-block:: bash
 
     $ gcc -o finely-blocked finely-blocked.c -Wall ${LIBLAPACK} ${LIBBLAS}
-    $ ./finely-blocked 3000 128
+    $ OMP_NUM_THREADS=1 ./finely-blocked 3000 128
     Time = 0.587407 s
     Residual = 3.958161E-16
     
@@ -1324,7 +1324,7 @@ Challenge
     .. code-block:: bash
 
         $ gcc -o task-finely-blocked task-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
-        $ ./task-finely-blocked 3000 128
+        $ OMP_NUM_THREADS=28 ./task-finely-blocked 3000 128
         Time = 0.140051 s
         Residual = 3.882186E-16
 
@@ -1485,6 +1485,6 @@ Above, the priority is given by :code:`omp_get_max_task_priority() - offset`.
     .. code-block:: bash
 
         $ gcc -o prio-finely-blocked prio-finely-blocked.c -Wall -fopenmp ${LIBLAPACK} ${LIBBLAS}
-        $ ./prio-finely-blocked 3000 128
+        $ OMP_NUM_THREADS=28 ./prio-finely-blocked 3000 128
         Time = TODO
         Residual = TODO
