@@ -10,6 +10,30 @@ OpenMP task basics (part 1)
  - Learn how to construct a task graph in a centralised manner.
  - Learn how to wait tasks to complete their execution.
 
+.. important::
+
+    The Kebnekaise login and compute nodes have the :code:`OMP_NUM_THREADS` environmental variable set to :code:`1` by default.
+    
+    1. If you are using the Kebnekaise login nodes to experiment with OpenMP, then it is important to set the :code:`OMP_NUM_THREADS` environmental variable to some reasonable value:
+
+        .. code-block:: bash
+
+            $ export OMP_NUM_THREADS=8
+
+       Please note that you are not allowed to run long computations on the login nodes!
+    
+    2. If you are using the Kebnekaise compute nodes to experiment with OpenMP, then either **unset** the :code:`OMP_NUM_THREADS` environmental variable:
+
+       .. code-block:: bash
+
+            $ unset OMP_NUM_THREADS
+
+       or, if you specified the :code:`--cpus-per-task=<cpu count>` SLURM argument, set the :code:`OMP_NUM_THREADS` environmental variable to the number of CPU cores available for the task:
+
+        .. code-block:: bash
+
+            $ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+ 
 Terminology
 ^^^^^^^^^^^
 
